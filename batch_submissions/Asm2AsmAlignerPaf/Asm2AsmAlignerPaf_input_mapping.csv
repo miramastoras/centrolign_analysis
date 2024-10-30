@@ -3,3 +3,5 @@ asm2asmAlignerPaf.aligner,scalar,$input.aligner
 asm2asmAlignerPaf.preset,scalar,$input.preset
 asm2asmAlignerPaf.queryAssembly,scalar,$input.queryAssembly
 asm2asmAlignerPaf.refAssembly,scalar,$input.refAssembly
+asm2asmAlignerPaf.dockerImage,scalar,$input.dockerImage
+asm2asmAlignerPaf.kmerSize,scalar,$input.kmerSize

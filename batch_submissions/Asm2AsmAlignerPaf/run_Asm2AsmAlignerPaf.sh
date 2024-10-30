@@ -24,7 +24,7 @@ python3 /Users/miramastoras/Desktop/Paten_lab/hprc_intermediate_assembly/hpc/lau
 ## on HPC...
 
 ## check that github repo is up to date
-git -C  /private/groups/patenlab/mira/phoenix_batch_submissions pull
+git -C  /private/groups/patenlab/mira/centrolign/github/centrolign_analysis/ pull
 
 # move to working dir
 mkdir -p /private/groups/patenlab/mira/centrolign/batch_submissions/Asm2AsmAlignerPaf
@@ -37,9 +37,10 @@ mkdir -p slurm_logs
 export PYTHONPATH="/private/home/juklucas/miniconda3/envs/toil/bin/python"
 
 # submit job
+# skipping HG01123 for now because it only has hap2
 sbatch \
      --job-name=Asm2AsmAlignerPaf \
-     --array=[2]%1 \
+     --array=[1-10]%10 \
      --partition=medium \
      --time=12:00:00 \
      --cpus-per-task=32 \
