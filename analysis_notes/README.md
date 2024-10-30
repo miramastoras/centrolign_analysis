@@ -1,0 +1,1 @@
+- initial test: 190 haplotypes from HPRC release 2 

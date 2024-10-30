@@ -1,0 +1,5 @@
+input,type,value
+asm2asmAlignerPaf.aligner,scalar,$input.aligner
+asm2asmAlignerPaf.preset,scalar,$input.preset
+asm2asmAlignerPaf.queryAssembly,scalar,$input.queryAssembly
+asm2asmAlignerPaf.refAssembly,scalar,$input.refAssembly
