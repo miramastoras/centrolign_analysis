@@ -66,7 +66,7 @@ python3 /private/groups/patenlab/mira/centrolign/github/centromere-scripts/bench
 ### for each assembly, split fasta by chromosome
 
 # switch haplotypes labels
-SAMPLE==$(echo "$SAMPLE_ID" | sed 's/_hap[12]//')
+SAMPLE=$(echo "$SAMPLE_ID" | sed 's/_hap[12]//')
 
 if [[ "${SAMPLE_ID}" == *"hap1"* ]]; then
       PARNUM=2

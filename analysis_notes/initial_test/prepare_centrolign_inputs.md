@@ -26,4 +26,17 @@ Run sbatch script
 
 https://github.com/miramastoras/centrolign_analysis/tree/main/batch_submissions/extract_hors_from_assemblies_sbatch
 
-#### 3. Run centrolign 
+#### 3. Run centrolign
+
+List chr12 fasta files
+```
+ls | while read line ; do realpath $line/*.fasta ; done | grep "parnum" > fasta_list.txt
+
+# 161 / 189 did not have chr12 filtered out
+```
+Combine files
+```
+cd /private/groups/patenlab/mira/centrolign/batch_submissions/extract_hors_from_assemblies_sbatch
+
+cat fasta_list.txt | while read line ; do cat $line ; done > chr12_hprc_r2_initial_test.fasta
+```
