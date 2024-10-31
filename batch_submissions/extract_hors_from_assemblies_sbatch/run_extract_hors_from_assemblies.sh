@@ -9,4 +9,4 @@ mkdir -p slurm_logs
 
 sbatch extract_hors_from_assemblies.sh \
   --sample_csv extract_hors_from_assemblies_sbatch.csv \
-  --array=[1]%1 
+  --array=[1]%1

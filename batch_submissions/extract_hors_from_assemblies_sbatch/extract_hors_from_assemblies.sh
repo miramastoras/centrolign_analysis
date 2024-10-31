@@ -8,47 +8,9 @@
 #SBATCH --time=1:00:00
 #SBATCH --partition=short
 #SBATCH --output=slurm_logs/submission_%x_%j_%A_%a.log
+#SBATCH --array=[1]%1
 
 set -e
-
-# Fetch input arguments with this while loop
-# Adpated from "https://stackoverflow.com/a/7069755"
-while [ $# -gt 0 ]; do
-  case "$1" in
-    -h|--help)
-     cat << 'EOF'
-
-      Usage:
-
-      sbatch extract_hors_from_assemblies.sh \
-        --sample_csv /path/your/sample_table.csv
-
-      Options:
-
-      -h, --help               Show brief help
-      -s, --sample_csv         Path to a CSV file that has sample IDs in the first column
-                               should have a header (otherwise the first sample will be skipped)
-                               and the sample names should be in the first column. Assembly should
-                               be in the second column, and paf to third column
-EOF
-      exit 0
-      ;;
-    -s|--sample_csv)
-      shift
-      if [ $# -gt 0 ]; then
-        export SAMPLE_CSV=$1
-      else
-        echo "Error: No sample csv specified"
-        exit 1
-      fi
-      shift
-      ;;
-    *)
-      break
-      ;;
-  esac
-done
-
 set -x
 
 ###############################################################################
@@ -56,6 +18,7 @@ set -x
 ###############################################################################
 
 OUTDIR=/private/groups/patenlab/mira/centrolign/batch_submissions/extract_hors_from_assemblies_sbatch
+SAMPLE_CSV=$1
 
 # Read the CSV file and extract the sample ID for the current job array task
 # Skip first row to avoid the header
