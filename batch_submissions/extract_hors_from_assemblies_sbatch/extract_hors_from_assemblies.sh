@@ -48,6 +48,11 @@ gunzip ${OUTDIR}/${SAMPLE_ID}/tmp_files/${ASSEMBLY_BASENAME}
 
 ASM_LOCAL="${OUTDIR}/${SAMPLE_ID}/tmp_files/${ASSEMBLY_BASENAME%.gz}"
 
+ls ${CENSAT}
+ls ${AS_HOR_SF}
+ls ${PAF}
+ls ${ASM_LOCAL}
+
 # run locate hors script
 python3 /private/groups/patenlab/mira/centrolign/github/centromere-scripts/benchmarking/locate_hors_from_censat.py \
     -c ${CENSAT} \
@@ -57,3 +62,11 @@ python3 /private/groups/patenlab/mira/centrolign/github/centromere-scripts/bench
     > ${OUTDIR}/${SAMPLE_ID}/${SAMPLE_ID}_hor_arrays.bed
 
 # for each assembly, split fasta by chromosome
+if [[ "${SAMPLE_ID}" == *"$hap1"* ]]; then
+  then
+      PARNUM=2
+else
+  PARNUM=1
+fi
+
+REGIONFILE=${OUTDIR}/${SAMPLE_ID}/${SAMPLE_ID}_hor_arrays.bed
