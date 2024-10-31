@@ -102,6 +102,8 @@ STRAND=$(grep $CHR ${OUTDIR}/${SAMPLE_ID}/${SAMPLE_ID}_hor_arrays.bed | cut -f 6
             /private/groups/patenlab/mira/centrolign/github/centromere-scripts/data_processing_utils/fasta_to_rev_comp.py $HORFASTA > $TMPFILE
             mv $TMPFILE $HORFASTA
         fi
+    else
+      echo "$SAMPLE_ID $CHR was filtered out"
     fi
 
 rm -rf ${OUTDIR}/${SAMPLE_ID}/tmp_files/
