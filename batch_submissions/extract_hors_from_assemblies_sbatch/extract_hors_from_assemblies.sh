@@ -8,7 +8,7 @@
 #SBATCH --time=1:00:00
 #SBATCH --partition=short
 #SBATCH --output=slurm_logs/submission_%x_%j_%A_%a.log
-#SBATCH --array=[1]%1
+#SBATCH --array=[1,181]%2
 
 set -e
 set -x
@@ -76,7 +76,7 @@ else
   HPRC_PARENT=hap2
 fi
 
-CHR=12
+CHR=chr12
 
 REGIONFILE=${OUTDIR}/${SAMPLE_ID}/${SAMPLE_ID}.chr12.hor.txt
 
