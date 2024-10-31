@@ -8,7 +8,7 @@ wdl: https://github.com/miramastoras/hpp_production_workflows/blob/master/QC/wdl
 
 batch submission: https://docs.google.com/spreadsheets/d/1is_jiWsDoqj_1QIcunGJLoojmToX3z9TFvTSEWCY2jA/edit?gid=0#gid=0
 
-#### 2. Prepare per - chromosome hor array bed file
+#### 2. Extract chr12 HOR arrays for each assembly and format correctly
 
 Jordan's script [locate_hors_from_censat.py](https://github.com/jeizenga/centromere-scripts/blob/main/benchmarking/locate_hors_from_censat.py) takes in alignment to chm13, censat annotation and creates a single bed entry for every hor array, filtering out hor arrays that are mapped to the wrong chromosome, or any that are broken / discontiguous. It also only keeps cross-chromosomal groups where all of them are fully resolved because in these cases if we have loose contigs that we can’t assign to a chromosome, we don’t know for sure that they DIDN’T come from one of the ones that look complete. This could potentially result in low sample sizes for cross-chromosomal groups containing both acrocentrics and metacentrics  
 
@@ -21,3 +21,9 @@ ls | while read line ; do realpath ${line}/*.as_hor_sf.bed ; done > /private/gro
 
 ls | while read line ; do realpath ${line}/*.cenSat.bed ; done > /private/groups/patenlab/mira/centrolign/annotations/cenSat_files.csv
 ```
+
+Run sbatch script
+
+https://github.com/miramastoras/centrolign_analysis/tree/main/batch_submissions/extract_hors_from_assemblies_sbatch
+
+#### 3. Run centrolign 

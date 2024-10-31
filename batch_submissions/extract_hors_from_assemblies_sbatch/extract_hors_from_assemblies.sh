@@ -68,7 +68,7 @@ python3 /private/groups/patenlab/mira/centrolign/github/centromere-scripts/bench
 # switch haplotypes labels
 SAMPLE==$(echo "$SAMPLE_ID" | sed 's/_hap[12]//')
 
-if [[ "${SAMPLE_ID}" == *"$hap1"* ]]; then
+if [[ "${SAMPLE_ID}" == *"hap1"* ]]; then
       PARNUM=2
       HPRC_PARENT=hap1
 else
@@ -78,7 +78,7 @@ fi
 
 CHR=12
 
-REGIONFILE=${SAMPLE_ID}.chr12.hor.txt
+REGIONFILE=${OUTDIR}/${SAMPLE_ID}/${SAMPLE_ID}.chr12.hor.txt
 
 grep $CHR ${OUTDIR}/${SAMPLE_ID}/${SAMPLE_ID}_hor_arrays.bed | awk '{ printf "%s:%d-%d\n", $1, $2+1, $3 }' > "$REGIONFILE"
 
