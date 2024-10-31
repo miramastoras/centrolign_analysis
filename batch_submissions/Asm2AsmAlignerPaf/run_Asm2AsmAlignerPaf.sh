@@ -37,10 +37,9 @@ mkdir -p slurm_logs
 export PYTHONPATH="/private/home/juklucas/miniconda3/envs/toil/bin/python"
 
 # submit job
-# skipping HG01123 for now because it only has hap2
 sbatch \
      --job-name=Asm2AsmAlignerPaf \
-     --array=[1-10]%10 \
+     --array=[11-189]%30 \
      --partition=medium \
      --time=12:00:00 \
      --cpus-per-task=32 \
@@ -52,3 +51,14 @@ sbatch \
      --wdl ~/progs/hpp_production_workflows/QC/wdl/tasks/Asm2AsmAlignerPaf.wdl \
      --sample_csv Asm2AsmAlignerPaf.csv \
      --input_json_path '../Asm2AsmAlignerPaf_input_jsons/${SAMPLE_ID}_Asm2AsmAlignerPaf.json'
+
+###############################################################################
+##                             write output files                   ##
+###############################################################################
+
+cd /private/groups/patenlab/mira/centrolign/batch_submissions/Asm2AsmAlignerPaf
+
+python3 /private/groups/hprc/polishing/hprc_intermediate_assembly/hpc/update_table_with_outputs.py \
+      --input_data_table Asm2AsmAlignerPaf.csv  \
+      --output_data_table Asm2AsmAlignerPaf.results.csv  \
+      --json_location '{sample_id}_Asm2AsmAlignerPaf_outputs.json'
