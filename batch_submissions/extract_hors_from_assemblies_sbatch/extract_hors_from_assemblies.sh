@@ -91,7 +91,7 @@ STRAND=$(grep $CHR ${OUTDIR}/${SAMPLE_ID}/${SAMPLE_ID}_hor_arrays.bed | cut -f 6
         echo "extract region" `cat $REGIONFILE`
         echo "strand" $STRAND
 
-        HORFASTA=${OUTDIR}/${SAMPLE_ID}/${SAMPLE_ID}_parnum_${PARNUM}_hor_array.fasta
+        HORFASTA=${OUTDIR}/${SAMPLE_ID}/${SAMPLE_ID}_${SAMPLE}.${PARNUM}_hor_array.fasta
 
         samtools faidx -r $REGIONFILE ${ASM_LOCAL} | sed "s/>/>$SAMPLE.$PARNUM /g" > $HORFASTA
 

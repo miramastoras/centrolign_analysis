@@ -40,3 +40,15 @@ cd /private/groups/patenlab/mira/centrolign/batch_submissions/extract_hors_from_
 
 cat fasta_list.txt | while read line ; do cat $line ; done > chr12_hprc_r2_initial_test.fasta
 ```
+Remove samples which aren't in the tree
+```
+/private/groups/patenlab/jeizenga/centromere/chr12/KGP4_TRIOS_MAC5_chr12_CPR_EHet30_no_PS_PID_PGT_lifted_over.v1.1_mask.nwk.txt
+
+cat fasta_list.txt | while read line ; do basename $line | cut -f1 -d"_" | sort | uniq ; done
+```
+
+Run centrolign
+```
+~/progs/centrolign/build/centrolign \
+    -T /private/groups/patenlab/jeizenga/centromere/chr12/KGP4_TRIOS_MAC5_chr12_CPR_EHet30_no_PS_PID_PGT_lifted_over.v1.1_mask.nwk.txt chr12_hprc_r2_initial_test.fasta > /private/groups/patenlab/mira/centrolign/initial_test/
+```
