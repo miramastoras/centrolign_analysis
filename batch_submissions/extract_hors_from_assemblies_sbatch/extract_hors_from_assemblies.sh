@@ -8,7 +8,7 @@
 #SBATCH --time=1:00:00
 #SBATCH --partition=short
 #SBATCH --output=slurm_logs/submission_%x_%j_%A_%a.log
-#SBATCH --array=[1,181]%2
+#SBATCH --array=[1-189]%40
 
 set -e
 set -x
