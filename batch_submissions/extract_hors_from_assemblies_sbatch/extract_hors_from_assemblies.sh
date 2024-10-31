@@ -1,3 +1,4 @@
+#!/bin/bash
 #SBATCH --job-name=extract_hors_initial_test
 #SBATCH --cpus-per-task=8
 #SBATCH --threads-per-core=1
