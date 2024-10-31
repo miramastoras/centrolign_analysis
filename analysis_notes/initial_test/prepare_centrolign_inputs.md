@@ -30,7 +30,7 @@ https://github.com/miramastoras/centrolign_analysis/tree/main/batch_submissions/
 
 List chr12 fasta files
 ```
-ls | while read line ; do realpath $line/*.fasta ; done | grep "parnum" > fasta_list.txt
+ls | while read line ; do realpath $line/*.fasta ; done | grep "hor_array" > fasta_list.txt
 
 # 161 / 189 did not have chr12 filtered out
 ```
@@ -39,16 +39,59 @@ Combine files
 cd /private/groups/patenlab/mira/centrolign/batch_submissions/extract_hors_from_assemblies_sbatch
 
 cat fasta_list.txt | while read line ; do cat $line ; done > chr12_hprc_r2_initial_test.fasta
+samtools faidx chr12_hprc_r2_initial_test.fasta
 ```
 Remove samples which aren't in the tree
 ```
-/private/groups/patenlab/jeizenga/centromere/chr12/KGP4_TRIOS_MAC5_chr12_CPR_EHet30_no_PS_PID_PGT_lifted_over.v1.1_mask.nwk.txt
+# get list of sample names as they'd be listed in tree
+cat /private/groups/patenlab/mira/centrolign/batch_submissions/extract_hors_from_assemblies_sbatch/fasta_list.txt | while read line ; do basename $line | cut -f3 -d"_" ; done > /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/initial_test/chr12_initial_test_all_samples.txt
 
-cat fasta_list.txt | while read line ; do basename $line | cut -f1 -d"_" | sort | uniq ; done
+# print those in tree
+SAMPLES=/private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/initial_test/chr12_initial_test_all_samples.txt
+NWK=/private/groups/patenlab/jeizenga/centromere/chr12/KGP4_TRIOS_MAC5_chr12_CPR_EHet30_no_PS_PID_PGT_lifted_over.v1.1_mask.nwk.txt
+
+while IFS= read -r pattern; do
+  if grep -q "$pattern" $NWK; then
+    echo "$pattern"
+  fi
+done < $SAMPLES | wc -l
+
+# 128 / 161
+
+while IFS= read -r pattern; do
+  if grep -q "$pattern" $NWK; then
+    echo "$pattern"
+  fi
+done < $SAMPLES > chr12_hprc_r2_initial_test_in_nwk.txt
+```
+
+Make new fasta containing only samples found in tree
+```
+cat chr12_hprc_r2_initial_test_in_nwk.txt | while read line ; do
+    grep $line /private/groups/patenlab/mira/centrolign/batch_submissions/extract_hors_from_assemblies_sbatch/fasta_list.txt
+  done > /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/initial_test/fasta_list_inside_nwk.txt
+
+# combine fastas
+cat /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/initial_test/fasta_list_inside_nwk.txt | while read line ; do cat $line ; done > chr12_hprc_r2_initial_test_inside_tree.fasta
+samtools faidx chr12_hprc_r2_initial_test_inside_tree.fasta
 ```
 
 Run centrolign
 ```
-~/progs/centrolign/build/centrolign \
-    -T /private/groups/patenlab/jeizenga/centromere/chr12/KGP4_TRIOS_MAC5_chr12_CPR_EHet30_no_PS_PID_PGT_lifted_over.v1.1_mask.nwk.txt chr12_hprc_r2_initial_test.fasta > /private/groups/patenlab/mira/centrolign/initial_test/
+#!/bin/bash
+#SBATCH --job-name=centrolign_initial_chr12
+#SBATCH --partition=medium
+#SBATCH --mail-user=mmastora@ucsc.edu
+#SBATCH --mail-type=ALL
+#SBATCH --nodes=1
+#SBATCH --mem=256gb
+#SBATCH --ntasks=1
+#SBATCH --cpus-per-task=1
+#SBATCH --output=centrolign_%A.log
+#SBATCH --time=12:00:00
+
+time /private/home/mmastora/progs/centrolign/build/centrolign \
+    -T /private/groups/patenlab/jeizenga/centromere/chr12/KGP4_TRIOS_MAC5_chr12_CPR_EHet30_no_PS_PID_PGT_lifted_over.v1.1_mask.nwk.txt \
+    /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/initial_test/chr12_hprc_r2_initial_test_inside_tree.fasta \
+    > /private/groups/patenlab/mira/centrolign/initial_test/chr12_hprc_r2_initial_test_inside_tree.centrolign.gfa
 ```
