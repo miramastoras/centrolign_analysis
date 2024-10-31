@@ -53,6 +53,8 @@ ls ${AS_HOR_SF}
 ls ${PAF}
 ls ${ASM_LOCAL}
 
+samtools faidx ${ASM_LOCAL}
+
 # run locate hors script
 python3 /private/groups/patenlab/mira/centrolign/github/centromere-scripts/benchmarking/locate_hors_from_censat.py \
     -c ${CENSAT} \
@@ -61,12 +63,45 @@ python3 /private/groups/patenlab/mira/centrolign/github/centromere-scripts/bench
     -f ${ASM_LOCAL} \
     > ${OUTDIR}/${SAMPLE_ID}/${SAMPLE_ID}_hor_arrays.bed
 
-# for each assembly, split fasta by chromosome
+### for each assembly, split fasta by chromosome
+
+# switch haplotypes labels
+SAMPLE==$(echo "$SAMPLE_ID" | sed 's/_hap[12]//')
+
 if [[ "${SAMPLE_ID}" == *"$hap1"* ]]; then
-  then
       PARNUM=2
+      HPRC_PARENT=hap1
 else
   PARNUM=1
+  HPRC_PARENT=hap2
 fi
 
-REGIONFILE=${OUTDIR}/${SAMPLE_ID}/${SAMPLE_ID}_hor_arrays.bed
+CHR=12
+
+REGIONFILE=${SAMPLE_ID}.chr12.hor.txt
+
+grep $CHR ${OUTDIR}/${SAMPLE_ID}/${SAMPLE_ID}_hor_arrays.bed | awk '{ printf "%s:%d-%d\n", $1, $2+1, $3 }' > "$REGIONFILE"
+
+STRAND=$(grep $CHR ${OUTDIR}/${SAMPLE_ID}/${SAMPLE_ID}_hor_arrays.bed | cut -f 6)
+
+    if [ -s $REGIONFILE ];
+    then
+
+        # extract and add the sample name as the sequence name
+        echo "extract region" `cat $REGIONFILE`
+        echo "strand" $STRAND
+
+        HORFASTA=${OUTDIR}/${SAMPLE_ID}/${SAMPLE_ID}_parnum_${PARNUM}_hor_array.fasta
+
+        samtools faidx -r $REGIONFILE ${ASM_LOCAL} | sed "s/>/>$SAMPLE.$PARNUM /g" > $HORFASTA
+
+        if [ $STRAND = "-" ];
+        then
+            echo "reverse complementing sequence"
+            TMPFILE=$(mktemp)
+            /private/groups/patenlab/mira/centrolign/github/centromere-scripts/data_processing_utils/fasta_to_rev_comp.py $HORFASTA > $TMPFILE
+            mv $TMPFILE $HORFASTA
+        fi
+    fi
+
+rm -rf ${OUTDIR}/${SAMPLE_ID}/tmp_files/

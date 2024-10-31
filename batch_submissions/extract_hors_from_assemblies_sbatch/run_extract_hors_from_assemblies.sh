@@ -7,4 +7,4 @@ cp -r /private/groups/patenlab/mira/centrolign/github/centrolign_analysis/batch_
 
 mkdir -p slurm_logs
 
-sbatch extract_hors_from_assemblies.sh extract_hors_from_assemblies_sbatch.csv 
+sbatch extract_hors_from_assemblies.sh extract_hors_from_assemblies_sbatch.csv
