@@ -8,6 +8,10 @@ RUN apt update --fix-missing && \
     apt install -y build-essential=12.8ubuntu1 default-jre=2:1.11-72 bedtools=2.27.1+dfsg-4ubuntu1 samtools=1.10-3 r-base=3.6.3-2 && \
     apt install -y vim htop git wget pigz
 
+# update and install dependencies
+RUN apt-get update && \
+    apt-get -y install time git make wget autoconf gcc g++ vim sudo build-essential bzip2 zlib1g-dev libbz2-dev \
+        libcurl4-gnutls-dev liblzma-dev libncurses5-dev libncursesw5-dev libssl-dev
 
 # Install Python 3 and necessary dependencies
 RUN apt-get update && \
@@ -24,7 +28,7 @@ RUN python --version
 WORKDIR /opt
 RUN git clone https://github.com/jeizenga/centromere-scripts.git
 
-# get samtools 
+# get samtools
 WORKDIR /opt/samtools
 RUN wget https://github.com/samtools/samtools/releases/download/1.9/samtools-1.9.tar.bz2 && \
     tar xvf samtools-1.9.tar.bz2 && \
