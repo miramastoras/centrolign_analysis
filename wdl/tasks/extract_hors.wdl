@@ -62,7 +62,7 @@ task locate_hors {
 
         samtools faidx ~{sampleID}.fasta
 
-        python3 /private/groups/patenlab/mira/centrolign/github/centromere-scripts/benchmarking/locate_hors_from_censat.py \
+        python3 /opt/centromere-scripts/benchmarking/locate_hors_from_censat.py \
             -c ~{CenSatBedFile} \
             -a ~{AsHorSFBedFile} \
             -p ~{asmToRefPaf} \
@@ -80,4 +80,72 @@ task locate_hors {
         preemptible: 1
     }
 }
+
+task extract_hor_sequence {
+    input {
+      File horArrayBed
+      File asmToRefPaf
+      File assemblyFasta
+      File AsHorSFBedFile
+
+      String sampleID
+      String dockerImage
+    }
+    command <<<
+        # exit when a command fails, fail with unset variables, print commands before execution
+        set -eux -o pipefail
+        set -o xtrace
+
+        # get sample id without haplotype label
+        SAMPLE=$(echo "~{sampleID}" | sed 's/_hap[12]//')
+
+        if [[ "~{sampleID}" == *"hap1"* ]]; then
+          PARNUM=2
+          HPRC_PARENT=hap1
+        else
+          PARNUM=1
+          HPRC_PARENT=hap2
+        fi
+
+        for CHR in {1..22} X Y M; do
+
+            REGIONFILE=~{sampleID}.chr${CHR}.hor.txt
+
+            grep chr${CHR} ~{horArrayBed} | awk '{ printf "%s:%d-%d\n", $1, $2+1, $3 }' > "$REGIONFILE"
+
+            STRAND=$(grep chr${CHR} ~{horArrayBed} | cut -f 6)
+
+            if [ -s $REGIONFILE ];
+            then
+
+                # extract and add the sample name as the sequence name
+                echo "extract region" `cat $REGIONFILE`
+                echo "strand" $STRAND
+
+                HORFASTA=${OUTDIR}/${SAMPLE_ID}/${SAMPLE_ID}_${SAMPLE}.${PARNUM}_hor_array.fasta
+
+                samtools faidx -r $REGIONFILE ${ASM_LOCAL} | sed "s/>/>$SAMPLE.$PARNUM /g" > $HORFASTA
+
+                if [ $STRAND = "-" ];
+                then
+                    echo "reverse complementing sequence"
+                    TMPFILE=$(mktemp)
+                    /opt/centromere-scripts/data_processing_utils/fasta_to_rev_comp.py $HORFASTA > $TMPFILE
+                    mv $TMPFILE $HORFASTA
+                fi
+            else
+              echo "$SAMPLE_ID $CHR was filtered out"
+            fi
+        done
+    >>>
+    output {
+        File horArrayBed=glob("*hor_arrays.bed")[0]
+    }
+    runtime {
+        memory: memSizeGB + " GB"
+        cpu: threadCount
+        disks: "local-disk " + diskSizeGB + " SSD"
+        docker: dockerImage
+        preemptible: 1
+    }
 }
