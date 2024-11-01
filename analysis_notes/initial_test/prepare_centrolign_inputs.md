@@ -80,15 +80,15 @@ Run centrolign
 ```
 #!/bin/bash
 #SBATCH --job-name=centrolign_initial_chr12
-#SBATCH --partition=medium
+#SBATCH --partition=long
 #SBATCH --mail-user=mmastora@ucsc.edu
 #SBATCH --mail-type=ALL
 #SBATCH --nodes=1
-#SBATCH --mem=256gb
+#SBATCH --mem=800gb
 #SBATCH --ntasks=1
 #SBATCH --cpus-per-task=1
 #SBATCH --output=centrolign_%A.log
-#SBATCH --time=12:00:00
+#SBATCH --time=72:00:00
 
 time /private/home/mmastora/progs/centrolign/build/centrolign \
     -T /private/groups/patenlab/jeizenga/centromere/chr12/KGP4_TRIOS_MAC5_chr12_CPR_EHet30_no_PS_PID_PGT_lifted_over.v1.1_mask.nwk.txt \

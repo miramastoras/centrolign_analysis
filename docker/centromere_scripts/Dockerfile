@@ -1,0 +1,40 @@
+FROM ubuntu:20.04
+MAINTAINER Mira Mastoras, mmastora@ucsc.edu
+
+# 1. Set base ubuntu env
+RUN apt update --fix-missing && \
+    DEBIAN_FRONTEND="noninteractive" apt-get -y install tzdata && \
+    apt upgrade -y && \
+    apt install -y build-essential=12.8ubuntu1 default-jre=2:1.11-72 bedtools=2.27.1+dfsg-4ubuntu1 samtools=1.10-3 r-base=3.6.3-2 && \
+    apt install -y vim htop git wget pigz
+
+
+# Install Python 3 and necessary dependencies
+RUN apt-get update && \
+    apt-get install -y python3 python3-pip && \
+    rm -rf /var/lib/apt/lists/*
+
+# Set Python 3 as the default
+RUN ln -s /usr/bin/python3 /usr/bin/python
+
+# Verify the Python version
+RUN python --version
+
+# Get centromere scripts
+WORKDIR /opt
+RUN git clone https://github.com/jeizenga/centromere-scripts.git
+
+# get samtools 
+WORKDIR /opt/samtools
+RUN wget https://github.com/samtools/samtools/releases/download/1.9/samtools-1.9.tar.bz2 && \
+    tar xvf samtools-1.9.tar.bz2 && \
+    rm -r /opt/samtools/samtools-1.9.tar.bz2 && \
+    cd samtools-1.9/ && \
+    autoheader && \
+    autoconf -Wno-header && \
+    ./configure && \
+    make && \
+    mkdir -p /root/bin/samtools_1.9 && \
+    cp samtools /root/bin/samtools_1.9
+
+WORKDIR /data
