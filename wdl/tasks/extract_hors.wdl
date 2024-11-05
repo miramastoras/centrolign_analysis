@@ -129,6 +129,7 @@ task extract_hor_sequence {
         mkdir -p ./~{sampleID}_hor_fastas/
 
         for CHR in {1..22} X Y M; do
+            echo "chr${CHR}"
 
             REGIONFILE=~{sampleID}.chr${CHR}.hor.txt
 
@@ -138,7 +139,7 @@ task extract_hor_sequence {
 
             if [ -s $REGIONFILE ];
             then
-
+                echo "chr${CHR} exists, $REGIONFILE"
                 # extract and add the sample name as the sequence name
                 echo "extract region" `cat $REGIONFILE`
                 echo "strand" $STRAND
