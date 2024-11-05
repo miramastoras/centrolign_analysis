@@ -132,7 +132,7 @@ task extract_hor_sequence {
             echo "chr${CHR}"
 
             REGIONFILE=~{sampleID}.chr${CHR}.hor.txt
-            echo $REGIONFILE
+            touch $REGIONFILE
             grep -w chr${CHR} ~{horArrayBed} | awk '{ printf "%s:%d-%d\n", $1, $2+1, $3 }' > ${REGIONFILE}
             ls $REGIONFILE
             STRAND=$(grep -w chr${CHR} ~{horArrayBed} | cut -f 6)
