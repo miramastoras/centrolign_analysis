@@ -2,7 +2,6 @@ FROM ubuntu:22.04
 MAINTAINER Mira Mastoras, mmastora@ucsc.edu
 
 # Set environment variables to prevent interactive prompts
-ENV DEBIAN_FRONTEND=noninteractive
 
 # Update packages and install prerequisites
 RUN apt-get update && \
@@ -19,6 +18,7 @@ RUN cmake --version && gcc --version
 
 # Get centrolign
 WORKDIR /opt
+
 RUN git clone https://github.com/jeizenga/centrolign.git && \
     cd centrolign && \
     mkdir build && \
