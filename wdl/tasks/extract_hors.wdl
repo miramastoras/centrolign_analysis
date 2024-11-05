@@ -39,7 +39,7 @@ workflow extract_hors {
     #        dockerImage=dockerImage
     # }
     output {
-        horArrayBed=locate_hors.horArrayBed
+        File horArrayBed=locate_hors.horArrayBed
     }
 }
 
