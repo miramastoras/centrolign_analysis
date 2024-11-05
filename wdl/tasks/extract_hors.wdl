@@ -30,17 +30,16 @@ workflow extract_hors {
             sampleID=sampleName,
             dockerImage=dockerImage
     }
-    call extract_hor_sequence {
-        input:
-            horArrayBed=locate_hors.horArrayBed,
-            asmToRefPaf=asmToRefPaf,
-            assemblyFasta=assemblyFasta,
-            sampleID=sampleName,
-            dockerImage=dockerImage
-
-    }
+    #call extract_hor_sequence {
+    #    input:
+    #        horArrayBed=locate_hors.horArrayBed,
+    #        asmToRefPaf=asmToRefPaf,
+    #        assemblyFasta=assemblyFasta,
+    #        sampleID=sampleName,
+    #        dockerImage=dockerImage
+    # }
     output {
-
+        horArrayBed=locate_hors.horArrayBed
     }
 }
 
