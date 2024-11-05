@@ -90,8 +90,40 @@ Run centrolign
 #SBATCH --output=centrolign_%A.log
 #SBATCH --time=72:00:00
 
-time /private/home/mmastora/progs/centrolign/build/centrolign \
+time /private/home/mmastora/progs/centrolign/build/centrolign -v 4 \
+    -S /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/initial_test/jobstore/ \
     -T /private/groups/patenlab/jeizenga/centromere/chr12/KGP4_TRIOS_MAC5_chr12_CPR_EHet30_no_PS_PID_PGT_lifted_over.v1.1_mask.nwk.txt \
     /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/initial_test/chr12_hprc_r2_initial_test_inside_tree.fasta \
-    > /private/groups/patenlab/mira/centrolign/initial_test/chr12_hprc_r2_initial_test_inside_tree.centrolign.gfa
+    > /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/initial_test/chr12_hprc_r2_initial_test_inside_tree.centrolign.gfa
+```
+
+Do another run, with subset of 50 samples
+```
+cat /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/initial_test/chr12_hprc_r2_initial_test_in_nwk.txt | head -n 50 | while read line ; do
+    grep $line /private/groups/patenlab/mira/centrolign/batch_submissions/extract_hors_from_assemblies_sbatch/fasta_list.txt
+  done > /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/initial_test_50/fasta_list_inside_nwk.txt
+
+# combine fastas
+cat /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/initial_test_50/fasta_list_inside_nwk.txt | while read line ; do cat $line ; done > chr12_hprc_r2_initial_test_inside_tree.first50.fasta
+samtools faidx chr12_hprc_r2_initial_test_inside_tree.first50.fasta
+```
+
+```
+#!/bin/bash
+#SBATCH --job-name=centrolign_initial_chr12_first50
+#SBATCH --partition=long
+#SBATCH --mail-user=mmastora@ucsc.edu
+#SBATCH --mail-type=ALL
+#SBATCH --nodes=1
+#SBATCH --mem=800gb
+#SBATCH --ntasks=1
+#SBATCH --cpus-per-task=1
+#SBATCH --output=centrolign_%A.log
+#SBATCH --time=72:00:00
+
+time /private/home/mmastora/progs/centrolign/build/centrolign -v 4 \
+    -S /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/initial_test_50/jobstore/ \
+    -T /private/groups/patenlab/jeizenga/centromere/chr12/KGP4_TRIOS_MAC5_chr12_CPR_EHet30_no_PS_PID_PGT_lifted_over.v1.1_mask.nwk.txt \
+    /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/initial_test_50/chr12_hprc_r2_initial_test_inside_tree.first50.fasta \
+    > /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/initial_test_50/chr12_hprc_r2_initial_test_inside_tree.first50.centrolign.gfa
 ```
