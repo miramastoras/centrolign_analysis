@@ -111,7 +111,6 @@ task extract_hor_sequence {
     }
     command <<<
         # exit when a command fails, fail with unset variables, print commands before execution
-        set -eux -o pipefail
         set -o xtrace
 
         # get sample id without haplotype label
