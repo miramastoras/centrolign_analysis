@@ -19,6 +19,8 @@ RUN cmake --version && gcc --version
 # Get centrolign
 WORKDIR /opt
 
+RUN git clone https://github.com/miramastoras/centrolign_analysis.git
+
 RUN git clone https://github.com/jeizenga/centrolign.git && \
     cd centrolign && \
     mkdir build && \
