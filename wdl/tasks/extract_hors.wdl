@@ -155,9 +155,11 @@ task extract_hor_sequence {
               echo "~{sampleID} chr${CHR} was filtered out"
             fi
         done
+
+
     >>>
     output {
-        File horArrayBed=glob("~{sampleID}_hor_fastas/*.fasta")[0]
+        Array[File] horFastas=glob("~{sampleID}_hor_fastas/*.fasta")
     }
     runtime {
         memory: memSizeGB + " GB"
