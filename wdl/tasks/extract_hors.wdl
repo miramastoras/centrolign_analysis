@@ -52,7 +52,11 @@ task locate_hors {
       File AsHorSFBedFile
 
       String sampleID
-      String dockerImage
+      String dockerImage="miramastoras/centromere_scripts:v0.1"
+
+      Int memSize=16
+      Int threadCount=8
+      Int diskSize=64
     }
     command <<<
         # exit when a command fails, fail with unset variables, print commands before execution
@@ -96,7 +100,11 @@ task extract_hor_sequence {
       File assemblyFasta
 
       String sampleID
-      String dockerImage
+      String dockerImage="miramastoras/centromere_scripts:v0.1"
+
+      Int memSize=16
+      Int threadCount=8
+      Int diskSize=64
     }
     command <<<
         # exit when a command fails, fail with unset variables, print commands before execution
