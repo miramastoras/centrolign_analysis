@@ -11,6 +11,7 @@ RUN apt-get update && \
     cmake \
     gcc \
     g++ \
+    git \
     && rm -rf /var/lib/apt/lists/*
 
 # Verify CMake and GCC versions
