@@ -14,23 +14,31 @@ workflow extract_hors {
         File AsHorSFBedFile
         File CenSatBedFile
 
-        String sampleName
+        String sampleName # required to be in the format HG01530_hap2
 
         String dockerImage="miramastoras/centromere_scripts:v0.1"
     }
 
     ## use alignment to CHM13 to assign HORs to chromosomes
-    ## filters out discontiguous HORs, cross-chromosomal groups not all fully resolved
-
+    ## filters out discontiguous HORs, cross-chromosomal groups where not all fully are resolved
     call locate_hors {
         input:
             CenSatBedFile=CenSatBedFile,
             asmToRefPaf=asmToRefPaf,
             assemblyFasta=assemblyFasta,
             AsHorSFBedFile=AsHorSFBedFile,
-            sampleID=sampleName
+            sampleID=sampleName,
+            dockerImage=dockerImage
     }
+    call extract_hor_sequence {
+        input:
+            horArrayBed=locate_hors.horArrayBed,
+            asmToRefPaf=asmToRefPaf,
+            assemblyFasta=assemblyFasta,
+            sampleID=sampleName,
+            dockerImage=dockerImage
 
+    }
     output {
 
     }
@@ -86,7 +94,6 @@ task extract_hor_sequence {
       File horArrayBed
       File asmToRefPaf
       File assemblyFasta
-      File AsHorSFBedFile
 
       String sampleID
       String dockerImage
@@ -99,6 +106,7 @@ task extract_hor_sequence {
         # get sample id without haplotype label
         SAMPLE=$(echo "~{sampleID}" | sed 's/_hap[12]//')
 
+        # guide tree will have "hap1" and "hap2" labelled the reverse as the output from HPRC censat annotation
         if [[ "~{sampleID}" == *"hap1"* ]]; then
           PARNUM=2
           HPRC_PARENT=hap1
@@ -106,6 +114,8 @@ task extract_hor_sequence {
           PARNUM=1
           HPRC_PARENT=hap2
         fi
+
+        mkdir -p ./~{sampleID}_hor_fastas/
 
         for CHR in {1..22} X Y M; do
 
@@ -122,9 +132,9 @@ task extract_hor_sequence {
                 echo "extract region" `cat $REGIONFILE`
                 echo "strand" $STRAND
 
-                HORFASTA=${OUTDIR}/${SAMPLE_ID}/${SAMPLE_ID}_${SAMPLE}.${PARNUM}_hor_array.fasta
+                HORFASTA=~{sampleID}_hor_fastas/~{sampleID}.${SAMPLE}.${PARNUM}.chr${CHR}_hor_array.fasta
 
-                samtools faidx -r $REGIONFILE ${ASM_LOCAL} | sed "s/>/>$SAMPLE.$PARNUM /g" > $HORFASTA
+                samtools faidx -r $REGIONFILE ~{assemblyFasta} | sed "s/>/>$SAMPLE.$PARNUM /g" > $HORFASTA
 
                 if [ $STRAND = "-" ];
                 then
@@ -134,12 +144,12 @@ task extract_hor_sequence {
                     mv $TMPFILE $HORFASTA
                 fi
             else
-              echo "$SAMPLE_ID $CHR was filtered out"
+              echo "~{sampleID} chr${CHR} was filtered out"
             fi
         done
     >>>
     output {
-        File horArrayBed=glob("*hor_arrays.bed")[0]
+        File horArrayBed=glob("~{sampleID}_hor_fastas/*.fasta")[0]
     }
     runtime {
         memory: memSizeGB + " GB"
