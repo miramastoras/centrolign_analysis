@@ -54,9 +54,9 @@ task locate_hors {
       String sampleID
       String dockerImage="miramastoras/centromere_scripts:v0.1"
 
-      Int memSize=16
+      Int memSizeGB=16
       Int threadCount=8
-      Int diskSize=64
+      Int diskSizeGB=64
     }
     command <<<
         # exit when a command fails, fail with unset variables, print commands before execution
@@ -102,9 +102,9 @@ task extract_hor_sequence {
       String sampleID
       String dockerImage="miramastoras/centromere_scripts:v0.1"
 
-      Int memSize=16
+      Int memSizeGB=16
       Int threadCount=8
-      Int diskSize=64
+      Int diskSizeGB=64
     }
     command <<<
         # exit when a command fails, fail with unset variables, print commands before execution
