@@ -30,16 +30,19 @@ workflow extract_hors {
             sampleID=sampleName,
             dockerImage=dockerImage
     }
-    #call extract_hor_sequence {
-    #    input:
-    #        horArrayBed=locate_hors.horArrayBed,
-    #        asmToRefPaf=asmToRefPaf,
-    #        assemblyFasta=assemblyFasta,
-    #        sampleID=sampleName,
-    #        dockerImage=dockerImage
-    # }
+    # for each chromosome, extract the hor sequence into a separate fasta
+    # rename fasta header for input to centrolign
+    call extract_hor_sequence {
+        input:
+            horArrayBed=locate_hors.horArrayBed,
+            asmToRefPaf=asmToRefPaf,
+            assemblyFasta=assemblyFasta,
+            sampleID=sampleName,
+            dockerImage=dockerImage
+    }
     output {
         File horArrayBed=locate_hors.horArrayBed
+        Array[File] horFastas=extract_hor_sequence.horFastas
     }
 }
 
@@ -82,6 +85,7 @@ task locate_hors {
     >>>
     output {
         File horArrayBed=glob("*hor_arrays.bed")[0]
+
     }
     runtime {
         memory: memSizeGB + " GB"
