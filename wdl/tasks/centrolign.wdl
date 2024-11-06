@@ -9,33 +9,36 @@ workflow runCentrolign {
     call centrolign
 
     output {
-        File centrolignGFA=
+        File centrolignGFA=centrolign.centrolignGFA
     }
 }
 
 task centrolign {
     input {
-      File CenSatBedFile
-      File asmToRefPaf
+      File centrolignOptions=""
+      File newickGuideTree
       File assemblyFasta
-      File AsHorSFBedFile
+      String chrom
 
       String sampleID
-      String dockerImage="miramastoras/centromere_scripts:v0.1"
+      String dockerImage="miramastoras/centrolign:v0.2.1"
 
-      Int memSizeGB=16
+      Int memSizeGB=256
       Int threadCount=8
-      Int diskSizeGB=64
+      Int diskSizeGB=256
     }
     command <<<
         # exit when a command fails, fail with unset variables, print commands before execution
         set -eux -o pipefail
         set -o xtrace
 
-        
+        centrolign ~{centrolignOptions} \
+            -T ~{newickGuideTree} \
+            ~{assemblyFasta} \
+            > ~{sampleID}.~{chrom}.gfa
     >>>
     output {
-        File horArrayBed=glob("*hor_arrays.bed")[0]
+        File centrolignGFA=glob("*.gfa")[0]
     }
     runtime {
         memory: memSizeGB + " GB"
