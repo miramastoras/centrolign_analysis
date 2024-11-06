@@ -15,7 +15,7 @@ workflow runCentrolign {
 
 task centrolign {
     input {
-      File centrolignOptions=""
+      String centrolignOptions=""
       File newickGuideTree
       File assemblyFasta
       String chrom
