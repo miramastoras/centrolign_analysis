@@ -41,16 +41,16 @@ export PYTHONPATH="/private/home/juklucas/miniconda3/envs/toil/bin/python"
 sbatch \
      --job-name=extract_hors \
      --array=[1-189]%30 \
-     --partition=medium \
-     --time=12:00:00 \
+     --partition=short \
+     --time=1:00:00 \
      --cpus-per-task=32 \
      --exclude=phoenix-[09,10,22,23,24,18] \
      --mem=400gb \
      --mail-type=FAIL,END \
      --mail-user=mmastora@ucsc.edu \
      /private/groups/hprc/hprc_intermediate_assembly/hpc/toil_sbatch_single_machine.sh \
-     --wdl ~/progs/hpp_production_workflows/QC/wdl/tasks/extract_hors.wdl \
-     --sample_csv extract_hors.csv \
+     --wdl /private/groups/patenlab/mira/centrolign/github/centrolign_analysis/wdl/tasks/extract_hors.wdl \
+     --sample_csv extract_hors_initial_test.csv \
      --input_json_path '../extract_hors_input_jsons/${SAMPLE_ID}_extract_hors.json'
 
 ###############################################################################

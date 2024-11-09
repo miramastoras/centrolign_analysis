@@ -143,7 +143,7 @@ task extract_hor_sequence {
                 echo "extract region" `cat $REGIONFILE`
                 echo "strand" $STRAND
 
-                HORFASTA=~{sampleID}_hor_fastas/~{sampleID}.${SAMPLE}.${PARNUM}.chr${CHR}_hor_array.fasta
+                HORFASTA=~{sampleID}_hor_fastas/~{sampleID}_${SAMPLE}.${PARNUM}_chr${CHR}_hor_array.fasta
 
                 samtools faidx -r $REGIONFILE ~{assemblyFasta} | sed "s/>/>$SAMPLE.$PARNUM /g" > $HORFASTA
 

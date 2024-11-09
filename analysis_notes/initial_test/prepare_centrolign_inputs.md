@@ -1,4 +1,4 @@
-### Preparing inputs to centrolign for initial test
+### Preparing inputs to centrolign for initial test on chr12
 
 Using 190 hprc release 2 assemblies, annotated by Julian
 
@@ -127,3 +127,65 @@ time /private/home/mmastora/progs/centrolign/build/centrolign -v 4 \
     /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/initial_test_50/chr12_hprc_r2_initial_test_inside_tree.first50.fasta \
     > /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/initial_test_50/chr12_hprc_r2_initial_test_inside_tree.first50.centrolign.gfa
 ```
+
+### Preparing inputs to centrolign for testing on chrX,Y,10,6,17
+
+#### 1. Use new wdl to run pre-processing procedure for all chromosomes
+
+batch submission:
+https://github.com/miramastoras/centrolign_analysis/tree/main/batch_submissions/extract_hors/initial_test
+
+#### 2. Prepare centrolign inputs
+
+Get lists of fasta files containing complete HOR for each chrom
+```
+cd /private/groups/patenlab/mira/centrolign/batch_submissions/extract_hors/initial_test
+
+for CHR in chrY chrX chr10 chr6 chr17 ; do
+    mkdir -p /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/initial_test/${CHR}/
+    ls | grep hap | \
+    while read line ; do
+        realpath $line/analysis/extract_hors_outputs/*.fasta
+      done | grep ${CHR} > /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/initial_test/${CHR}/fasta_list.txt
+  done
+```
+
+Get list of samples that are in the nwk tree
+```
+# get list of sample names as they'd be listed in tree
+for CHR in chrY chrX chr10 chr6 chr17 ; do  
+    cat /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/initial_test/${CHR}/fasta_list.txt | while read line ; do basename $line | cut -f2-3 -d"." ; done > /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/initial_test/${CHR}/fasta_list.all_sample_ids.txt
+  done
+
+#
+for CHR in chrY chrX chr10 chr6 chr17 ; do  
+    SAMPLES=/private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/initial_test/${CHR}/fasta_list.all_sample_ids.txt
+    NWK=/private/groups/patenlab/jeizenga/centromere/chr12/KGP4_TRIOS_MAC5_chr12_CPR_EHet30_no_PS_PID_PGT_lifted_over.v1.1_mask.nwk.txt
+
+    while IFS= read -r pattern; do
+      if grep -q "$pattern" $NWK; then
+        echo "$pattern"
+        fi
+    done < $SAMPLES > /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/initial_test/${CHR}/fasta_list.all_sample_ids.in_nwk.txt
+  done
+
+# combine fastas
+for CHR in chrY chrX chr10 chr6 chr17 ; do  
+    cat /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/initial_test/${CHR}/fasta_list.all_sample_ids.in_nwk.txt | while read line ; do
+    grep $line /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/initial_test/${CHR}/fasta_list.txt
+    done > /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/initial_test/${CHR}/fasta_list.inside_nwk.txt
+done
+
+# combine fastas
+for CHR in chrY chrX chr10 chr6 chr17 ; do  
+    cat /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/initial_test/${CHR}/fasta_list.inside_nwk.txt | while read line ; do cat $line ; done > /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/initial_test/${CHR}/initial_test_${CHR}.fasta
+    samtools faidx /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/initial_test/${CHR}/initial_test_${CHR}.fasta
+done
+```
+List for csv:
+```
+for CHR in chrX chrY chr6 chr10 chr17 ; do  
+    realpath /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/initial_test/${CHR}/initial_test_${CHR}.fasta
+  done
+```
+Run as a batch submission:
