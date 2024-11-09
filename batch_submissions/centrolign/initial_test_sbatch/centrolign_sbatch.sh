@@ -16,6 +16,7 @@ SAMPLE_CSV=$1
 # Skip first row to avoid the header
 SAMPLE_ID=$(awk -F ',' -v task_id=${SLURM_ARRAY_TASK_ID} 'NR>1 && NR==task_id+1 {print $1}' "${SAMPLE_CSV}")
 HOR_FASTA=$(awk -F ',' -v task_id=${SLURM_ARRAY_TASK_ID} 'NR>1 && NR==task_id+1 {print $2}' "${SAMPLE_CSV}")
+TREE=$(awk -F ',' -v task_id=${SLURM_ARRAY_TASK_ID} 'NR>1 && NR==task_id+1 {print $3}' "${SAMPLE_CSV}")
 
 CHR=$SAMPLE_ID
 SAVE_FILES=/private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/initial_test/${CHR}/jobstore/
@@ -24,6 +25,6 @@ cd /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/initial
 
 time /private/home/mmastora/progs/centrolign/build/centrolign -v 4 \
     -S ${SAVE_FILES} \
-    -T /private/groups/patenlab/jeizenga/centromere/chr12/KGP4_TRIOS_MAC5_chr12_CPR_EHet30_no_PS_PID_PGT_lifted_over.v1.1_mask.nwk.txt \
+    -T ${TREE} \
     ${HOR_FASTA} \
     > /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/initial_test/${CHR}/initial_test_${CHR}.centrolign.gfa
