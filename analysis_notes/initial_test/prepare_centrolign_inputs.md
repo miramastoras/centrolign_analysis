@@ -230,7 +230,15 @@ grep -Fvxf /private/groups/patenlab/mira/centrolign/annotations/guide_trees/HPRC
 
 # replace naming inside fasta file to match newick
 cat /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/initial_test/chrX/fasta_list.all_sample_ids.in_nwk.male_only.txt | while read line ; do
-    sed 's/${line}.2//g'
+    sed "s|${line}.1|${line}.0|g" /private/groups/patenlab/mira/centrolign/batch_submissions/extract_hors/initial_test/${line}_hap2/analysis/extract_hors_outputs/${line}_hap2.${line}.1.chrX_hor_array.fasta > /private/groups/patenlab/mira/centrolign/batch_submissions/extract_hors/initial_test/${line}_hap2/analysis/extract_hors_outputs/${line}_hap2.${line}.0.chrX_hor_array.fasta
+  done
 
+# get fasta locations
+cat /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/initial_test/chrX/fasta_list.all_sample_ids.in_nwk.male_only.txt | while read line ; do
+ls /private/groups/patenlab/mira/centrolign/batch_submissions/extract_hors/initial_test/${line}_hap2/analysis/extract_hors_outputs/${line}_hap2.${line}.0.chrX_hor_array.fasta
+done > /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/initial_test/chrX/all_sample_ids.in_nwk.male_only.full_path.txt
 
+# combine fastas
+cat /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/initial_test/chrX/all_sample_ids.in_nwk.male_only.full_path.txt | while read line ; do cat $line ; done > /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/initial_test/chrX/initial_test_chrX.male_only.fasta
+samtools faidx /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/initial_test/chrX/initial_test_chrX.male_only.fasta
 ```
