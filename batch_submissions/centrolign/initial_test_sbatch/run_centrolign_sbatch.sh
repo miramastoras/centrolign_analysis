@@ -1,6 +1,6 @@
 cd /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/initial_test
 
-mkdir -p sbatch_logs
+mkdir -p slurm_logs
 
 git -C /private/groups/patenlab/mira/centrolign/github/centrolign_analysis/ pull
 

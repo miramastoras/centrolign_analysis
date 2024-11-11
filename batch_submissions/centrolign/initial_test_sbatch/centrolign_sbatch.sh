@@ -4,11 +4,15 @@
 #SBATCH --mail-user=mmastora@ucsc.edu
 #SBATCH --mail-type=ALL
 #SBATCH --nodes=1
-#SBATCH --mem=256gb
+#SBATCH --mem=500gb
 #SBATCH --ntasks=1
 #SBATCH --cpus-per-task=1
-#SBATCH --output=sbatch_logs/centrolign_initial_test_sbatch_%A.log
+#SBATCH --output=slurm_logs/centrolign_initial_test_sbatch_%x_%j_%A_%a.log
 #SBATCH --time=72:00:00
+#SBATCH --array=[3-5]%3
+
+set -eux -o pipefail
+set -o xtrace
 
 SAMPLE_CSV=$1
 
@@ -20,6 +24,7 @@ TREE=$(awk -F ',' -v task_id=${SLURM_ARRAY_TASK_ID} 'NR>1 && NR==task_id+1 {prin
 
 CHR=$SAMPLE_ID
 SAVE_FILES=/private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/initial_test/${CHR}/jobstore/
+mkdir -p ${SAVE_FILES}
 
 cd /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/initial_test/${CHR}/
 
