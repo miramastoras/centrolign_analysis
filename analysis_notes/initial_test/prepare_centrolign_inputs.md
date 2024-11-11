@@ -151,16 +151,30 @@ for CHR in chrY chrX chr10 chr6 chr17 ; do
 ```
 
 Get list of samples that are in the nwk tree
+
+https://docs.google.com/spreadsheets/d/1is_jiWsDoqj_1QIcunGJLoojmToX3z9TFvTSEWCY2jA/edit?gid=452898455#gid=452898455
 ```
 # get list of sample names as they'd be listed in tree
 for CHR in chrY chrX chr10 chr6 chr17 ; do  
     cat /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/initial_test/${CHR}/fasta_list.txt | while read line ; do basename $line | cut -f2-3 -d"." ; done > /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/initial_test/${CHR}/fasta_list.all_sample_ids.txt
   done
 
-#
-for CHR in chrY chrX chr10 chr6 chr17 ; do  
+# chrY chrX 
+for CHR in chr10 chr6 chr17 ; do   
     SAMPLES=/private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/initial_test/${CHR}/fasta_list.all_sample_ids.txt
-    NWK=/private/groups/patenlab/jeizenga/centromere/chr12/KGP4_TRIOS_MAC5_chr12_CPR_EHet30_no_PS_PID_PGT_lifted_over.v1.1_mask.nwk.txt
+    NWK=`grep ${CHR} /private/groups/patenlab/mira/centrolign/github/centrolign_analysis/batch_submissions/centrolign/initial_test_sbatch/centrolign_initial_test_sbatch.csv | cut -f 3 -d","`
+
+    while IFS= read -r pattern; do
+      echo $pattern
+      if grep -q "$pattern" $NWK; then
+        echo "$pattern"
+        fi
+    done < $SAMPLES
+  done
+
+for CHR in chrX ; do  
+    SAMPLES=/private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/initial_test/${CHR}/fasta_list.all_sample_ids.txt
+    NWK=`grep ${CHR} /private/groups/patenlab/mira/centrolign/github/centrolign_analysis/batch_submissions/centrolign/initial_test_sbatch/centrolign_initial_test_sbatch.csv | cut -f 3 -d","`
 
     while IFS= read -r pattern; do
       if grep -q "$pattern" $NWK; then
@@ -170,19 +184,22 @@ for CHR in chrY chrX chr10 chr6 chr17 ; do
   done
 
 # combine fastas
-for CHR in chrY chrX chr10 chr6 chr17 ; do  
+# for CHR in chrY chrX chr10 chr6 chr17 ; do  
+for CHR in chrX ; do
     cat /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/initial_test/${CHR}/fasta_list.all_sample_ids.in_nwk.txt | while read line ; do
     grep $line /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/initial_test/${CHR}/fasta_list.txt
     done > /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/initial_test/${CHR}/fasta_list.inside_nwk.txt
 done
 
 # combine fastas
-for CHR in chrY chrX chr10 chr6 chr17 ; do  
+# for CHR in chrY chrX chr10 chr6 chr17 ; do  
+for CHR in chrX ; do
     cat /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/initial_test/${CHR}/fasta_list.inside_nwk.txt | while read line ; do cat $line ; done > /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/initial_test/${CHR}/initial_test_${CHR}.fasta
     samtools faidx /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/initial_test/${CHR}/initial_test_${CHR}.fasta
 done
 ```
-List for csv:
+List for csv: https://docs.google.com/spreadsheets/d/1is_jiWsDoqj_1QIcunGJLoojmToX3z9TFvTSEWCY2jA/edit?gid=452898455#gid=452898455
+
 ```
 for CHR in chrX chrY chr6 chr10 chr17 ; do  
     realpath /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/initial_test/${CHR}/initial_test_${CHR}.fasta

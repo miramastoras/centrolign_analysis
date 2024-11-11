@@ -1,6 +1,6 @@
 sample_id,hor_fasta,guide_tree,NA
 chrX,/private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/initial_test/chrX/initial_test_chrX.fasta,/private/groups/patenlab/jeizenga/centromere/chrX/KGP4_Hg38_MAC10_chrX_MALES_chm13_HG002_HG005_HuRef.nwk.txt,NA
 chrY,/private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/initial_test/chrY/initial_test_chrY.fasta,NA,NA
-chr6,/private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/initial_test/chr6/initial_test_chr6.fasta,NA,NA
-chr10,/private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/initial_test/chr10/initial_test_chr10.fasta,NA,NA
-chr17,/private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/initial_test/chr17/initial_test_chr17.fasta,NA,NA
+chr6,/private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/initial_test/chr6/initial_test_chr6.fasta,/private/groups/patenlab/mira/centrolign/annotations/guide_trees/chr6_HPRC_cenhap.nwk,NA
+chr10,/private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/initial_test/chr10/initial_test_chr10.fasta,/private/groups/patenlab/mira/centrolign/annotations/guide_trees/chr10_HPRC_cenhap.nwk,NA
+chr17,/private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/initial_test/chr17/initial_test_chr17.fasta,/private/groups/patenlab/mira/centrolign/annotations/guide_trees/chr17_HPRC_cenhap.nwk,NA
