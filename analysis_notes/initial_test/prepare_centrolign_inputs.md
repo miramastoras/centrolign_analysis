@@ -137,6 +137,14 @@ https://github.com/miramastoras/centrolign_analysis/tree/main/batch_submissions/
 
 #### 2. Prepare centrolign inputs
 
+
+For chr6,10,17 need to remove cenhap label from tree
+```
+sed 's/_ch[1-9][0-9]*//g' chr6_HPRC_cenhap.nwk > chr6_HPRC.nwk
+sed 's/_ch[1-9][0-9]*//g' chr17_HPRC_cenhap.nwk > chr17_HPRC.nwk
+sed 's/_ch[1-9][0-9]*//g' chr10_HPRC_cenhap.nwk > chr10_HPRC.nwk
+```
+
 Get lists of fasta files containing complete HOR for each chrom
 ```
 cd /private/groups/patenlab/mira/centrolign/batch_submissions/extract_hors/initial_test
@@ -154,7 +162,8 @@ Get list of samples that are in the nwk tree
 
 https://docs.google.com/spreadsheets/d/1is_jiWsDoqj_1QIcunGJLoojmToX3z9TFvTSEWCY2jA/edit?gid=452898455#gid=452898455
 
-we don't have a tree for chrY, and the one for chrX has a different naming convention. 
+we don't have a tree for chrY.
+
 ```
 # get list of sample names as they'd be listed in tree
 for CHR in chrY chrX chr10 chr6 chr17 ; do  
@@ -167,7 +176,7 @@ for CHR in chr10 chr6 chr17 ; do
     NWK=`grep ${CHR} /private/groups/patenlab/mira/centrolign/github/centrolign_analysis/batch_submissions/centrolign/initial_test_sbatch/centrolign_initial_test_sbatch.csv | cut -f 3 -d","`
     while IFS= read -r pattern; do
       if grep -q "$pattern" $NWK; then
-        echo "$pattern"
+        echo "$pattern
         fi
     done < $SAMPLES > /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/initial_test/${CHR}/fasta_list.all_sample_ids.in_nwk.txt
   done
@@ -194,3 +203,34 @@ for CHR in chr6 chr10 chr17 ; do
   done
 ```
 Run as a batch submission:
+
+
+Deal with chrX separately:
+
+chrX newick file is labelled as all males but contains female samples, and all samples have .0 instead of .1 or .2. For now just going to run the male samples  
+```
+# remove haplotype label from samples containing chrX
+cat /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/initial_test/chrX/fasta_list.txt | while read line ; do basename $line | cut -f2 -d"." | sort | uniq ; done > /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/initial_test/chrX/fasta_list.all_sample_ids.txt
+
+# grep sample names that are in the guide tree
+for CHR in chrX ; do   
+    SAMPLES=/private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/initial_test/${CHR}/fasta_list.all_sample_ids.txt
+    NWK=/private/groups/patenlab/jeizenga/centromere/chrX/KGP4_Hg38_MAC10_chrX_MALES_chm13_HG002_HG005_HuRef.nwk.txt
+    while IFS= read -r pattern; do
+      if grep -q "$pattern" $NWK; then
+        echo "$pattern"
+        fi
+    done < $SAMPLES > /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/initial_test/${CHR}/fasta_list.all_sample_ids.in_nwk.txt
+done
+
+# remove female samples
+grep "female" /private/groups/patenlab/mira/centrolign/annotations/guide_trees/HPRC_Intermediate_Assembly_Data_Status.csv | cut -f 2 -d"," > /private/groups/patenlab/mira/centrolign/annotations/guide_trees/HPRC_Intermediate_Assembly_Data_Status.female_sample_ids.txt
+
+grep -Fvxf /private/groups/patenlab/mira/centrolign/annotations/guide_trees/HPRC_Intermediate_Assembly_Data_Status.female_sample_ids.txt /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/initial_test/chrX/fasta_list.all_sample_ids.in_nwk.txt > /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/initial_test/chrX/fasta_list.all_sample_ids.in_nwk.male_only.txt
+
+# replace naming inside fasta file to match newick
+cat /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/initial_test/chrX/fasta_list.all_sample_ids.in_nwk.male_only.txt | while read line ; do
+    sed 's/${line}.2//g'
+
+
+```
