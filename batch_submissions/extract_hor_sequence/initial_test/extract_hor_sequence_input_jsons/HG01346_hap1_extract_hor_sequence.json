@@ -1,0 +1,6 @@
+{
+  "extract_hor_sequence.sampleID": "HG01346_hap1",
+  "extract_hor_sequence.assemblyFasta": "s3://human-pangenomics/submissions/DC27718F-5F38-43B0-9A78-270F395F13E8--INT_ASM_PRODUCTION/HG01346/assemblies/freeze_2/HG01346_pat_hprc_r2_v1.fa.gz",
+  "extract_hor_sequence.asmToRefPaf": "/private/groups/patenlab/mira/centrolign/batch_submissions/Asm2AsmAlignerPaf/HG01346_hap1/analysis/Asm2AsmAlignerPaf_outputs/HG01346_pat_hprc_r2_v1.paf",
+  "extract_hor_sequence.horArrayBed": "/private/groups/patenlab/mira/centrolign/batch_submissions/extract_hor_sequence/initial_test/hor_array_beds_100kb_flanks/HG01346_hap1/HG01346_hap1_hor_arrays.100kb_flanks.bed"
+}

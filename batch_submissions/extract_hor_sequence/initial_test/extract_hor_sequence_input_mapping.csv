@@ -1,0 +1,5 @@
+input,type,value
+extract_hor_sequence.sampleID,scalar,$input.sample_id
+extract_hor_sequence.assemblyFasta,scalar,$input.assembly
+extract_hor_sequence.asmToRefPaf,scalar,$input.asm2asmPaf
+extract_hor_sequence.horArrayBed,scalar,$input.horArrayBed_flanks
