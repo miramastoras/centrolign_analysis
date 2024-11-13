@@ -9,7 +9,7 @@
 #SBATCH --cpus-per-task=1
 #SBATCH --output=slurm_logs/centrolign_initial_test_sbatch_%x_%j_%A_%a.log
 #SBATCH --time=72:00:00
-#SBATCH --array=[1,3-5]%4
+#SBATCH --array=[6]%4
 
 set -eux -o pipefail
 set -o xtrace

@@ -91,10 +91,10 @@ Run centrolign
 #SBATCH --time=72:00:00
 
 time /private/home/mmastora/progs/centrolign/build/centrolign -v 4 \
-    -S /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/initial_test/jobstore/ \
+    -S /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/initial_test/chr12/jobstore/ \
     -T /private/groups/patenlab/jeizenga/centromere/chr12/KGP4_TRIOS_MAC5_chr12_CPR_EHet30_no_PS_PID_PGT_lifted_over.v1.1_mask.nwk.txt \
-    /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/initial_test/chr12_hprc_r2_initial_test_inside_tree.fasta \
-    > /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/initial_test/chr12_hprc_r2_initial_test_inside_tree.centrolign.gfa
+    /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/initial_test/chr12/chr12_hprc_r2_initial_test_inside_tree.fasta \
+    > /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/initial_test/chr12/chr12_hprc_r2_initial_test_inside_tree.centrolign.gfa
 ```
 
 Do another run, with subset of 50 samples
@@ -256,5 +256,85 @@ Count number of samples in chrX,6,10,17
 
 ### Test expanding the flanks by 100 kb
 
+Expand flanks by 100kb, then rerun task for extracting the fasta sequence
 ```
+cd /private/groups/patenlab/mira/centrolign/batch_submissions/extract_hor_sequence/initial_test
+
+conda activate awscli
+mkdir -p hor_array_beds_100kb_flanks
+
+cut -f1 -d"," extract_hor_sequence_initial_test.csv | grep -v "sample_id" | while read line ; do
+    echo $line
+    mkdir -p hor_array_beds_100kb_flanks/${line}
+    bed=`grep $line extract_hor_sequence_initial_test.csv | cut -f 4 -d","`
+    fasta=`grep $line extract_hor_sequence_initial_test.csv | cut -f 2 -d","`
+
+    aws s3 cp ${fasta} hor_array_beds_100kb_flanks/${line}/
+    fasta_base=`basename ${fasta}`
+    samtools faidx hor_array_beds_100kb_flanks/${line}/${fasta_base}
+
+    awk -v OFS='\t' {'print $1,$2'} hor_array_beds_100kb_flanks/${line}/${fasta_base}.fai > hor_array_beds_100kb_flanks/${line}/${fasta_base}.fai.genome
+
+    bedtools slop -i ${bed} -b 100000 -g hor_array_beds_100kb_flanks/${line}/${fasta_base}.fai.genome > hor_array_beds_100kb_flanks/${line}/${line}_hor_arrays.100kb_flanks.bed
+
+    rm hor_array_beds_100kb_flanks/${line}/${fasta_base}
+    rm hor_array_beds_100kb_flanks/${line}/${fasta_base}.fai
+  done
+```
+https://github.com/miramastoras/centrolign_analysis/blob/main/wdl/tasks/extract_hor_sequence.wdl
+
+```
+# list files for csv
+cut -f1 -d"," extract_hor_sequence_initial_test.csv | grep -v "sample_id" | while read line ; do
+    realpath hor_array_beds_100kb_flanks/${line}/${line}_hor_arrays.100kb_flanks.bed
+  done > files.txt
+```
+
+CSV path: https://docs.google.com/spreadsheets/d/1is_jiWsDoqj_1QIcunGJLoojmToX3z9TFvTSEWCY2jA/edit?gid=357105836#gid=357105836
+
+batch submission:
+https://github.com/miramastoras/centrolign_analysis/tree/main/batch_submissions/extract_hor_sequence/initial_test
+
+Create directory for centrolign run
+```
+mkdir -p /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/initial_test_100kb_flanks/chr12
+```
+Remove samples which aren't in the tree
+```
+cd /private/groups/patenlab/mira/centrolign/batch_submissions/extract_hor_sequence/initial_test
+ls | while read line ; do realpath $line/analysis/extract_hor_sequence_outputs/*.fasta ; done | grep "chr12" > /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/initial_test_100kb_flanks/chr12/fasta_list.txt
+
+# get list of sample names as they'd be listed in tree
+cat /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/initial_test_100kb_flanks/chr12/fasta_list.txt | while read line ; do basename $line | cut -f3 -d"_" ; done > /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/initial_test_100kb_flanks/chr12/chr12_all_samples.txt
+
+# print those in tree
+SAMPLES=/private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/initial_test_100kb_flanks/chr12/chr12_all_samples.txt
+NWK=/private/groups/patenlab/jeizenga/centromere/chr12/KGP4_TRIOS_MAC5_chr12_CPR_EHet30_no_PS_PID_PGT_lifted_over.v1.1_mask.nwk.txt
+
+while IFS= read -r pattern; do
+  if grep -q "$pattern" $NWK; then
+    echo "$pattern"
+  fi
+done < $SAMPLES | wc -l
+
+# 128 / 161
+
+while IFS= read -r pattern; do
+  if grep -q "$pattern" $NWK; then
+    echo "$pattern"
+  fi
+done < $SAMPLES > /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/initial_test_100kb_flanks/chr12/chr12_all_samples.in_nwk.txt
+```
+
+Make new fasta containing only samples found in tree
+```
+cat /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/initial_test_100kb_flanks/chr12/chr12_all_samples.in_nwk.txt | while read line ; do
+    grep $line /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/initial_test_100kb_flanks/chr12/fasta_list.txt
+  done > /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/initial_test_100kb_flanks/chr12/fasta_list_inside_nwk.txt
+
+# combine fastas
+cat /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/initial_test_100kb_flanks/chr12/fasta_list_inside_nwk.txt | while read line ; do cat $line ; done > /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/initial_test_100kb_flanks/chr12/chr12_initial_test_100kb_flanks.fasta
+samtools faidx /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/initial_test_100kb_flanks/chr12/chr12_initial_test_100kb_flanks.fasta
+
+grep -v -f check /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/initial_test_100kb_flanks/chr12/chr12_all_samples.in_nwk.txt  
 ```

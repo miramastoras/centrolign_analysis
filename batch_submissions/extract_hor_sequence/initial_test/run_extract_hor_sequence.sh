@@ -28,8 +28,8 @@ python3 /Users/miramastoras/Desktop/Paten_lab/hprc_intermediate_assembly/hpc/lau
 git -C  /private/groups/patenlab/mira/centrolign/github/centrolign_analysis/ pull
 
 # move to working dir
-mkdir -p /private/groups/patenlab/mira/centrolign/batch_submissions/extract_hor_sequence/initial_test
-cd /private/groups/patenlab/mira/centrolign/batch_submissions/extract_hor_sequence/initial_test
+mkdir -p /private/groups/patenlab/mira/centrolign/batch_submissions/extract_hor_sequence/initial_test/
+cd /private/groups/patenlab/mira/centrolign/batch_submissions/extract_hor_sequence/initial_test/
 
 ## get files
 cp -r /private/groups/patenlab/mira/centrolign/github/centrolign_analysis/batch_submissions/extract_hor_sequence/initial_test/* ./

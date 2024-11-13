@@ -4,3 +4,4 @@ chrY,/private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/initi
 chr6,/private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/initial_test/chr6/initial_test_chr6.fasta,/private/groups/patenlab/mira/centrolign/annotations/guide_trees/chr6_HPRC.nwk,NA
 chr10,/private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/initial_test/chr10/initial_test_chr10.fasta,/private/groups/patenlab/mira/centrolign/annotations/guide_trees/chr10_HPRC.nwk,NA
 chr17,/private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/initial_test/chr17/initial_test_chr17.fasta,/private/groups/patenlab/mira/centrolign/annotations/guide_trees/chr17_HPRC.nwk,NA
+chr12_100kb_flanks,/private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/initial_test_100kb_flanks/chr12/chr12_initial_test_100kb_flanks.fasta,/private/groups/patenlab/jeizenga/centromere/chr12/KGP4_TRIOS_MAC5_chr12_CPR_EHet30_no_PS_PID_PGT_lifted_over.v1.1_mask.nwk.txt,NA
