@@ -28,7 +28,7 @@ mkdir -p ${SAVE_FILES}
 
 cd /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/initial_test/${CHR}/
 
-time /private/home/mmastora/progs/centrolign/build/centrolign -v 4 \
+/private/home/mmastora/progs/centrolign/build/centrolign -v 4 \
     -S ${SAVE_FILES} \
     -T ${TREE} \
     ${HOR_FASTA} \

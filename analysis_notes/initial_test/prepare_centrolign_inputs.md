@@ -242,3 +242,19 @@ done > /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/ini
 cat /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/initial_test/chrX/all_sample_ids.in_nwk.male_only.full_path.txt | while read line ; do cat $line ; done > /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/initial_test/chrX/initial_test_chrX.male_only.fasta
 samtools faidx /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/initial_test/chrX/initial_test_chrX.male_only.fasta
 ```
+
+Count number of samples in chrX,6,10,17
+```
+40 /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/initial_test/chrX/initial_test_chrX.male_only.fasta.fai
+
+80 /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/initial_test/chr6/initial_test_chr6.fasta.fai
+
+117 /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/initial_test/chr10/initial_test_chr10.fasta.fai
+
+47 /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/initial_test/chr17/initial_test_chr17.fasta.fai
+```
+
+### Test expanding the flanks by 100 kb
+
+```
+```
