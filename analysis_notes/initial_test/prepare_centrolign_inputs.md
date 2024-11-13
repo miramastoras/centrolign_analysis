@@ -336,5 +336,11 @@ cat /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/initia
 cat /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/initial_test_100kb_flanks/chr12/fasta_list_inside_nwk.txt | while read line ; do cat $line ; done > /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/initial_test_100kb_flanks/chr12/chr12_initial_test_100kb_flanks.fasta
 samtools faidx /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/initial_test_100kb_flanks/chr12/chr12_initial_test_100kb_flanks.fasta
 
-grep -v -f check /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/initial_test_100kb_flanks/chr12/chr12_all_samples.in_nwk.txt  
+grep -v -f check chr12_all_samples.in_nwk.txt
+
+HG01346.1
+HG02572.1
+HG03688.1
 ```
+
+diff /private/groups/patenlab/mira/centrolign/batch_submissions/extract_hors_from_assemblies_sbatch/HG01346_hap2/HG01346_hap2_hor_arrays.bed /private/groups/patenlab/mira/centrolign/batch_submissions/extract_hors/initial_test/HG01346_hap2/analysis/extract_hors_outputs/HG01346_hap2_hor_arrays.bed

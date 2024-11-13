@@ -26,7 +26,7 @@ RUN python --version
 
 # Get centromere scripts
 WORKDIR /opt
-RUN git clone https://github.com/jeizenga/centromere-scripts.git
+RUN git clone https://github.com/miramastoras/centromere-scripts.git
 
 # get samtools
 WORKDIR /opt/samtools
