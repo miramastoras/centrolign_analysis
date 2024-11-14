@@ -343,4 +343,59 @@ HG02572.1
 HG03688.1
 ```
 
-diff /private/groups/patenlab/mira/centrolign/batch_submissions/extract_hors_from_assemblies_sbatch/HG01346_hap2/HG01346_hap2_hor_arrays.bed /private/groups/patenlab/mira/centrolign/batch_submissions/extract_hors/initial_test/HG01346_hap2/analysis/extract_hors_outputs/HG01346_hap2_hor_arrays.bed
+Discovered an issue where sequences with Ns don't get reverse complemented. We don't want to include Asats with gaps in future runs.
+
+For now, remove these samples from chr12 and chr12 100kb flanks
+```
+cd /private/groups/patenlab/mira/centrolign/batch_submissions/extract_hor_sequence/initial_test
+ls | while read line ; do realpath $line/analysis/extract_hor_sequence_outputs/*.fasta ; done | grep "chr12" > /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/initial_test/initial_test_100kb_flanks/chr12/fasta_list.txt
+
+cat /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/initial_test/initial_test_100kb_flanks/chr12/chr12_all_samples.in_nwk.txt | grep -v "HG03688.1" | grep -v "HG02572.1" | grep -v "HG01346.1" | while read line ; do
+    grep $line /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/initial_test/initial_test_100kb_flanks/chr12/fasta_list.txt
+  done > /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/initial_test/initial_test_100kb_flanks/chr12/fasta_list_inside_nwk.txt
+
+# combine fastas
+cat /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/initial_test/initial_test_100kb_flanks/chr12/fasta_list_inside_nwk.txt | while read line ; do cat $line ; done > /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/initial_test/initial_test_100kb_flanks/chr12/chr12_initial_test_100kb_flanks.fasta
+samtools faidx /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/initial_test/initial_test_100kb_flanks/chr12/chr12_initial_test_100kb_flanks.fasta
+
+```
+
+Chr 12 initial run:
+Remove samples which aren't in the tree
+```
+cd /private/groups/patenlab/mira/centrolign/batch_submissions/extract_hors/initial_test
+
+ls | while read line ; do realpath ${line}/analysis/extract_hors_outputs/*.fasta ; done | grep "hor_array" | grep "chr12" > /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/initial_test/chr12/fasta_list.txt
+
+# get list of sample names as they'd be listed in tree
+cat /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/initial_test/chr12/fasta_list.txt | while read line ; do basename $line | cut -f3 -d"_" ; done > /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/initial_test/chr12/chr12_initial_test_all_samples.txt
+
+# print those in tree
+SAMPLES=/private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/initial_test/chr12/chr12_initial_test_all_samples.txt
+NWK=/private/groups/patenlab/jeizenga/centromere/chr12/KGP4_TRIOS_MAC5_chr12_CPR_EHet30_no_PS_PID_PGT_lifted_over.v1.1_mask.nwk.txt
+
+while IFS= read -r pattern; do
+  if grep -q "$pattern" $NWK; then
+    echo "$pattern"
+  fi
+done < $SAMPLES | wc -l
+
+# 128 / 161
+
+while IFS= read -r pattern; do
+  if grep -q "$pattern" $NWK; then
+    echo "$pattern"
+  fi
+done < $SAMPLES > chr12_hprc_r2_initial_test_in_nwk.txt
+```
+
+Make new fasta containing only samples found in tree
+```
+cat chr12_hprc_r2_initial_test_in_nwk.txt | while read line ; do
+    grep $line /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/initial_test/chr12/fasta_list.txt
+  done > /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/initial_test/chr12/fasta_list_inside_nwk.txt
+
+# combine fastas
+cat /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/initial_test/chr12/fasta_list_inside_nwk.txt | grep -v "HG03688.1" | grep -v "HG02572.1" | grep -v "HG01346.1" | while read line ; do cat $line ; done > chr12_hprc_r2_initial_test_inside_tree.fasta
+samtools faidx chr12_hprc_r2_initial_test_inside_tree.fasta
+```
