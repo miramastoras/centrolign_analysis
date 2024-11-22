@@ -14,6 +14,7 @@ from ete3 import Tree, TreeStyle
 from Bio import Phylo
 import numpy as np
 from scipy.cluster.hierarchy import dendrogram
+from matplotlib.patches import Rectangle
 
 def arg_parser():
     '''
@@ -32,7 +33,6 @@ def arg_parser():
 
     return parser.parse_args()
 
-
 def tree_to_linkage_matrix(biopython_tree):
     # definition of linkage matrix:
     # https://docs.scipy.org/doc/scipy/reference/generated/scipy.cluster.hierarchy.linkage.html
@@ -40,19 +40,23 @@ def tree_to_linkage_matrix(biopython_tree):
 
     # create tree object via Biopython (Bio.Phylo)
     tree = biopython_tree
+
     # calculate tree height
     tree_height = max(tree.distance(c) for c in tree.find_clades(terminal=True))
-    # add comment with id and span of terminal nodes:
+    # map labels used in linkage matrix to sample names:
     id_map = {}
     for i, c in enumerate(tree.find_clades(terminal=True)):
         c.comment = (i, 1)
-        id_map = {i: c.name}
-    # ancestor list orderred by distance from the root
+        id_map[i] = c.name
+    print(id_map)
+    #Phylo.draw(tree)
+    # Internal nodes (ancestors) are collected with their distances from the root and sorted in descending order of distance.
     anc_lst = []
     for c in tree.find_clades(terminal=False):
         d = tree.distance(c)
         anc_lst.append((c, list(c), d))
     anc_lst.sort(key=lambda x: x[2], reverse=True)
+    print(anc_lst)
     # running number of node
     nodes = len(list(tree.find_clades(terminal=True)))
     lnk_lst = []
@@ -91,31 +95,41 @@ def main():
     # read back in pruned tree
     tree = Phylo.read("/Users/miramastoras/Desktop/pruned_tree.nwk", "newick")
 
+    # Plot two matplotlib grids side by side
+    fig, axes = plt.subplots(1, 2, figsize=(12, 6), gridspec_kw = {'wspace':0, 'hspace':0})
+
     # convert newick to linkage matrix
-    linkage_matrix, _ = tree_to_linkage_matrix(tree)
+    linkage_matrix, id_map = tree_to_linkage_matrix(tree)
 
-    # Plotting
-    fig, axes = plt.subplots(1, 2, figsize=(12, 6), gridspec_kw = {'wspace':.1, 'hspace':0})
+    # plot dendogram on left axes
+    dn1 = dendrogram(linkage_matrix, ax=axes[0], orientation='left',labels=[id_map.get(i, str(i)) for i in range(len(id_map))])
 
-    dn1 = dendrogram(linkage_matrix, ax=axes[0], orientation='left')
-
-    axes[0].set_title('Tree')
-    axes[0].set_title('Pairwise Metric')
+    axes[0].set_title('Pruned Guide Tree')
+    axes[1].set_title('Pairwise Metric')
 
     # Remove x and y axis labels
     axes[1].set_xlabel('')  # Remove x axis label
     axes[1].set_ylabel('')  # Remove y axis label
-    axes[1].set_xticks([])  # Remove x ticks
+    #axes[1].set_xticks([])  # Remove x ticks
     axes[1].set_yticks([])  # Remove y ticks
 
-    # Add labels for the distances
-    for i, dcoord in enumerate(dn1['dcoord']):
-        # The distances for each connection
-        for j in range(1, len(dcoord), 2):  # Take only the middle points of the branches
-            x = (dn1['icoord'][i][j] + dn1['icoord'][i][j - 1]) / 2  # Get x position
-            y = dcoord[j]  # Get the corresponding y position
-            axes[0].text(x, y, f'{y:.2f}', color='black', ha='center', va='bottom', fontsize=10)  # Label the distance
+    leaf_label_y_map = {}
+    for tick in axes[0].get_yticklabels():
+        tick.set_verticalalignment('bottom')
+        leaf_label_y_map[str(tick.get_text())] = int(tick.get_position()[1])
+    # get mapping of y position of leaves and leaf labels
 
+
+    print(leaf_label_y_map)
+
+    # plot labels
+    for sample in leaf_label_y_map.keys():
+        plt.plot([0,0.1], [leaf_label_y_map[sample],leaf_label_y_map[sample]], linestyle=':')
+        axes[1].text(0, leaf_label_y_map[sample], sample, fontsize=6, color='black',va='bottom')
+
+    # set heatmap grid y axes to same scale as the tree grid, so labels match up.
+    axes[1].set_ylim(float(axes[0].get_ylim()[0]), float(axes[0].get_ylim()[1]))
+    axes[1].set_xlim(0,1)
     # Show the plot
     plt.show()
 if __name__ == '__main__':
