@@ -399,3 +399,9 @@ cat chr12_hprc_r2_initial_test_in_nwk.txt | while read line ; do
 cat /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/initial_test/chr12/fasta_list_inside_nwk.txt | grep -v "HG03688.1" | grep -v "HG02572.1" | grep -v "HG01346.1" | while read line ; do cat $line ; done > chr12_hprc_r2_initial_test_inside_tree.fasta
 samtools faidx chr12_hprc_r2_initial_test_inside_tree.fasta
 ```
+
+### Testing out Jordan's matrix script
+
+```
+~/progs/centrolign/build/make_var_mat /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/initial_test/chrX/initial_test_chrX.centrolign.gfa > /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/initial_test/chrX/initial_test_chrX_var_mat.tsv
+```

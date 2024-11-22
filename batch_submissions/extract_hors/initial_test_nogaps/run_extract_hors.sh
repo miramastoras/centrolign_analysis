@@ -48,7 +48,7 @@ sbatch \
      --mem=400gb \
      --mail-type=FAIL,END \
      --mail-user=mmastora@ucsc.edu \
-     /private/groups/hprc/hprc_intermediate_assembly/hpc/toil_sbatch_single_machine_debug.sh \
+     ~/progs/hprc_intermediate_assembly/hpc/toil_sbatch_single_machine_debug.sh \
      --wdl /private/groups/patenlab/mira/centrolign/github/centrolign_analysis/wdl/tasks/extract_hors.wdl \
      --sample_csv extract_hors_initial_test_nogaps.csv \
      --input_json_path '../extract_hors_input_jsons/${SAMPLE_ID}_extract_hors.json'
