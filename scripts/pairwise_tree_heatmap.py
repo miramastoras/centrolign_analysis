@@ -146,18 +146,32 @@ def main():
         axes[1].plot([0,1], [leaf_label_y_map[sample],leaf_label_y_map[sample]], linestyle=':')
         axes[1].text(0, leaf_label_y_map[sample], sample, fontsize=6, color='black',va='bottom')
 
-    # set diamond width to distance between adjacent leaves
-    diamond_diameter=leaf_label_y_map[id_map[1]] - leaf_label_y_map[id_map[0]]
+    # the diamond diagonal is equal to the distance between adjacent leaves on the y axis
+    diagonal=leaf_label_y_map[id_map[1]] - leaf_label_y_map[id_map[0]]
 
     print(id_map)
-    for pair in pairwise_vals.keys():
-        diamond_xy = [(grid1_ylim[0], leaf_label_y_map[pair[0]]), \
-                    (grid1_ylim[0] - diamond_diameter/2,  leaf_label_y_map[pair[1]] - leaf_label_y_map[pair[0]] ), \
-                    (grid1_ylim[0], leaf_label_y_map[pair[1]]), \
-                    (grid1_ylim[0] + diamond_diameter/2,  leaf_label_y_map[pair[1]] - leaf_label_y_map[pair[0]] )]
+    print(leaf_label_y_map)
 
-        diamond = patches.Polygon(diamond_xy, fill=True, edgecolor='red')
-        axes[2].add_patch(diamond)
+    # loop through id_map position labels (0 to num samples - 1)
+    positions = list(id_map.keys())
+
+    for pos1 in range(len(positions)):
+        for pos2 in range(pos1 + 1, len(positions)):
+            bottom=[((diagonal/2)*(pos2-pos1-1)),((pos1+pos2)/2)-(diagonal/2)]
+            top=[bottom[0],bottom[1]+diagonal]
+            left=[bottom[0]-(diagonal/2),bottom[1]+(diagonal/2)]
+            right=[bottom[0]+(diagonal/2),bottom[1]+(diagonal/2)]
+
+            # draw diamond for current pair
+            diamond_xy=[bottom,left,top,right]
+            diamond = patches.Polygon(diamond_xy, fill=True, edgecolor='red')
+            axes[2].add_patch(diamond)
+
+    # for pair in pairwise_vals.keys():
+    #     diamond_xy =
+    #
+    #     diamond = patches.Polygon(diamond_xy, fill=True, edgecolor='red')
+    #     axes[2].add_patch(diamond)
 
     # hide y axis labels for dendogram
     axes[0].set_yticklabels([])
