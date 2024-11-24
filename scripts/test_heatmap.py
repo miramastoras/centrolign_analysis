@@ -30,4 +30,31 @@ for pos1 in range(len(positions)):
         diamond = patches.Polygon(diamond_xy, fill=True, edgecolor='red')
         axes.add_patch(diamond)
 
-plt.show()
+#plt.show()
+
+from itertools import combinations
+import random
+
+samples = [
+    "NA06985.1",
+    "NA06991.1",
+    "NA06997.2",
+    "NA18501.1",
+    "NA19103.1",
+    "NA18498.2",
+    "NA19983.2",
+    "HG00408.2",
+    "HG00447.1",
+    "HG00464.1",
+    "NA20128.1"
+]
+
+# Generate all pairs with random values
+pairs = []
+for pair in combinations(samples, 2):
+    random_value = random.random()  # generates number between 0 and 1
+    pairs.append((pair[0], pair[1], random_value))
+
+# Print all pairs
+for pair in pairs:
+    print(f"{pair[0]},{pair[1]},{pair[2]:.3f}")

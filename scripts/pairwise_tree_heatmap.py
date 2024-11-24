@@ -5,8 +5,9 @@ Purpose: Plot tree with heatmap displaying pairwise input values
 Author: Mira Mastoras, mmastora@ucsc.edu
 python3 pairwise_tree_heatmap.py \
         -t /Users/miramastoras/Desktop/tree_heatmap/KGP4_TRIOS_MAC5_chr12_CPR_EHet30_no_PS_PID_PGT_lifted_over.v1.1_mask.nwk.txt \
-        -s /Users/miramastoras/Desktop/tree_heatmap/samples.txt \
-        -p /Users/miramastoras/Desktop/tree_heatmap/pairwise_combinations.csv
+        -s /Users/miramastoras/Desktop/tree_heatmap/samples2.txt \
+        -p /Users/miramastoras/Desktop/tree_heatmap/pairwise_combinations2.csv \
+        -o
 '''
 
 import argparse
@@ -36,6 +37,9 @@ def arg_parser():
     parser.add_argument("-p", "--pairwise_values",
                         required=True,
                         help="csv file with pairwise sample combinations in col1-2 and heatmap value in col3")
+    parser.add_argument("-o", "--output_dir",
+                        required=True,
+                        help="directory path to write output files to")
 
     return parser.parse_args()
 
@@ -96,11 +100,11 @@ def main():
     tree.prune(samples, preserve_branch_length=True)
 
     # write out pruned tree to file
-    with open("/Users/miramastoras/Desktop/pruned_tree.nwk", "w") as output_file:
+    with open(args.output_dir+"pruned_tree.nwk", "w") as output_file:
         output_file.write(tree.write())
 
     # read back in pruned tree
-    tree = Phylo.read("/Users/miramastoras/Desktop/pruned_tree.nwk", "newick")
+    tree = Phylo.read(args.output_dir+"pruned_tree.nwk", "newick")
 
     pairwise_vals={}
     # Read in heatmap values
@@ -209,6 +213,8 @@ def main():
     axes[0].set_title('Pruned Guide Tree')
     axes[2].set_title('Pairwise Metric')
     axes[0].set_xlabel('KYA')
-    plt.show()
+
+    #plt.show()
+    fig.savefig(args.output_dir+"pairwise_tree_heatmap.png", dpi=600)
 if __name__ == '__main__':
     main()
