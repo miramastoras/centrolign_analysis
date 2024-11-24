@@ -108,21 +108,21 @@ def main():
         reader = csv.reader(csvfile)
         headers = next(reader)  # Skip the header row
         for row in reader:
-            key = (row[0], row[1])  # Combine column 1 and 2 as the key
+            key = "_".join(sorted([row[0],row[1]]))
             value = float(row[2])  # Column 3 as the value
             pairwise_vals[key] = value
 
+    min_pairwise = min(pairwise_vals.values())  # 10
+    max_pairwise = max(pairwise_vals.values())
+
     # Plot two matplotlib grids side by side
-    fig, axes = plt.subplots(1, 3, figsize=(12, 6), gridspec_kw = {'wspace':0, 'hspace':0,'width_ratios': [4, .5,4]})
+    fig, axes = plt.subplots(1, 4, figsize=(12, 6), gridspec_kw = {'wspace':0, 'hspace':0,'width_ratios': [4, .5,2,.25]})
 
     # convert newick to linkage matrix
     linkage_matrix, id_map = tree_to_linkage_matrix(tree)
 
     # plot dendogram on left axes
-    dn1 = dendrogram(linkage_matrix, ax=axes[0], orientation='left',labels=[id_map.get(i, str(i)) for i in range(len(id_map))])
-
-    axes[0].set_title('Pruned Guide Tree')
-    axes[2].set_title('Pairwise Metric')
+    dn1 = dendrogram(linkage_matrix, ax=axes[0], orientation='left',labels=[id_map.get(i, str(i)) for i in range(len(id_map))],link_color_func=lambda x: 'black')
 
     # get mapping of y position of leaves and leaf labels
     leaf_label_y_map = {}
@@ -130,53 +130,85 @@ def main():
         tick.set_verticalalignment('bottom') # required for label position to exactly match where leaf ends on dendogram
         leaf_label_y_map[str(tick.get_text())] = int(tick.get_position()[1])
 
+    # the diamond diagonal is equal to the distance between adjacent leaves on the y axis
+    diagonal = leaf_label_y_map[id_map[1]] - leaf_label_y_map[id_map[0]]
+    offset = diagonal / 2
+
     # set heatmap grid y lim to same y lim as the tree grid, so labels match up. also the label grid in the middle
     # get y lim of grid 2 and 3 to match the dendogram, so everything lines up with leaves
     grid1_ylim=[float(axes[0].get_ylim()[0]), float(axes[0].get_ylim()[1])]
+
     axes[1].set_ylim(grid1_ylim)
     axes[2].set_ylim(grid1_ylim)
-    # set x axis in grid 3 symmetrical so diamond is square
-    axes[2].set_xlim(grid1_ylim)
+
+    # set x axis in grid 3 symmetrical so diamond is square, plus offset to show entire square for first column
+    axes[2].set_xlim(float(axes[0].get_ylim()[0])-offset, float(axes[0].get_ylim()[1])/2)
     axes[1].set_xlim(0,1)
     axes[1].set_axis_off()
 
     # plot sample labels on axes 1
     label_ends=(float(axes[0].get_ylim()[1])) / 7
     for sample in leaf_label_y_map.keys():
-        axes[1].plot([0,1], [leaf_label_y_map[sample],leaf_label_y_map[sample]], linestyle=':')
-        axes[1].text(0, leaf_label_y_map[sample], sample, fontsize=6, color='black',va='bottom')
+        axes[1].plot([0,1], [leaf_label_y_map[sample],leaf_label_y_map[sample]], linestyle=':',color="black")
+        axes[1].text(0, leaf_label_y_map[sample], sample, fontsize=7, color='black',va='bottom')
 
-    # the diamond diagonal is equal to the distance between adjacent leaves on the y axis
-    diagonal=leaf_label_y_map[id_map[1]] - leaf_label_y_map[id_map[0]]
+    # heatmap colors
+    # Color scale
+    seafoam = (159 / 255, 226 / 255, 191 / 255)
+    deepblue = (0, 0, 139 / 255)
+    R = np.linspace(seafoam[0], deepblue[0], 101)  # 101 steps going from 1 to 0
+    G = np.linspace(seafoam[1], deepblue[1], 101)
+    B = np.linspace(seafoam[2], deepblue[2], 101)
 
-    print(id_map)
-    print(leaf_label_y_map)
+    # plot color scale in fourth grid
+    for i in np.arange(0, 100, 1):
+        rectangle = patches.Rectangle([0,( i / 100)], 1, 0.1,
+                                         # move rectangle position with i , go in steps of 10 with 10 width
+                                         facecolor=(R[i], G[i], B[i]),
+                                         linewidth=0)
+        axes[3].add_patch(rectangle)  # add rectangle to panel everytime we go through the loop
+
+    axes[3].set_yticks([0,1])
+    axes[3].set_xticklabels([])
+    # normalize range of expression values between 0 and 100
+    def normalizePoint(minVal, maxVal, x):
+        return (int(((x - minVal) / (maxVal - minVal)) * 100))
 
     # loop through id_map position labels (0 to num samples - 1)
     positions = list(id_map.keys())
 
+    # plot heatmap!
     for pos1 in range(len(positions)):
         for pos2 in range(pos1 + 1, len(positions)):
-            bottom=[((diagonal/2)*(pos2-pos1-1)),((pos1+pos2)/2)-(diagonal/2)]
+            dict_key="_".join(sorted([id_map[pos1],id_map[pos2]]))
+            val=pairwise_vals[dict_key]
+            norm_val = normalizePoint(min_pairwise, max_pairwise, float(val))
+
+            y_pos1=leaf_label_y_map[id_map[pos1]]
+            y_pos2=leaf_label_y_map[id_map[pos2]]
+            bottom=[((diagonal/2)*(pos2-pos1-1)),((y_pos1+y_pos2)/2)-(diagonal/2)]
             top=[bottom[0],bottom[1]+diagonal]
-            left=[bottom[0]-(diagonal/2),bottom[1]+(diagonal/2)]
-            right=[bottom[0]+(diagonal/2),bottom[1]+(diagonal/2)]
+            left=[(bottom[0]-(diagonal/2)),(bottom[1]+(diagonal/2))]
+            right=[(bottom[0]+(diagonal/2)),(bottom[1]+(diagonal/2))]
 
             # draw diamond for current pair
             diamond_xy=[bottom,left,top,right]
-            diamond = patches.Polygon(diamond_xy, fill=True, edgecolor='red')
+            diamond = patches.Polygon(diamond_xy, fill=True, facecolor=(R[norm_val],G[norm_val],B[norm_val]),)
             axes[2].add_patch(diamond)
-
-    # for pair in pairwise_vals.keys():
-    #     diamond_xy =
-    #
-    #     diamond = patches.Polygon(diamond_xy, fill=True, edgecolor='red')
-    #     axes[2].add_patch(diamond)
 
     # hide y axis labels for dendogram
     axes[0].set_yticklabels([])
     # Show the plot
     axes[2].set_axis_off()
+    axes[0].yaxis.set_visible(False)  # Hide y-axis ticks and labels
+    axes[0].spines['left'].set_visible(False)  # Hide the left spine
+    axes[0].spines['right'].set_visible(False)  # Hide the right spine (optional)
+    axes[0].spines['top'].set_visible(False)
+    # Keep the x-axis
+    axes[0].xaxis.set_visible(True)
+    axes[0].set_title('Pruned Guide Tree')
+    axes[2].set_title('Pairwise Metric')
+    axes[0].set_xlabel('KYA')
     plt.show()
 if __name__ == '__main__':
     main()
