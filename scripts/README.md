@@ -1,6 +1,6 @@
 # Centrolign analysis scripts
 
-1. pairwise_tree_heatmap.py
+## 1. pairwise_tree_heatmap.py
 
 Plots a heatmap of any pairwise input values for input samples (for example, alignment distances from centrolign) next to their guide tree.
 
@@ -15,4 +15,4 @@ python3 pairwise_tree_heatmap.py \
         -o output.png
 ```
 
-`-p` needs to be include a header with the values `sample1,sample2,pairwise_metric`
+`-p` needs to include a header with the values `sample1,sample2,pairwise_metric`
