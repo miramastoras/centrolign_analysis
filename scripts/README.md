@@ -4,7 +4,7 @@
 
 Plots a heatmap of any pairwise input values for input samples (for example, alignment distances from centrolign) next to their guide tree.
 
-![tree heatmap example](pics/pairwise_tree_heatmap.png)
+![tree](pics/pairwise_tree_heatmap.png)
 
 Usage:
 ```
