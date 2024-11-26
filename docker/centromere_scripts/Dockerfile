@@ -28,7 +28,7 @@ RUN apt-get -y update && \
  pip install svgwrite
 
 RUN apt-get install -y python3-qt4 python3-lxml python3-six python3-matplotlib && \
- easy_install -U ete3
+ pip install --upgrade ete3
 
 # Set Python 3 as the default
 RUN ln -s /usr/bin/python3 /usr/bin/python
@@ -52,5 +52,14 @@ RUN wget https://github.com/samtools/samtools/releases/download/1.9/samtools-1.9
     make && \
     mkdir -p /root/bin/samtools_1.9 && \
     cp samtools /root/bin/samtools_1.9
+
+# install mummer
+RUN wget https://github.com/mummer4/mummer/releases/download/v4.0.0rc1/mummer-4.0.0rc1.tar.gz && \
+    tar xvfz mummer-4.0.0rc1.tar.gz && \
+    cd mummer-4.0.0rc1/ && \
+    autoreconf -fi && \
+    ./configure --prefix=/usr/bin && \
+    make && make install && \
+    cd .. && rm mummer-4.0.0rc1.tar.gz
 
 WORKDIR /data
