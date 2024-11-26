@@ -7,7 +7,7 @@ python3 pairwise_tree_heatmap.py \
         -t /Users/miramastoras/Desktop/tree_heatmap/KGP4_TRIOS_MAC5_chr12_CPR_EHet30_no_PS_PID_PGT_lifted_over.v1.1_mask.nwk.txt \
         -s /Users/miramastoras/Desktop/tree_heatmap/samples2.txt \
         -p /Users/miramastoras/Desktop/tree_heatmap/pairwise_combinations2.csv \
-        -o
+        -o 
 '''
 
 import argparse
@@ -37,6 +37,10 @@ def arg_parser():
     parser.add_argument("-p", "--pairwise_values",
                         required=True,
                         help="csv file with pairwise sample combinations in col1-2 and heatmap value in col3")
+    parser.add_argument("-m", "--metric_label",
+                        required=False,
+                        default="Alignment Distance",
+                        help="label of pairwise metric to plot in heatmap")
     parser.add_argument("-o", "--output_dir",
                         required=True,
                         help="directory path to write output files to")
@@ -172,7 +176,9 @@ def main():
                                          linewidth=0)
         axes[3].add_patch(rectangle)  # add rectangle to panel everytime we go through the loop
 
-    axes[3].set_yticks([0,1])
+    axes[3].yaxis.tick_right()
+    axes[3].yaxis.set_label_position("right")
+    #axes[3].set_yticks([0,1])
     axes[3].set_xticklabels([])
     # normalize range of expression values between 0 and 100
     def normalizePoint(minVal, maxVal, x):
@@ -211,7 +217,7 @@ def main():
     # Keep the x-axis
     axes[0].xaxis.set_visible(True)
     axes[0].set_title('Pruned Guide Tree')
-    axes[2].set_title('Pairwise Metric')
+    axes[2].set_title(args.metric_label)
     axes[0].set_xlabel('KYA')
 
     #plt.show()
