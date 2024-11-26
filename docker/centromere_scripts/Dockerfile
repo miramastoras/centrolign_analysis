@@ -22,13 +22,12 @@ RUN pip install pysam
 
 #Install python, biopython
 RUN apt-get -y update && \
- apt-get install -y python-numpy python-scipy python-dev python-pip && \
+ apt-get install -y python3-numpy python3-scipy python3-dev && \
  easy_install -f http://biopython.org/DIST/ biopython && \
  apt-get install -y libatlas-base-dev gfortran && \
- pip install --upgrade scipy && \
  pip install svgwrite
 
-RUN apt-get install -y python-qt4 python-lxml python-six python-matplotlib && \
+RUN apt-get install -y python3-qt4 python3-lxml python3-six python3-matplotlib && \
  easy_install -U ete3
 
 # Set Python 3 as the default
