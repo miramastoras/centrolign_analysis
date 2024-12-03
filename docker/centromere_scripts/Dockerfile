@@ -54,12 +54,17 @@ RUN wget https://github.com/samtools/samtools/releases/download/1.9/samtools-1.9
     cp samtools /root/bin/samtools_1.9
 
 # install mummer
-RUN wget https://github.com/mummer4/mummer/releases/download/v4.0.0rc1/mummer-4.0.0rc1.tar.gz && \
-    tar xvfz mummer-4.0.0rc1.tar.gz && \
-    cd mummer-4.0.0rc1/ && \
-    autoreconf -fi && \
-    ./configure --prefix=/usr/bin && \
-    make && make install && \
-    cd .. && rm mummer-4.0.0rc1.tar.gz
+ARG MUMMER_VER="4.0.0"
+
+RUN wget https://github.com/mummer4/mummer/releases/download/v${MUMMER_VER}rc1/mummer-${MUMMER_VER}rc1.tar.gz && \
+  tar -xvf mummer-${MUMMER_VER}rc1.tar.gz && \
+  rm mummer-${MUMMER_VER}rc1.tar.gz && \
+  cd mummer-${MUMMER_VER}rc1 && \
+  ./configure && \
+  make && \
+  make install && \
+  ldconfig && \
+  cd .. && \
+  mkdir /data
 
 WORKDIR /data
