@@ -27,7 +27,7 @@ RUN apt-get -y update && \
  apt-get install -y libatlas-base-dev gfortran && \
  pip install svgwrite
 
-RUN apt-get install -y python-qt4 python-lxml python-six python3-matplotlib && \
+RUN apt-get install -y python-six python3-matplotlib && \
  pip install --upgrade ete3
 
 # Set Python 3 as the default
