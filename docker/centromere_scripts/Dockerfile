@@ -36,6 +36,7 @@ RUN ln -s /usr/bin/python3 /usr/bin/python
 # Verify the Python version
 RUN python --version
 
+RUN pip install pandas 
 # Get centromere scripts
 WORKDIR /opt
 RUN git clone https://github.com/miramastoras/centromere-scripts.git
