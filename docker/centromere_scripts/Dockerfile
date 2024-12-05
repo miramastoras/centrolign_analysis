@@ -27,6 +27,9 @@ RUN apt-get -y update && \
  apt-get install -y libatlas-base-dev gfortran && \
  pip install svgwrite
 
+RUN pip install lxml
+RUN pip install PyQt5
+
 RUN apt-get install -y python-six python3-matplotlib && \
  pip install --upgrade ete3
 
