@@ -29,7 +29,7 @@ RUN apt-get -y update && \
 
 RUN pip install lxml
 RUN apt-get install -y libgl1
-RUN pip install PyQt5=5.15.7
+RUN pip install PyQt5==5.15.7
 
 RUN apt-get install -y python-six python3-matplotlib && \
  pip install --upgrade ete3
