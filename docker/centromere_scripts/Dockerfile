@@ -27,6 +27,7 @@ RUN apt-get -y update && \
  apt-get install -y libatlas-base-dev gfortran && \
  pip install svgwrite
 
+# install ete3 dependencies, then ete3
 RUN pip install lxml
 RUN apt-get install -y libgl1
 RUN pip install PyQt5==5.15.7
@@ -41,6 +42,8 @@ RUN ln -s /usr/bin/python3 /usr/bin/python
 RUN python --version
 
 RUN pip install pandas
+
+RUN pip install --upgrade scipy
 
 # Get centromere scripts
 WORKDIR /opt
