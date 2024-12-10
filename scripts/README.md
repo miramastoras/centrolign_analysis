@@ -25,3 +25,9 @@ A conda environment json file is provided [here](https://github.com/miramastoras
 ```
 conda env create -f packages.json -n tree_python
 ```
+
+## 2. distance_compare.py
+
+For pairwise samples, plots cenhap distance from SNPs in the flanks versus centrolign alignment based distance
+
+![dist](pics/alignment_vs_cenhap_dist.png)
