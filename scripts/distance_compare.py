@@ -68,7 +68,7 @@ def main():
     pair_num=0
     markers=['o','s','^','v','D']
     markers_dup=markers * num_keys
-    print(markers_dup)
+
     axes[1].set_xlim(0,1)
     for key in alignment_dists.keys():
         pair1=str(key.split("_")[0])
@@ -80,8 +80,8 @@ def main():
             cenhap=df.loc[pair1,pair2]
             cenhap_list.append(cenhap)
 
-            axes[0].plot(cenhap,aln,"o",markersize=3,color=colors[pair_num],marker=markers_dup[pair_num])
-            axes[1].plot(.1,pair_num,"o",markersize=5,color=colors[pair_num],marker=markers_dup[pair_num])
+            axes[0].plot(cenhap,aln,markersize=3,color=colors[pair_num],marker=markers_dup[pair_num])
+            axes[1].plot(.1,pair_num,markersize=5,color=colors[pair_num],marker=markers_dup[pair_num])
             axes[1].text(0.15,pair_num, pair1+","+pair2, fontsize=8, va="center")
             pair_num+=1
 
@@ -89,5 +89,6 @@ def main():
     axes[0].set_ylabel('Alignment based distance')
     axes[1].set_axis_off()
     plt.show()
+    fig.savefig(args.output_dir + "alignment_vs_cenhap_dist.png", dpi=600)
 if __name__ == '__main__':
     main()

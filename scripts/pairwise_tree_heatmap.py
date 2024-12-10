@@ -3,11 +3,6 @@
 '''
 Purpose: Plot tree with heatmap displaying pairwise input values
 Author: Mira Mastoras, mmastora@ucsc.edu
-python3 pairwise_tree_heatmap.py \
-        -t /Users/miramastoras/Desktop/tree_heatmap/KGP4_TRIOS_MAC5_chr12_CPR_EHet30_no_PS_PID_PGT_lifted_over.v1.1_mask.nwk.txt \
-        -s /Users/miramastoras/Desktop/tree_heatmap/samples2.txt \
-        -p /Users/miramastoras/Desktop/tree_heatmap/pairwise_combinations2.csv \
-        -o 
 '''
 
 import argparse
@@ -124,13 +119,17 @@ def main():
     max_pairwise = max(pairwise_vals.values())
 
     # Plot two matplotlib grids side by side
-    fig, axes = plt.subplots(1, 4, figsize=(12, 6), gridspec_kw = {'wspace':0, 'hspace':0,'width_ratios': [4, .5,2,.25]})
+    # scale width ratio for middle axes (containing labels) by number of samples
+    axes1_width_ratio=(-0.00356*len(samples))+0.52492
+    fig, axes = plt.subplots(1, 4, figsize=(12, 6), gridspec_kw = {'wspace':0, 'hspace':0,'width_ratios': [4, axes1_width_ratio,2,.25]})
 
     # convert newick to linkage matrix
     linkage_matrix, id_map = tree_to_linkage_matrix(tree)
 
+    linewidth=(-0.00744) *(len(samples))+1.05208
     # plot dendogram on left axes
-    dn1 = dendrogram(linkage_matrix, ax=axes[0], orientation='left',labels=[id_map.get(i, str(i)) for i in range(len(id_map))],link_color_func=lambda x: 'black')
+    with plt.rc_context({'lines.linewidth': linewidth}):
+        dn1 = dendrogram(linkage_matrix, ax=axes[0], orientation='left',labels=[id_map.get(i, str(i)) for i in range(len(id_map))],link_color_func=lambda x: 'black')
 
     # get mapping of y position of leaves and leaf labels
     leaf_label_y_map = {}
@@ -155,10 +154,11 @@ def main():
     axes[1].set_axis_off()
 
     # plot sample labels on axes 1
+    sample_label_size=-0.04959*(len(samples))+7.34713
     label_ends=(float(axes[0].get_ylim()[1])) / 7
     for sample in leaf_label_y_map.keys():
-        axes[1].plot([0,1], [leaf_label_y_map[sample],leaf_label_y_map[sample]], linestyle=':',color="black")
-        axes[1].text(0, leaf_label_y_map[sample], sample, fontsize=7, color='black',va='bottom')
+        axes[1].plot([0,1], [leaf_label_y_map[sample],leaf_label_y_map[sample]], linestyle=':',color="black", linewidth=linewidth)
+        axes[1].text(0, leaf_label_y_map[sample], sample, fontsize=sample_label_size, color='black',va='bottom')
 
     # heatmap colors
     # Color scale
@@ -221,6 +221,6 @@ def main():
     axes[0].set_xlabel('KYA')
 
     #plt.show()
-    fig.savefig(args.output_dir+"pairwise_tree_heatmap.png", dpi=600)
+    fig.savefig(args.output_dir+"pairwise_tree_heatmap.svg", dpi=600)
 if __name__ == '__main__':
     main()

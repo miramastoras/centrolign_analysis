@@ -29,7 +29,7 @@ Get lists of fasta files containing complete HOR for each chrom
 ```
 cd /private/groups/patenlab/mira/centrolign/batch_submissions/extract_hors/initial_test_nogaps
 
-for CHR in chr10 chr6 chr17 ; do
+for CHR in chr10 chr6 chr17 chr12; do
     mkdir -p /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/initial_test_nogaps/${CHR}/
     ls | grep hap | \
     while read line ; do
@@ -46,12 +46,12 @@ we don't have a tree for chrY.
 
 ```
 # get list of sample names as they'd be listed in tree
-for CHR in chr10 chr6 chr17 ; do  
+for CHR in chr10 chr6 chr17 chr12 ; do  
     cat /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/initial_test_nogaps/${CHR}/fasta_list.txt | while read line ; do basename $line | cut -f3 -d"_" ; done > /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/initial_test_nogaps/${CHR}/fasta_list.all_sample_ids.txt
   done
 
 # chrY chrX
-for CHR in chr10 chr6 chr17 ; do   
+for CHR in chr10 chr6 chr17 chr12 ; do   
     SAMPLES=/private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/initial_test_nogaps/${CHR}/fasta_list.all_sample_ids.txt
     NWK=`grep ${CHR} /private/groups/patenlab/mira/centrolign/github/centrolign_analysis/batch_submissions/centrolign/initial_test_sbatch/centrolign_initial_test_sbatch.csv | cut -f 3 -d","`
     while IFS= read -r pattern; do
@@ -62,7 +62,7 @@ for CHR in chr10 chr6 chr17 ; do
   done
 
 # combine fastas
-for CHR in chr10 chr6 chr17 ; do  
+for CHR in chr10 chr6 chr17 chr12; do  
     cat /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/initial_test_nogaps/${CHR}/fasta_list.all_sample_ids.in_nwk.txt | while read line ; do
     grep $line /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/initial_test_nogaps/${CHR}/fasta_list.txt
     done > /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/initial_test_nogaps/${CHR}/fasta_list.inside_nwk.txt
@@ -73,6 +73,11 @@ done
 for CHR in chr10 chr6 chr17 ; do
     cat /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/initial_test_nogaps/${CHR}/fasta_list.inside_nwk.txt | while read line ; do cat $line ; done > /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/initial_test_nogaps/${CHR}/initial_test_${CHR}.fasta
     samtools faidx /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/initial_test_nogaps/${CHR}/initial_test_${CHR}.fasta
+done
+
+for CHR in chr12; do
+  cat /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/initial_test_nogaps/${CHR}/fasta_list.inside_nwk.txt | while read line ; do cat $line ; done > /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/initial_test_nogaps/${CHR}/initial_test_no_gaps_${CHR}.fasta
+  samtools faidx /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/initial_test_nogaps/${CHR}/initial_test_no_gaps_${CHR}.fasta
 done
 ```
 List for csv: https://docs.google.com/spreadsheets/d/1is_jiWsDoqj_1QIcunGJLoojmToX3z9TFvTSEWCY2jA/edit?gid=452898455#gid=452898455
@@ -116,4 +121,28 @@ done > /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/ini
 # combine fastas
 cat /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/initial_test/chrX/all_sample_ids.in_nwk.male_only.full_path.txt | while read line ; do cat $line ; done > /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/initial_test/chrX/initial_test_chrX.male_only.fasta
 samtools faidx /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/initial_test/chrX/initial_test_chrX.male_only.fasta
+```
+
+
+Run centrolign, chr12, outputting pairwise cigars.
+```
+#!/bin/bash
+#SBATCH --job-name=centrolign_chr12_nogaps_all_samples_pairwise
+#SBATCH --partition=long
+#SBATCH --mail-user=mmastora@ucsc.edu
+#SBATCH --mail-type=ALL
+#SBATCH --nodes=1
+#SBATCH --mem=500gb
+#SBATCH --ntasks=1
+#SBATCH --cpus-per-task=1
+#SBATCH --output=centrolign.log
+#SBATCH --time=7-00:00
+
+
+/private/home/mmastora/progs/centrolign/build/centrolign -v 4 \
+    -S /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/initial_test_nogaps/chr12/jobstore \
+    -T /private/groups/patenlab/jeizenga/centromere/chr12/KGP4_TRIOS_MAC5_chr12_CPR_EHet30_no_PS_PID_PGT_lifted_over.v1.1_mask.nwk.txt \
+    -A /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/initial_test_nogaps/chr12/pairwise_cigars/ \
+    /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/initial_test_nogaps/chr12/initial_test_no_gaps_chr12.fasta \
+    > /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/initial_test_nogaps/chr12/initial_test_no_gaps_chr12.centrolign.gfa
 ```
