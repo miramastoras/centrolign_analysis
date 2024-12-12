@@ -20,10 +20,10 @@ python3 pairwise_tree_heatmap.py \
 
 `-m` is a string labelling what metric is being plotted.
 
-A conda environment json file is provided [here](https://github.com/miramastoras/centrolign_analysis/tree/main/conda/tree_heatmap/packages.json) that will enable this script to run. In order to use the conda environment, download and install minconda from [here](https://docs.anaconda.com/miniconda/install/), then run
+A conda environment json file is provided [here](https://github.com/miramastoras/centrolign_analysis/tree/main/conda/tree_heatmap/environment.yml) that will enable this script to run. In order to use the conda environment, download and install minconda from [here](https://docs.anaconda.com/miniconda/install/), then run
 
 ```
-conda env create -f packages.json -n tree_python
+conda env create -f environment.yml
 ```
 
 ## 2. distance_compare.py
