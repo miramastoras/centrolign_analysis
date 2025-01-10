@@ -14,6 +14,8 @@ from scipy.cluster.hierarchy import dendrogram
 from matplotlib.patches import Rectangle
 import matplotlib.patches as patches
 import csv
+from matplotlib.cm import get_cmap
+from matplotlib.colors import Normalize
 
 def arg_parser():
     '''
@@ -56,7 +58,9 @@ def tree_to_linkage_matrix(biopython_tree):
     # map labels used in linkage matrix to sample names:
     id_map = {}
     for i, c in enumerate(tree.find_clades(terminal=True)):
+        #print(c.name)
         c.comment = (i, 1)
+        #print(c.comment)
         id_map[i] = c.name
 
     #Phylo.draw(tree)
@@ -65,16 +69,28 @@ def tree_to_linkage_matrix(biopython_tree):
     for c in tree.find_clades(terminal=False):
         d = tree.distance(c)
         anc_lst.append((c, list(c), d))
+        print(c[0].comment,c[1].comment)
     anc_lst.sort(key=lambda x: x[2], reverse=True)
 
     # running number of node
     nodes = len(list(tree.find_clades(terminal=True)))
+    print(len(anc_lst))
     lnk_lst = []
     for anc, children, anc_d in anc_lst:
+        #print(anc)
+        #print(len(children))
+        #print(children[0].name, children[1].name)
+        #print(anc_d)
         n_children = len(children)
         assert n_children >= 2
         child1 = children[0]
+        #print(children)
+        #print(children[1:])
+        #print(type(child1))
         for child2 in children[1:]:
+            print(child2.comment)
+            #print("anc.name")
+            #print(anc.name)
             id1, n_leaves1 = child1.comment
             id2, n_leaves2 = child2.comment
             total_leaves = n_leaves1 + n_leaves2
@@ -162,17 +178,18 @@ def main():
 
     # heatmap colors
     # Color scale
-    seafoam = (159 / 255, 226 / 255, 191 / 255)
-    deepblue = (0, 0, 139 / 255)
-    R = np.linspace(seafoam[0], deepblue[0], 101)  # 101 steps going from 1 to 0
-    G = np.linspace(seafoam[1], deepblue[1], 101)
-    B = np.linspace(seafoam[2], deepblue[2], 101)
+    #seafoam = (159 / 255, 226 / 255, 191 / 255)
+    #deepblue = (0, 0, 139 / 255)
+    #R = np.linspace(seafoam[0], deepblue[0], 101)  # 101 steps going from 1 to 0
+    #G = np.linspace(seafoam[1], deepblue[1], 101)
+    #B = np.linspace(seafoam[2], deepblue[2], 101)
 
+    cmap = get_cmap('viridis_r')
     # plot color scale in fourth grid
     for i in np.arange(0, 100, 1):
         rectangle = patches.Rectangle([0,( i / 100)], 1, 0.1,
                                          # move rectangle position with i , go in steps of 10 with 10 width
-                                         facecolor=(R[i], G[i], B[i]),
+                                         facecolor=(cmap(i/100)),
                                          linewidth=0)
         axes[3].add_patch(rectangle)  # add rectangle to panel everytime we go through the loop
 
@@ -180,9 +197,6 @@ def main():
     axes[3].yaxis.set_label_position("right")
     #axes[3].set_yticks([0,1])
     axes[3].set_xticklabels([])
-    # normalize range of expression values between 0 and 100
-    def normalizePoint(minVal, maxVal, x):
-        return (int(((x - minVal) / (maxVal - minVal)) * 100))
 
     # loop through id_map position labels (0 to num samples - 1)
     positions = list(id_map.keys())
@@ -192,7 +206,6 @@ def main():
         for pos2 in range(pos1 + 1, len(positions)):
             dict_key="_".join(sorted([id_map[pos1],id_map[pos2]]))
             val=pairwise_vals[dict_key]
-            norm_val = normalizePoint(min_pairwise, max_pairwise, float(val))
 
             y_pos1=leaf_label_y_map[id_map[pos1]]
             y_pos2=leaf_label_y_map[id_map[pos2]]
@@ -203,7 +216,7 @@ def main():
 
             # draw diamond for current pair
             diamond_xy=[bottom,left,top,right]
-            diamond = patches.Polygon(diamond_xy, fill=True, facecolor=(R[norm_val],G[norm_val],B[norm_val]),)
+            diamond = patches.Polygon(diamond_xy, fill=True, facecolor=(cmap(val)))
             axes[2].add_patch(diamond)
 
     # hide y axis labels for dendogram

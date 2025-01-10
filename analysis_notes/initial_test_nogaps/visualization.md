@@ -30,3 +30,12 @@ cd /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/initial
 
 python3 /private/groups/patenlab/mira/centrolign/github/centrolign_analysis/scripts/cigar_to_distance.py /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/initial_test_nogaps/chr12/pairwise_cigars/
 ```
+
+Plot tree heatmap
+```
+python3 pairwise_tree_heatmap.py \
+        -t /Users/miramastoras/Desktop/tree_heatmap/KGP4_TRIOS_MAC5_chr12_CPR_EHet30_no_PS_PID_PGT_lifted_over.v1.1_mask.nwk.txt \
+        -s /Users/miramastoras/Desktop/tree_heatmap_chr12/samples.txt \
+        -p /Users/miramastoras/Desktop/tree_heatmap_chr12/pairwise_distance.csv \
+        -o /Users/miramastoras/Desktop/tree_heatmap_chr12/
+```
