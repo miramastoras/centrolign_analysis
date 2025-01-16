@@ -33,7 +33,7 @@ def calc_avg_root_to_leaf_dist(tree):
     total_distance = 0
     for leaf in leaves:
         total_distance += tree.get_distance(leaf)
-
+    print("total_dist: ", total_distance)
     # Calculate average distance
     average_distance = total_distance / len(leaves)
     return average_distance

@@ -235,6 +235,6 @@ def main():
 
     #plt.show()
     fig.savefig(args.output_dir+"pairwise_tree_heatmap.svg", dpi=600)
-    fig.savefig(args.output_dir + "pairwise_tree_heatmap.png", dpi=600)
+    fig.savefig(args.output_dir + "pairwise_tree_heatmap.png", dpi=300)
 if __name__ == '__main__':
     main()

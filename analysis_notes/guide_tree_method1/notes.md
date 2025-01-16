@@ -96,6 +96,9 @@ python3 /Users/miramastoras/Desktop/github_repos/centrolign_analysis/scripts/pai
 ```
 ![reinferred](pics/all_subgroups_tree_method1_pairwise_tree_heatmap.png)
 
+Tangle gram:
+
+
 #### 6. Re-run centrolign with the newly inferred tree
 
 First submit centrolign in MSA mode. Then restart from last subproblem outputting pairwise alignments in multithreaded mode
