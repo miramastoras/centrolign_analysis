@@ -97,7 +97,23 @@ python3 /Users/miramastoras/Desktop/github_repos/centrolign_analysis/scripts/pai
 ![reinferred](pics/all_subgroups_tree_method1_pairwise_tree_heatmap.png)
 
 Tangle gram:
+```R
 
+install.packages("phytools",repos="https://cloud.r-project.org",quiet=TRUE)
+library(phytools)
+library(ape)
+
+# create trees
+original_tree <- ape::read.tree("/Users/miramastoras/Desktop/replace_subtrees/KGP4_TRIOS_MAC5_chr12_CPR_EHet30_no_PS_PID_PGT_lifted_over.v1.1_mask.chr12_hprc_samples.nwk.txt")
+new_tree <- ape::read.tree("/Users/miramastoras/Desktop/replace_subtrees/KGP4_TRIOS_MAC5_chr12_CPR_EHet30_no_PS_PID_PGT_lifted_over.v1.1_mask.all_samples.tree_method1.all_subgroups.nwk.txt")
+
+samples <- readLines("/Users/miramastoras/Desktop/tree_heatmap_chr12/samples.txt")
+
+obj<-cophylo(original_tree,new_tree)
+svg(filename="/Users/miramastoras/Desktop/replace_subtrees/cophylo_tree_method1.svg")
+plot(obj, pts=FALSE,fsize=c(0.15,0.15),link.type="curved",link.lty="solid",link.col=make.transparent("blue",0.25),part=0.44)
+dev.off()
+```
 
 #### 6. Re-run centrolign with the newly inferred tree
 
@@ -120,4 +136,77 @@ First submit centrolign in MSA mode. Then restart from last subproblem outputtin
     -T /private/groups/patenlab/mira/centrolign/guide_tree_testing/method1/chr12_initial_test_nogaps/rerun_centrolign_w_new_tree/KGP4_TRIOS_MAC5_chr12_CPR_EHet30_no_PS_PID_PGT_lifted_over.v1.1_mask.all_samples.tree_method1.all_subgroups.nwk.txt \
     /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/initial_test_nogaps/chr12/initial_test_no_gaps_chr12.fasta \
     > /private/groups/patenlab/mira/centrolign/guide_tree_testing/method1/chr12_initial_test_nogaps/rerun_centrolign_w_new_tree/initial_test_no_gaps_chr12.tree_method1.centrolign.gfa
+```
+Restart:
+```
+#!/bin/bash
+#SBATCH --job-name=centrolign_chr12_new_tree
+#SBATCH --partition=long
+#SBATCH --mail-user=mmastora@ucsc.edu
+#SBATCH --mail-type=ALL
+#SBATCH --nodes=1
+#SBATCH --mem=700gb
+#SBATCH --ntasks=1
+#SBATCH --cpus-per-task=32
+#SBATCH --output=centrolign_%x.%j.log
+#SBATCH --time=7-00:00
+
+
+/private/home/mmastora/progs/centrolign/build/centrolign -v 4 \
+    -S /private/groups/patenlab/mira/centrolign/guide_tree_testing/method1/chr12_initial_test_nogaps/rerun_centrolign_w_new_tree/jobstore/ \
+    -T /private/groups/patenlab/mira/centrolign/guide_tree_testing/method1/chr12_initial_test_nogaps/rerun_centrolign_w_new_tree/KGP4_TRIOS_MAC5_chr12_CPR_EHet30_no_PS_PID_PGT_lifted_over.v1.1_mask.all_samples.tree_method1.all_subgroups.nwk.txt \
+    -A /private/groups/patenlab/mira/centrolign/guide_tree_testing/method1/chr12_initial_test_nogaps/rerun_centrolign_w_new_tree/pairwise_cigars/pairwise_cigar \
+    -R \
+    --threads 32 \
+    /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/initial_test_nogaps/chr12/initial_test_no_gaps_chr12.fasta \
+    > /private/groups/patenlab/mira/centrolign/guide_tree_testing/method1/chr12_initial_test_nogaps/rerun_centrolign_w_new_tree/initial_test_no_gaps_chr12.tree_method1.centrolign.gfa
+```
+Convert cigars to distance matrix
+
+```
+python3 /private/groups/patenlab/mira/centrolign/github/centrolign_analysis/scripts/cigar_to_distance.py /private/groups/patenlab/mira/centrolign/guide_tree_testing/method1/chr12_initial_test_nogaps/rerun_centrolign_w_new_tree/pairwise_cigars/
+```
+
+Plot tree heatmap on personal computer
+```
+conda activate tree_python
+
+python3 /Users/miramastoras/Desktop/github_repos/centrolign_analysis/scripts/pairwise_tree_heatmap.py \
+        -t /Users/miramastoras/Desktop/replace_subtrees/KGP4_TRIOS_MAC5_chr12_CPR_EHet30_no_PS_PID_PGT_lifted_over.v1.1_mask.all_samples.tree_method1.all_subgroups.nwk.txt  \
+        -s /Users/miramastoras/Desktop/tree_heatmap_chr12/samples.txt \
+        -p /Users/miramastoras/Desktop/replace_subtrees/pairwise_distance.tree_method1_rerun.csv \
+        -o /Users/miramastoras/Desktop/replace_subtrees/pairwise_distance.tree_method1_rerun_centrolign_
+```
+Plot pairwise distances before and after
+```
+python3 /Users/miramastoras/Desktop/github_repos/centrolign_analysis/scripts/compare_centrolign_pairwise_distances.py \
+        -a /Users/miramastoras/Desktop/tree_heatmap_chr12/pairwise_distance.csv \
+        -b /Users/miramastoras/Desktop/replace_subtrees/pairwise_distance.tree_method1_rerun.csv \
+        -o /Users/miramastoras/Desktop/distance_compare/
+```
+
+### Experiment with removing un-alignable samples, then rerunning putting them in the outermost tree to see if it improves the alignment
+
+#### 1. first experiment
+
+
+Select 6 samples that don't align at all to anything
+https://docs.google.com/presentation/d/1drVlZkEXBiLomthiBBNi0A9dn-AHBquUCillvYm0Y4w/edit#slide=id.p
+```
+HG01784.1
+HG02273.1
+HG03195.1
+HG02258.2
+NA19185.2
+HG02886.2
+```
+Run remove_samples
+```
+/private/home/mmastora/progs/centrolign/build/remove_samples \
+    -p /private/groups/patenlab/mira/centrolign/remove_samples/chr12_initial_test_tree_method1/removed_6_samples \
+    -s HG01784.1,HG02273.1,HG03195.1,HG02258.2,NA19185.2,HG02886.2 \
+    --tree-in /private/groups/patenlab/mira/centrolign/guide_tree_testing/method1/chr12_initial_test_nogaps/rerun_centrolign_w_new_tree/KGP4_TRIOS_MAC5_chr12_CPR_EHet30_no_PS_PID_PGT_lifted_over.v1.1_mask.all_samples.tree_method1.all_subgroups.nwk.txt \
+    --tree-out /private/groups/patenlab/mira/centrolign/remove_samples/chr12_initial_test_tree_method1/removed_6_samples_guide_tree \
+    --fasta-pref /private/groups/patenlab/mira/centrolign/remove_samples/chr12_initial_test_tree_method1/removed_6_samples_seqs
+
 ```

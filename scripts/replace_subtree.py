@@ -33,7 +33,7 @@ def calc_avg_root_to_leaf_dist(tree):
     total_distance = 0
     for leaf in leaves:
         total_distance += tree.get_distance(leaf)
-    print("total_dist: ", total_distance)
+
     # Calculate average distance
     average_distance = total_distance / len(leaves)
     return average_distance
@@ -81,18 +81,23 @@ def main():
 
         # re-scale branch lengths in new subtree to match original tree
         for node in subtree.traverse():
+            #print("dist before: ", node.dist)
             node.dist = node.dist * ((orig_root_to_leaf_avg) / (re_estimated_root_to_leaf))
+            #print("dist after: ", node.dist)
             if node.dist == 0:
                 node.dist = 1
 
         # locate parent node of subtree to replace
         parent = node_to_replace.up
 
+        # keep original branch length leading to subtree
+        original_branch_length=node_to_replace.dist
+
         # detach current subtree
         node_to_replace.detach()
 
         # replace with updated subtree
-        parent.add_child(subtree)
+        parent.add_child(subtree,dist=original_branch_length)
 
     # Write the modified tree to a new file
     tree.write(outfile=args.output, format=1)
