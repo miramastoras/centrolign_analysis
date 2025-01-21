@@ -187,8 +187,7 @@ python3 /Users/miramastoras/Desktop/github_repos/centrolign_analysis/scripts/com
 
 ### Experiment with removing un-alignable samples, then rerunning putting them in the outermost tree to see if it improves the alignment
 
-#### 1. first experiment
-
+#### 1. first experiment with just 6 samples
 
 Select 6 samples that don't align at all to anything
 https://docs.google.com/presentation/d/1drVlZkEXBiLomthiBBNi0A9dn-AHBquUCillvYm0Y4w/edit#slide=id.p
@@ -202,11 +201,41 @@ HG02886.2
 ```
 Run remove_samples
 ```
-/private/home/mmastora/progs/centrolign/build/remove_samples \
+time /private/home/mmastora/progs/centrolign/build/remove_samples \
     -p /private/groups/patenlab/mira/centrolign/remove_samples/chr12_initial_test_tree_method1/removed_6_samples \
-    -s HG01784.1,HG02273.1,HG03195.1,HG02258.2,NA19185.2,HG02886.2 \
+    -s HG01784.1 -s HG02273.1 -s HG03195.1 -s HG02258.2 -s NA19185.2 -s HG02886.2 \
     --tree-in /private/groups/patenlab/mira/centrolign/guide_tree_testing/method1/chr12_initial_test_nogaps/rerun_centrolign_w_new_tree/KGP4_TRIOS_MAC5_chr12_CPR_EHet30_no_PS_PID_PGT_lifted_over.v1.1_mask.all_samples.tree_method1.all_subgroups.nwk.txt \
-    --tree-out /private/groups/patenlab/mira/centrolign/remove_samples/chr12_initial_test_tree_method1/removed_6_samples_guide_tree \
-    --fasta-pref /private/groups/patenlab/mira/centrolign/remove_samples/chr12_initial_test_tree_method1/removed_6_samples_seqs
+    --tree-out /private/groups/patenlab/mira/centrolign/remove_samples/chr12_initial_test_tree_method1/removed_6_samples_guide_tree.nwk \
+    --fasta-pref /private/groups/patenlab/mira/centrolign/remove_samples/chr12_initial_test_tree_method1/removed_6_samples_seqs \
+    /private/groups/patenlab/mira/centrolign/guide_tree_testing/method1/chr12_initial_test_nogaps/rerun_centrolign_w_new_tree/initial_test_no_gaps_chr12.tree_method1.centrolign.gfa
+```
+
+Resubmit centrolign adding in the new samples
+```
+#!/bin/bash
+#SBATCH --job-name=centrolign_chr12_remove_samples
+#SBATCH --partition=long
+#SBATCH --mail-user=mmastora@ucsc.edu
+#SBATCH --mail-type=ALL
+#SBATCH --nodes=1
+#SBATCH --mem=700gb
+#SBATCH --ntasks=1
+#SBATCH --cpus-per-task=32
+#SBATCH --output=centrolign_%x.%j.log
+#SBATCH --time=7-00:00
+
+
+/private/home/mmastora/progs/centrolign/build/centrolign -v 4 \
+    -S /private/groups/patenlab/mira/centrolign/remove_samples/chr12_initial_test_tree_method1/removed_6_samples_936A400DD4F47733.gfa \
+    -T /private/groups/patenlab/mira/centrolign/remove_samples/chr12_initial_test_tree_method1/removed_6_samples_guide_tree.nwk \
+    -A /private/groups/patenlab/mira/centrolign/remove_samples/chr12_initial_test_tree_method1/pairwise_cigars/pairwise_cigar \
+    -R \
+    --threads 32 \
+    /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/initial_test_nogaps/chr12/initial_test_no_gaps_chr12.fasta \
+    > /private/groups/patenlab/mira/centrolign/remove_samples/chr12_initial_test_tree_method1/final.centrolign.gfa
+```
+Run pairwise heatmap
+```
+python3 /private/groups/patenlab/mira/centrolign/github/centrolign_analysis/scripts/cigar_to_distance.py /private/groups/patenlab/mira/centrolign/guide_tree_testing/method1/chr12_initial_test_nogaps/rerun_centrolign_w_new_tree/pairwise_cigars/
 
 ```

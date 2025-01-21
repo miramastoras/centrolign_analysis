@@ -123,7 +123,6 @@ cat /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/initia
 samtools faidx /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/initial_test/chrX/initial_test_chrX.male_only.fasta
 ```
 
-
 Run centrolign, chr12, outputting pairwise cigars.
 ```
 #!/bin/bash
@@ -145,4 +144,68 @@ Run centrolign, chr12, outputting pairwise cigars.
     -A /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/initial_test_nogaps/chr12/pairwise_cigars/ \
     /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/initial_test_nogaps/chr12/initial_test_no_gaps_chr12.fasta \
     > /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/initial_test_nogaps/chr12/initial_test_no_gaps_chr12.centrolign.gfa
+```
+Submit centrolign for chr17 - submitting initial alignment first, then restart using multithreaded approach to output pairwise cigar
+```
+#!/bin/bash
+#SBATCH --job-name=centrolign_chr17_nogaps
+#SBATCH --partition=long
+#SBATCH --mail-user=mmastora@ucsc.edu
+#SBATCH --mail-type=ALL
+#SBATCH --nodes=1
+#SBATCH --mem=500gb
+#SBATCH --ntasks=1
+#SBATCH --cpus-per-task=1
+#SBATCH --output=centrolign.log
+#SBATCH --time=7-00:00
+
+/private/home/mmastora/progs/centrolign/build/centrolign -v 4 \
+    -S /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/initial_test_nogaps/chr17/jobstore \
+    -T /private/groups/patenlab/mira/centrolign/annotations/guide_trees/chr17_HPRC.nwk \
+    /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/initial_test_nogaps/chr17/initial_test_chr17.fasta \
+    > /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/initial_test_nogaps/chr17/initial_test_no_gaps_chr17.centrolign.gfa
+```
+```
+-A /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/initial_test_nogaps/chr17/pairwise_cigars/pairwise_cigar
+```
+chr 10
+```
+#!/bin/bash
+#SBATCH --job-name=centrolign_chr10_nogaps
+#SBATCH --partition=long
+#SBATCH --mail-user=mmastora@ucsc.edu
+#SBATCH --mail-type=ALL
+#SBATCH --nodes=1
+#SBATCH --mem=500gb
+#SBATCH --ntasks=1
+#SBATCH --cpus-per-task=1
+#SBATCH --output=centrolign.log
+#SBATCH --time=7-00:00
+
+/private/home/mmastora/progs/centrolign/build/centrolign -v 4 \
+    -S /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/initial_test_nogaps/chr10/jobstore \
+    -T /private/groups/patenlab/mira/centrolign/annotations/guide_trees/chr10_HPRC.nwk \
+    /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/initial_test_nogaps/chr10/initial_test_chr10.fasta \
+    > /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/initial_test_nogaps/chr10/initial_test_no_gaps_chr10.centrolign.gfa
+```
+
+chr6
+```
+#!/bin/bash
+#SBATCH --job-name=centrolign_chr6_nogaps
+#SBATCH --partition=long
+#SBATCH --mail-user=mmastora@ucsc.edu
+#SBATCH --mail-type=ALL
+#SBATCH --nodes=1
+#SBATCH --mem=500gb
+#SBATCH --ntasks=1
+#SBATCH --cpus-per-task=1
+#SBATCH --output=centrolign.log
+#SBATCH --time=7-00:00
+
+/private/home/mmastora/progs/centrolign/build/centrolign -v 4 \
+    -S /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/initial_test_nogaps/chr6/jobstore \
+    -T /private/groups/patenlab/mira/centrolign/annotations/guide_trees/chr6_HPRC.nwk \
+    /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/initial_test_nogaps/chr6/initial_test_chr6.fasta \
+    > /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/initial_test_nogaps/chr6/initial_test_no_gaps_chr6.centrolign.gfa
 ```
