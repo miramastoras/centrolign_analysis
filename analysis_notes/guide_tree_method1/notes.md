@@ -210,7 +210,7 @@ time /private/home/mmastora/progs/centrolign/build/remove_samples \
     /private/groups/patenlab/mira/centrolign/guide_tree_testing/method1/chr12_initial_test_nogaps/rerun_centrolign_w_new_tree/initial_test_no_gaps_chr12.tree_method1.centrolign.gfa
 ```
 
-Resubmit centrolign adding in the new samples
+Resubmit centrolign adding in the new samples. give -S same argument as -p in the remove_samples code
 ```
 #!/bin/bash
 #SBATCH --job-name=centrolign_chr12_remove_samples
@@ -226,7 +226,7 @@ Resubmit centrolign adding in the new samples
 
 
 /private/home/mmastora/progs/centrolign/build/centrolign -v 4 \
-    -S /private/groups/patenlab/mira/centrolign/remove_samples/chr12_initial_test_tree_method1/removed_6_samples_936A400DD4F47733.gfa \
+    -S /private/groups/patenlab/mira/centrolign/remove_samples/chr12_initial_test_tree_method1/removed_6_samples \
     -T /private/groups/patenlab/mira/centrolign/remove_samples/chr12_initial_test_tree_method1/removed_6_samples_guide_tree.nwk \
     -A /private/groups/patenlab/mira/centrolign/remove_samples/chr12_initial_test_tree_method1/pairwise_cigars/pairwise_cigar \
     -R \
@@ -236,6 +236,83 @@ Resubmit centrolign adding in the new samples
 ```
 Run pairwise heatmap
 ```
-python3 /private/groups/patenlab/mira/centrolign/github/centrolign_analysis/scripts/cigar_to_distance.py /private/groups/patenlab/mira/centrolign/guide_tree_testing/method1/chr12_initial_test_nogaps/rerun_centrolign_w_new_tree/pairwise_cigars/
+python3 /private/groups/patenlab/mira/centrolign/github/centrolign_analysis/scripts/cigar_to_distance.py /private/groups/patenlab/mira/centrolign/remove_samples/chr12_initial_test_tree_method1/pairwise_cigars/
+```
 
+plot
+```
+python3 /Users/miramastoras/Desktop/github_repos/centrolign_analysis/scripts/pairwise_tree_heatmap.py \
+        -t /Users/miramastoras/Desktop/replace_subtrees/KGP4_TRIOS_MAC5_chr12_CPR_EHet30_no_PS_PID_PGT_lifted_over.v1.1_mask.all_samples.tree_method1.all_subgroups.nwk.txt  \
+        -s /Users/miramastoras/Desktop/tree_heatmap_chr12/samples.txt \
+        -p /Users/miramastoras/Desktop/remove_samples/pairwise_distance.csv \
+        -o /Users/miramastoras/Desktop/remove_samples/remove_samples_test_
+```
+Plot pairwise scores before and after
+
+```
+# subset pairwise distance to just the samples
+echo "sample1,sample2,dist" > /Users/miramastoras/Desktop/remove_samples/pairwise_distance.removed_6_samples.csv
+
+grep HG01784.1 /Users/miramastoras/Desktop/remove_samples/pairwise_distance.csv >> /Users/miramastoras/Desktop/remove_samples/pairwise_distance.removed_6_samples.csv
+
+grep HG02273.1 /Users/miramastoras/Desktop/remove_samples/pairwise_distance.csv >> /Users/miramastoras/Desktop/remove_samples/pairwise_distance.removed_6_samples.csv
+
+grep HG03195.1 /Users/miramastoras/Desktop/remove_samples/pairwise_distance.csv >> /Users/miramastoras/Desktop/remove_samples/pairwise_distance.removed_6_samples.csv
+
+grep HG02258.2 /Users/miramastoras/Desktop/remove_samples/pairwise_distance.csv >> /Users/miramastoras/Desktop/remove_samples/pairwise_distance.removed_6_samples.csv
+
+grep NA19185.2 /Users/miramastoras/Desktop/remove_samples/pairwise_distance.csv >> /Users/miramastoras/Desktop/remove_samples/pairwise_distance.removed_6_samples.csv
+
+grep HG02886.2 /Users/miramastoras/Desktop/remove_samples/pairwise_distance.csv >> /Users/miramastoras/Desktop/remove_samples/pairwise_distance.removed_6_samples.csv
+```
+
+```
+# subset pairwise distance to just the samples
+echo "sample1,sample2,dist" > /Users/miramastoras/Desktop/remove_samples/pairwise_distance.tree_method1_rerun.6_samples.csv
+
+grep HG01784.1 /Users/miramastoras/Desktop/replace_subtrees/pairwise_distance.tree_method1_rerun.csv >> /Users/miramastoras/Desktop/remove_samples/pairwise_distance.tree_method1_rerun.6_samples.csv
+
+grep HG02273.1 /Users/miramastoras/Desktop/replace_subtrees/pairwise_distance.tree_method1_rerun.csv >> /Users/miramastoras/Desktop/remove_samples/pairwise_distance.tree_method1_rerun.6_samples.csv
+
+grep HG03195.1 /Users/miramastoras/Desktop/replace_subtrees/pairwise_distance.tree_method1_rerun.csv >> /Users/miramastoras/Desktop/remove_samples/pairwise_distance.tree_method1_rerun.6_samples.csv
+
+grep HG02258.2 /Users/miramastoras/Desktop/replace_subtrees/pairwise_distance.tree_method1_rerun.csv >> /Users/miramastoras/Desktop/remove_samples/pairwise_distance.tree_method1_rerun.6_samples.csv
+
+grep NA19185.2 /Users/miramastoras/Desktop/replace_subtrees/pairwise_distance.tree_method1_rerun.csv >> /Users/miramastoras/Desktop/remove_samples/pairwise_distance.tree_method1_rerun.6_samples.csv
+
+grep HG02886.2 /Users/miramastoras/Desktop/replace_subtrees/pairwise_distance.tree_method1_rerun.csv >> /Users/miramastoras/Desktop/remove_samples/pairwise_distance.tree_method1_rerun.6_samples.csv
+```
+
+```
+python3 /Users/miramastoras/Desktop/github_repos/centrolign_analysis/scripts/compare_centrolign_pairwise_distances.py \
+        -a /Users/miramastoras/Desktop/remove_samples/pairwise_distance.tree_method1_rerun.6_samples.csv \
+        -b /Users/miramastoras/Desktop/remove_samples/pairwise_distance.removed_6_samples.csv \
+        -o /Users/miramastoras/Desktop/remove_samples/
+```
+https://docs.google.com/presentation/d/1drVlZkEXBiLomthiBBNi0A9dn-AHBquUCillvYm0Y4w/edit#slide=id.g32b5085e271_0_56
+
+Plot dotplot for the outlier sample
+```
+# before
+
+time docker run \
+  -u `id -u`:`id -g` \
+  -v "/private/groups/patenlab/mira":"/private/groups/patenlab/mira" \
+  miramastoras/centromere_scripts:v0.1.2 \
+  python3 /private/groups/patenlab/mira/centrolign/github/centromere-scripts/visualization/plot_dotplot_alignment.py \
+  /private/groups/patenlab/mira/centrolign/batch_submissions/extract_hors/initial_test_nogaps/HG02273_hap2/analysis/extract_hors_outputs/HG02273_hap2_HG02273.1_chr12_hor_array.fasta \
+  /private/groups/patenlab/mira/centrolign/batch_submissions/extract_hors/initial_test_nogaps/HG01784_hap2/analysis/extract_hors_outputs/HG01784_hap2_HG01784.1_chr12_hor_array.fasta \
+  /private/groups/patenlab/mira/centrolign/guide_tree_testing/method1/chr12_initial_test_nogaps/rerun_centrolign_w_new_tree/pairwise_cigars/pairwise_cigar_HG02273.1_HG01784.1.txt \
+  /private/groups/patenlab/mira/centrolign/remove_samples/chr12_initial_test_tree_method1/HG01784.1_HG02273.1_chr12.before_removed_samples.dotplot.svg
+
+# after
+time docker run \
+  -u `id -u`:`id -g` \
+  -v "/private/groups/patenlab/mira":"/private/groups/patenlab/mira" \
+  miramastoras/centromere_scripts:v0.1.2 \
+  python3 /private/groups/patenlab/mira/centrolign/github/centromere-scripts/visualization/plot_dotplot_alignment.py \
+  /private/groups/patenlab/mira/centrolign/batch_submissions/extract_hors/initial_test_nogaps/HG01784_hap2/analysis/extract_hors_outputs/HG01784_hap2_HG01784.1_chr12_hor_array.fasta \
+  /private/groups/patenlab/mira/centrolign/batch_submissions/extract_hors/initial_test_nogaps/HG02273_hap2/analysis/extract_hors_outputs/HG02273_hap2_HG02273.1_chr12_hor_array.fasta \
+  /private/groups/patenlab/mira/centrolign/remove_samples/chr12_initial_test_tree_method1/pairwise_cigars/pairwise_cigar_HG01784.1_HG02273.1.txt \
+  /private/groups/patenlab/mira/centrolign/remove_samples/chr12_initial_test_tree_method1/HG01784.1_HG02273.1_chr12.after_removed_samples.dotplot.svg
 ```

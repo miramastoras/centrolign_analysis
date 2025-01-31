@@ -83,10 +83,10 @@ def main():
             pair_num+=1
 
     plt.plot([0, 1], [0, 1],'--',color="red")
-    axes.set_xlim([0,1.01])
-    axes.set_ylim([0,1.01])
-    axes.set_xlabel('Original Guide Tree')
-    axes.set_ylabel('Tree infer method 1 (freezing deep nodes)')
+    axes.set_xlim([.5,1.01])
+    axes.set_ylim([.5,1.01])
+    axes.set_xlabel('Before')
+    axes.set_ylabel('After remove_samples')
     axes.set_title("Centrolign alignment distances")
     plt.show()
     fig.savefig(args.output_dir + "compare_centrolign_pairwise_dists.png", dpi=600)

@@ -3,8 +3,7 @@
 """
 Created on Thu Apr 27 18:01:16 2023
 
-Process pairwise alignments into a distance matrix and estimate a tree
-using the neighbor joining algorithm
+Process pairwise alignments into a distance matrix
 
 @author: Jordan
 """
