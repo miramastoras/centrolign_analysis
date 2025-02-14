@@ -209,3 +209,42 @@ chr6
     /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/initial_test_nogaps/chr6/initial_test_chr6.fasta \
     > /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/initial_test_nogaps/chr6/initial_test_no_gaps_chr6.centrolign.gfa
 ```
+#### Testing newer chr12 guide tree provided by Sasha
+
+```
+#!/bin/bash
+#SBATCH --job-name=centrolign_chr12_cenhap_update
+#SBATCH --partition=long
+#SBATCH --mail-user=mmastora@ucsc.edu
+#SBATCH --mail-type=ALL
+#SBATCH --nodes=1
+#SBATCH --mem=500gb
+#SBATCH --ntasks=1
+#SBATCH --cpus-per-task=1
+#SBATCH --output=centrolign.log
+#SBATCH --time=7-00:00
+
+
+/private/home/mmastora/progs/centrolign/build/centrolign -v 4 \
+    -S /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/initial_test_nogaps/chr12_cenhap_update/jobstore/ \
+    -T /private/groups/patenlab/mira/centrolign/annotations/guide_trees/chr12_cenhap_update.nwk \
+    /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/initial_test_nogaps/chr12/initial_test_no_gaps_chr12.fasta \
+    > /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/initial_test_nogaps/chr12_cenhap_update/initial_test_no_gaps_chr12_cenhap_update.centrolign.gfa
+```
+    -A /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/initial_test_nogaps/chr12/pairwise_cigars/ \
+
+### Potential sample haplotype swaps
+
+confirmed by julian: HG01978, HG02257, HG03516
+
+HG01784, HG02273, HG02451.2, NA19185.2
+
+Check how many are trio samples:
+```
+grep "_mat_" /private/groups/patenlab/mira/centrolign/batch_submissions/extract_hors/initial_test_nogaps/extract_hors_initial_test_nogaps.csv >/private/groups/patenlab/mira/centrolign/test/samples_trio.txt
+grep "_pat_" /private/groups/patenlab/mira/centrolign/batch_submissions/extract_hors/initial_test_nogaps/extract_hors_initial_test_nogaps.csv >> /private/groups/patenlab/mira/centrolign/test/samples_trio.txt
+
+cut -f 1 /private/groups/patenlab/mira/centrolign/test/samples_trio.txt | cut -f 1 -d"_" | while read line ; do grep $line /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/initial_test_nogaps/chr12/fasta_list.all_sample_ids.in_nwk.txt ; done | sort | uniq | wc -l
+
+# 107 / 125 samples are trio 
+```
