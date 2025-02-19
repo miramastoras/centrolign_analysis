@@ -82,11 +82,6 @@ task locate_hors {
             -p ~{asmToRefPaf} \
             -f ~{sampleID}.fasta \
             > ~{sampleID}_hor_arrays.bed
-
-        if [ -n "~{expandFlanks}" ]
-        then
-            echo "Expanding HOR flanks by " ~{expandFlanks}
-        fi
     >>>
     output {
         File horArrayBed=glob("*hor_arrays.bed")[0]
