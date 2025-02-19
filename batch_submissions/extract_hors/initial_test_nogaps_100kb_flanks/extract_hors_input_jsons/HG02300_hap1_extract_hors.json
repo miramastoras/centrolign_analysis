@@ -4,6 +4,5 @@
   "extract_hors.sampleName": "HG02300_hap1",
   "extract_hors.CenSatBedFile": "/private/groups/patenlab/mira/centrolign/annotations/censat_test/HG02300_hap1/HG02300_pat_hprc_r2_v1.cenSat.bed",
   "extract_hors.asmToRefPaf": "/private/groups/patenlab/mira/centrolign/batch_submissions/Asm2AsmAlignerPaf/HG02300_hap1/analysis/Asm2AsmAlignerPaf_outputs/HG02300_pat_hprc_r2_v1.paf",
-  "extract_hors.dockerImage": "miramastoras/centromere_scripts:v0.1.1",
-  "extract_hors.expandFlanks": 100000
+  "extract_hors.dockerImage": "miramastoras/centromere_scripts:v0.1.1"
 }

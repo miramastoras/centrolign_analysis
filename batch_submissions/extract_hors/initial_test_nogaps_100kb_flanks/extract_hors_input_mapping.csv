@@ -5,4 +5,3 @@ extract_hors.sampleName,scalar,$input.sample_id
 extract_hors.CenSatBedFile,scalar,$input.cenSat_bed
 extract_hors.asmToRefPaf,scalar,$input.asm2asmPaf
 extract_hors.dockerImage,scalar,$input.dockerImage
-extract_hors.expandFlanks,scalar,$input.expandFlanks
