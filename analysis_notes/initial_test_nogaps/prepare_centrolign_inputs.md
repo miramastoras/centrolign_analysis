@@ -229,9 +229,9 @@ chr6
     -S /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/initial_test_nogaps/chr12_cenhap_update/jobstore/ \
     -T /private/groups/patenlab/mira/centrolign/annotations/guide_trees/chr12_cenhap_update.nwk \
     /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/initial_test_nogaps/chr12/initial_test_no_gaps_chr12.fasta \
+    -A /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/initial_test_nogaps/chr12/pairwise_cigars/ \
     > /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/initial_test_nogaps/chr12_cenhap_update/initial_test_no_gaps_chr12_cenhap_update.centrolign.gfa
 ```
-    -A /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/initial_test_nogaps/chr12/pairwise_cigars/ \
 
 ### Potential sample haplotype swaps
 
@@ -246,5 +246,5 @@ grep "_pat_" /private/groups/patenlab/mira/centrolign/batch_submissions/extract_
 
 cut -f 1 /private/groups/patenlab/mira/centrolign/test/samples_trio.txt | cut -f 1 -d"_" | while read line ; do grep $line /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/initial_test_nogaps/chr12/fasta_list.all_sample_ids.in_nwk.txt ; done | sort | uniq | wc -l
 
-# 107 / 125 samples are trio 
+# 107 / 125 samples are trio
 ```

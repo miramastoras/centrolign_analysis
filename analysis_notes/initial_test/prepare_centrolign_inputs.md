@@ -405,3 +405,10 @@ samtools faidx chr12_hprc_r2_initial_test_inside_tree.fasta
 ```
 ~/progs/centrolign/build/make_var_mat /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/initial_test/chrX/initial_test_chrX.centrolign.gfa > /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/initial_test/chrX/initial_test_chrX_var_mat.tsv
 ```
+Convert sample list for sasha
+```
+cut -f13 -d"/" fasta_list.inside_nwk.txt | cut -f 1-3 -d"_" | sed 's/\.1/first/g' | sed 's/\.2/\.1/g' | sed 's/first/.2/g' | sed 's/_/,/2' > chr12_samples_HPRC_convention.csv
+```
+```
+cat /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/initial_test_nogaps/chr10/fasta_list.all_sample_ids.txt |  sed 's/\.1/first/g' | sed 's/\.2/\.1/g' | sed 's/first/.2/g' > chr10_samples_HPRC_convention.csv
+```

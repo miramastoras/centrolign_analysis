@@ -1,4 +1,4 @@
-### All vs all pairwise alignments
+### Using all vs all pairwise alignments to infer the tree
 
 ```
 while read -r s1; do
@@ -113,4 +113,44 @@ python3 /Users/miramastoras/Desktop/github_repos/centrolign_analysis/scripts/pai
 
 /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/initial_test_nogaps/chr12_all_pairs/pairwise_cigar
 ```
-Check h
+### Using jordan's formula & all vs all pairwise distances to infer initial tree
+
+First subset to only trio samples
+```
+grep "_mat_" /private/groups/patenlab/mira/centrolign/batch_submissions/extract_hors/initial_test_nogaps/extract_hors_initial_test_nogaps.csv >/private/groups/patenlab/mira/centrolign/test/samples_trio.txt
+grep "_pat_" /private/groups/patenlab/mira/centrolign/batch_submissions/extract_hors/initial_test_nogaps/extract_hors_initial_test_nogaps.csv >> /private/groups/patenlab/mira/centrolign/test/samples_trio.txt
+
+cut -f 1 /private/groups/patenlab/mira/centrolign/test/samples_trio.txt | cut -f 1 -d"_" | while read line ; do grep $line /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/initial_test_nogaps/chr12/fasta_list.all_sample_ids.in_nwk.txt ; done | sort | uniq > /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/initial_test_nogaps/chr12/fasta_list.all_sample_ids.in_nwk.trio_only.txt
+```
+
+```
+python3 /Users/miramastoras/Desktop/github_repos/centrolign_analysis/scripts/combine_HOR_flank_dist.py \
+    -c /Users/miramastoras/Desktop/centrolign_all_pairs/pairwise_distance.csv \
+    -f /Users/miramastoras/Desktop/distance_compare/KGP4_TRIOS_MAC5_chr12_CPR_EHet30_no_PS_PID_PGT_lifted_over.v1.1_hap.hD.txt \
+    -o /Users/miramastoras/Desktop/all_pairs_weighted_sum_trio_ch12/chr12
+```
+Plot pairwise heatmap
+```
+conda activate tree_python
+
+python3 /Users/miramastoras/Desktop/github_repos/centrolign_analysis/scripts/pairwise_tree_heatmap.py \
+        -t /Users/miramastoras/Desktop/all_pairs_weighted_sum_trio_ch12/chr12_HOR_flank_dist_weighted.nwk \
+        -s /Users/miramastoras/Desktop/all_pairs_weighted_sum_trio_ch12/fasta_list.all_sample_ids.in_nwk.trio_only.txt \
+        -p /Users/miramastoras/Desktop/all_pairs_weighted_sum_trio_ch12/chr12_HOR_flank_dist_weighted.txt \
+        -o /Users/miramastoras/Desktop/all_pairs_weighted_sum_trio_ch12/combine_HOR_flank_dist_chr12_all_pairs_
+
+#
+python3 /Users/miramastoras/Desktop/github_repos/centrolign_analysis/scripts/pairwise_tree_heatmap.py \
+        -t /Users/miramastoras/Desktop/all_pairs_weighted_sum_trio_ch12/chr12_HOR_flank_dist_weighted.nwk \
+        -s /Users/miramastoras/Desktop/all_pairs_weighted_sum_trio_ch12/fasta_list.all_sample_ids.in_nwk.trio_only.txt \
+        -p /Users/miramastoras/Desktop/centrolign_all_pairs/pairwise_distance.csv \
+        -o /Users/miramastoras/Desktop/all_pairs_weighted_sum_trio_ch12/combine_HOR_flank_dist_chr12_all_pairs_aln
+```
+
+### Test expanding out sequence into the flanks for chr12
+
+#### 100 kb flanks
+
+#### 50 kb flanks
+
+#### 500 kb flanks 

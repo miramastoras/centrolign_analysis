@@ -246,3 +246,10 @@ python3 /Users/miramastoras/Desktop/github_repos/centrolign_analysis/scripts/pai
         -p /Users/miramastoras/Desktop/combine_HOR_flank_dist/pairwise_distance_centrolign_rerun_tree_method2_round2.csv \
         -o /Users/miramastoras/Desktop/combine_HOR_flank_dist/combine_HOR_flank_dist_chr12_rerun_centrolign_round2_
 ```
+```
+python3 /Users/miramastoras/Desktop/github_repos/centrolign_analysis/scripts/pairwise_tree_heatmap.py \
+        -t /Users/miramastoras/Desktop/combine_HOR_flank_dist/chr12_round2_HOR_flank_dist_weighted.formatted.nwk.txt \
+        -s /Users/miramastoras/Desktop/tree_heatmap_chr12/samples.txt \
+        -p /Users/miramastoras/Desktop/combine_HOR_flank_dist/pairwise_distance_centrolign_rerun_tree_method2_round2.csv \
+        -o /Users/miramastoras/Desktop/combine_HOR_flank_dist/combine_HOR_flank_dist_chr12_rerun_centrolign_round2_
+```
