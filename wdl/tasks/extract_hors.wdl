@@ -17,8 +17,6 @@ workflow extract_hors {
         String sampleName # required to be in the format HG01530_hap2
 
         String dockerImage=dockerImage
-
-        Int? expandFlanks
     }
 
     ## use alignment to CHM13 to assign HORs to chromosomes
@@ -30,8 +28,7 @@ workflow extract_hors {
             assemblyFasta=assemblyFasta,
             AsHorSFBedFile=AsHorSFBedFile,
             sampleID=sampleName,
-            dockerImage=dockerImage,
-            expandFlanks=expandFlanks
+            dockerImage=dockerImage
     }
     # for each chromosome, extract the hor sequence into a separate fasta
     # rename fasta header for input to centrolign
@@ -58,7 +55,6 @@ task locate_hors {
 
       String sampleID
       String dockerImage
-      Int? expandFlanks
 
       Int memSizeGB=16
       Int threadCount=8
