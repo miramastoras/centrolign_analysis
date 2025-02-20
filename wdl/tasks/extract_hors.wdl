@@ -91,6 +91,14 @@ task locate_hors {
         if [ -n "~{expandFlanks}" ]
         then
             echo "expand flanks worked"
+            awk -v OFS='\t' {'print $1,$2'} ~{sampleID}.fasta.fai > ~{sampleID}.fasta.fai.genome
+
+            bedtools slop -i ~{sampleID}_hor_arrays.bed \
+              -b ~{expandFlanks} \
+              -g ~{sampleID}.fasta.fai.genome \
+              > ~{sampleID}_hor_arrays.slop_~{expandFlanks}.bed
+
+            mv ~{sampleID}_hor_arrays.slop_~{expandFlanks}.bed ~{sampleID}_hor_arrays.bed
         fi
     >>>
     output {
