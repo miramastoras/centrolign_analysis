@@ -16,7 +16,7 @@ workflow extract_hors {
 
         String sampleName # required to be in the format HG01530_hap2
 
-        String dockerImage="miramastoras/centromere_scripts:v0.1"
+        String dockerImage
 
         Int? expandFlanks
     }
@@ -57,7 +57,7 @@ task locate_hors {
       File AsHorSFBedFile
 
       String sampleID
-      String dockerImage="miramastoras/centromere_scripts:v0.1"
+      String dockerImage
 
       Int? expandFlanks
 
@@ -121,7 +121,7 @@ task extract_hor_sequence {
       File assemblyFasta
 
       String sampleID
-      String dockerImage="miramastoras/centromere_scripts:v0.1"
+      String dockerImage
 
       Int memSizeGB=16
       Int threadCount=8
