@@ -34,7 +34,7 @@ workflow extract_hors {
     # rename fasta header for input to centrolign
     call extract_hor_sequence {
         input:
-            horArrayBed=locate_hors.horArrayBed,
+            horBed=locate_hors.horArrayBed,
             asmToRefPaf=asmToRefPaf,
             assemblyFasta=assemblyFasta,
             sampleID=sampleName,
@@ -98,7 +98,7 @@ task locate_hors {
 
 task extract_hor_sequence {
     input {
-      File horArrayBed
+      File horBed
       File asmToRefPaf
       File assemblyFasta
 
@@ -132,9 +132,9 @@ task extract_hor_sequence {
 
             REGIONFILE=~{sampleID}.chr${CHR}.hor.txt
             touch $REGIONFILE
-            grep -w chr${CHR} ~{horArrayBed} | awk '{ printf "%s:%d-%d\n", $1, $2+1, $3 }' > ${REGIONFILE}
+            grep -w chr${CHR} ~{horBed} | awk '{ printf "%s:%d-%d\n", $1, $2+1, $3 }' > ${REGIONFILE}
             ls $REGIONFILE
-            STRAND=$(grep -w chr${CHR} ~{horArrayBed} | cut -f 6)
+            STRAND=$(grep -w chr${CHR} ~{horBed} | cut -f 6)
             echo $STRAND
             if [ -s $REGIONFILE ];
             then
