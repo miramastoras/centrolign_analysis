@@ -17,6 +17,8 @@ workflow extract_hors {
         String sampleName # required to be in the format HG01530_hap2
 
         String dockerImage="miramastoras/centromere_scripts:v0.1"
+
+        Int? expandFlanks
     }
 
     ## use alignment to CHM13 to assign HORs to chromosomes
@@ -28,7 +30,8 @@ workflow extract_hors {
             assemblyFasta=assemblyFasta,
             AsHorSFBedFile=AsHorSFBedFile,
             sampleID=sampleName,
-            dockerImage=dockerImage
+            dockerImage=dockerImage,
+            expandFlanks=expandFlanks
     }
     # for each chromosome, extract the hor sequence into a separate fasta
     # rename fasta header for input to centrolign
@@ -56,6 +59,8 @@ task locate_hors {
       String sampleID
       String dockerImage="miramastoras/centromere_scripts:v0.1"
 
+      Int? expandFlanks
+
       Int memSizeGB=16
       Int threadCount=8
       Int diskSizeGB=64
@@ -82,6 +87,11 @@ task locate_hors {
             -p ~{asmToRefPaf} \
             -f ~{sampleID}.fasta \
             > ~{sampleID}_hor_arrays.bed
+
+        if [ -n "~{expandFlanks}" ]
+        then
+            echo "expand flanks worked"
+        fi
     >>>
     output {
         File horArrayBed=glob("*hor_arrays.bed")[0]
