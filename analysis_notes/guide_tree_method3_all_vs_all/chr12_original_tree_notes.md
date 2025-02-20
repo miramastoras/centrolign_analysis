@@ -149,8 +149,137 @@ python3 /Users/miramastoras/Desktop/github_repos/centrolign_analysis/scripts/pai
 
 ### Test expanding out sequence into the flanks for chr12
 
-#### 100 kb flanks
+Testing 100kb, 50kb, 500kb
 
-#### 50 kb flanks
+Get lists of fasta files containing complete HOR for each chrom
+```
+# 100 kb
+cd /private/groups/patenlab/mira/centrolign/batch_submissions/extract_hors
 
-#### 500 kb flanks 
+for f in 100kb 50kb 500kb; do
+    mkdir -p /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/initial_test_nogaps_${f}_flanks/chr12/
+    ls initial_test_nogaps_${f}_flanks/ | grep hap | \
+    while read line ; do
+        realpath initial_test_nogaps_${f}_flanks/${line}/analysis/extract_hors_outputs/*.fasta
+      done | grep chr12 > /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/initial_test_nogaps_${f}_flanks/chr12/fasta_list_complete_HORs.txt
+  done
+```
+Get list of samples that are in the nwk tree
+```
+# get sample ids in cenhap convention
+for f in 100kb 50kb 500kb; do  
+    cat /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/initial_test_nogaps_${f}_flanks/chr12/fasta_list_complete_HORs.txt | while read line ; do basename $line | cut -f3 -d"_" ; done > /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/initial_test_nogaps_${f}_flanks/chr12/fasta_list.all_sample_ids.txt
+  done
+
+# extract those sample ids in newick tree
+for f in 100kb 50kb 500kb; do   
+    SAMPLES=/private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/initial_test_nogaps_${f}_flanks/chr12/fasta_list.all_sample_ids.txt
+    NWK=/private/groups/patenlab/mira/centrolign/annotations/cenhap_test/KGP4_TRIOS_MAC5_chr12_CPR_no_filter_EHet30_no_PS_PID_PGT_lifted_over.v1.1_new_10_haps_plus.txt
+    while IFS= read -r pattern; do
+      if grep -q "$pattern" $NWK; then
+        echo "$pattern"
+        fi
+    done < $SAMPLES > /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/initial_test_nogaps_${f}_flanks/chr12/sample_list_complete_HORs.in_nwk.txt
+  done
+
+# extract full fasta paths for those sample ids in newick tree
+for f in 100kb 50kb 500kb; do    
+    cat /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/initial_test_nogaps_${f}_flanks/chr12/sample_list_complete_HORs.in_nwk.txt | while read line ; do
+    grep $line /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/initial_test_nogaps_${f}_flanks/chr12/fasta_list_complete_HORs.txt
+    done > /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/initial_test_nogaps_${f}_flanks/chr12/fasta_list_complete_HORs.in_nwk.txt
+done
+
+# combine all sequences into one fasta
+for f in 100kb 50kb 500kb; do
+    cat /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/initial_test_nogaps_${f}_flanks/chr12/fasta_list_complete_HORs.in_nwk.txt | while read line ; do cat $line ; done > /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/initial_test_nogaps_${f}_flanks/chr12/initial_test_nogaps_${f}_chr12.fasta
+    samtools faidx /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/initial_test_nogaps_${f}_flanks/chr12/initial_test_nogaps_${f}_chr12.fasta
+done
+```
+Run centrolign all pairs - pairwise aligner
+
+```
+for f in 100kb 50kb 500kb; do
+    mkdir -p /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/initial_test_nogaps_${f}_flanks/chr12/all_pairs_pairwise/logs
+  done
+```
+Prepare all pairs sample list
+```
+for f in 100kb 50kb 500kb; do
+  while read -r s1; do
+      while read -r s2; do
+          [[ "$s1" < "$s2" ]] && echo -e "$s1\t$s2"
+          done < /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/initial_test_nogaps_${f}_flanks/chr12/sample_list_complete_HORs.in_nwk.txt
+      done < /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/initial_test_nogaps_${f}_flanks/chr12/sample_list_complete_HORs.in_nwk.txt > /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/initial_test_nogaps_${f}_flanks/chr12/all_pairs_pairwise/all_pairs_samples.txt
+
+```
+
+```
+#!/bin/bash
+# Slurm script to use centrolign as a pairwise aligner on all pairs of sequences
+# from an input directory
+
+#SBATCH --job-name=pairwise-centrolign_50kb
+#SBATCH --partition=short
+#SBATCH --mail-user=mmastora@ucsc.edu
+#SBATCH --mail-type=ALL
+#SBATCH --nodes=1
+#SBATCH --mem=56gb
+#SBATCH --ntasks=1
+#SBATCH --cpus-per-task=1
+#SBATCH --array=[1-7750]%75
+#SBATCH --output=logs/array_job_%A_task_%a.log
+#SBATCH --time=1:00:00
+
+date
+hostname
+pwd
+
+FLANKS=50kb
+CHROMDIR=/private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/initial_test_nogaps_${FLANKS}_flanks/chr12/all_pairs_pairwise/
+FASTADIR=/private/groups/patenlab/mira/centrolign/batch_submissions/extract_hors/initial_test_nogaps_${FLANKS}_flanks/
+WORKDIR=$CHROMDIR/work/
+OUTDIR=$CHROMDIR/pairwise_cigar/
+
+mkdir -p $OUTDIR
+mkdir -p $WORKDIR
+mkdir -p $FASTADIR
+
+cd $WORKDIR
+
+SAMPLE1=$(awk "NR==$SLURM_ARRAY_TASK_ID" "$CHROMDIR"/all_pairs_samples.txt | cut -f1)
+SAMPLE2=$(awk "NR==$SLURM_ARRAY_TASK_ID" "$CHROMDIR"/all_pairs_samples.txt | cut -f2)
+echo "sample 1:" $SAMPLE1
+echo "sample 2:" $SAMPLE2
+echo "out:" $OUTDIR
+
+S1_hap=`echo $SAMPLE1 | cut -f2 -d"."`
+S2_hap=`echo $SAMPLE2 | cut -f2 -d"."`
+
+S1_ID=`echo $SAMPLE1 | cut -f1 -d"."`
+S2_ID=`echo $SAMPLE2 | cut -f1 -d"."`
+
+if [ ${S1_hap} == 1 ];
+then
+    S1_HPRC_hap="hap2"
+else
+    S1_HPRC_hap="hap1"
+fi
+
+if [ ${S2_hap} == 1 ];
+then
+    S2_HPRC_hap="hap2"
+else
+    S2_HPRC_hap="hap1"
+fi
+
+FASTA1=${FASTADIR}${S1_ID}_${S1_HPRC_hap}/analysis/extract_hors_outputs/${S1_ID}_${S1_HPRC_hap}_${SAMPLE1}_chr12_hor_array.fasta
+
+FASTA2=${FASTADIR}${S2_ID}_${S2_HPRC_hap}/analysis/extract_hors_outputs/${S2_ID}_${S2_HPRC_hap}_${SAMPLE2}_chr12_hor_array.fasta
+
+echo "fasta 1:" $FASTA1
+echo "fasta 2:" $FASTA2
+TEMP_FASTA=${WORKDIR}/${SAMPLE1}_${SAMPLE2}.fa
+cat $FASTA1 $FASTA2 > $TEMP_FASTA
+time /private/home/mmastora/progs/centrolign/build/centrolign -v 3 --skip-calibration $TEMP_FASTA > $OUTDIR/pairwise_cigar_${SAMPLE1}_${SAMPLE2}.txt
+rm $TEMP_FASTA
+```

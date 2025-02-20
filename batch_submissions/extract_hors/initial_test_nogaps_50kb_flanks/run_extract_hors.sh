@@ -43,9 +43,9 @@ sbatch \
      --array=[1-189]%30 \
      --partition=short \
      --time=1:00:00 \
-     --cpus-per-task=32 \
+     --cpus-per-task=8 \
      --exclude=phoenix-[09,10,22,23,24,18] \
-     --mem=400gb \
+     --mem=60gb \
      --mail-type=FAIL,END \
      --mail-user=mmastora@ucsc.edu \
      ~/progs/hprc_intermediate_assembly/hpc/toil_sbatch_single_machine_debug.sh \
