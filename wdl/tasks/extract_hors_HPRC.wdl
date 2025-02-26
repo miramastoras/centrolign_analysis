@@ -4,7 +4,7 @@ workflow extract_hors {
     meta {
         author: "Mira Mastoras"
         email: "mmastora@ucsc.edu"
-        description: "extracts HOR arrays for each chromosome in input assembly. Assumes guide tree has opposite convention as assemblies,so switches the haplotype labelling"
+        description: "extracts HOR arrays for each chromosome in input assembly. Assumes guide tree and assemblies both have same labelling convention"
     }
 
     input {
@@ -134,12 +134,11 @@ task extract_hor_sequence {
         # get sample id without haplotype label
         SAMPLE=$(echo "~{sampleID}" | sed 's/_hap[12]//')
 
-        # guide tree will have "hap1" and "hap2" labelled the reverse as the output from HPRC censat annotation
         if [[ "~{sampleID}" == *"hap1"* ]]; then
-          PARNUM=2
+          PARNUM=1
           HPRC_PARENT=hap1
         else
-          PARNUM=1
+          PARNUM=2
           HPRC_PARENT=hap2
         fi
 
