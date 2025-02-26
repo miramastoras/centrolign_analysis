@@ -43,14 +43,21 @@ python3 /Users/miramastoras/Desktop/github_repos/centrolign_analysis/scripts/pai
         -s /Users/miramastoras/Desktop/tree_heatmap_chr12/samples.txt \
         -p /Users/miramastoras/Desktop/tree_heatmap_chr12/pairwise_distance.csv \
         -o /Users/miramastoras/Desktop/combine_HOR_flank_dist/combine_HOR_flank_dist_chr12_
+
+# plot just trios
+python3 /Users/miramastoras/Desktop/github_repos/centrolign_analysis/scripts/pairwise_tree_heatmap.py \
+        -t /Users/miramastoras/Desktop/combine_HOR_flank_dist/chr12_HOR_flank_dist_weighted.nwk \
+        -s /Users/miramastoras/Desktop/all_pairs_weighted_sum_trio_ch12/fasta_list.all_sample_ids.in_nwk.trio_only.txt  \
+        -p /Users/miramastoras/Desktop/tree_heatmap_chr12/pairwise_distance.csv \
+        -o /Users/miramastoras/Desktop/plot_all_tree_methods_just_trios/combine_HOR_flank_dist_chr12_tree_original_distances
 ```
 Plot pairwise heatmap with new calculated distances
 ```
 python3 /Users/miramastoras/Desktop/github_repos/centrolign_analysis/scripts/pairwise_tree_heatmap.py \
         -t /Users/miramastoras/Desktop/combine_HOR_flank_dist/chr12_HOR_flank_dist_weighted.nwk \
-        -s /Users/miramastoras/Desktop/tree_heatmap_chr12/samples.txt \
+        -s /Users/miramastoras/Desktop/all_pairs_weighted_sum_trio_ch12/fasta_list.all_sample_ids.in_nwk.trio_only.txt \
         -p /Users/miramastoras/Desktop/combine_HOR_flank_dist/chr12_HOR_flank_dist_weighted.txt \
-        -o /Users/miramastoras/Desktop/combine_HOR_flank_dist/combine_HOR_flank_dist_chr12_jordans_distances
+        -o /Users/miramastoras/Desktop/plot_all_tree_methods_just_trios/combine_HOR_flank_dist_chr12_tree_jordans_distances
 ```
 
 Plot tree tanglegram against original UPGMA tree
@@ -153,6 +160,12 @@ python3 /Users/miramastoras/Desktop/github_repos/centrolign_analysis/scripts/pai
         -p /Users/miramastoras/Desktop/combine_HOR_flank_dist/pairwise_distance_centrolign_rerun_tree_method2.csv \
         -o /Users/miramastoras/Desktop/combine_HOR_flank_dist/combine_HOR_flank_dist_chr12_rerun_centrolign
 
+# only trios
+python3 /Users/miramastoras/Desktop/github_repos/centrolign_analysis/scripts/pairwise_tree_heatmap.py \
+        -t /Users/miramastoras/Desktop/combine_HOR_flank_dist/chr12_HOR_flank_dist_weighted.nwk \
+        -s /Users/miramastoras/Desktop/all_pairs_weighted_sum_trio_ch12/fasta_list.all_sample_ids.in_nwk.trio_only.txt \
+        -p /Users/miramastoras/Desktop/combine_HOR_flank_dist/pairwise_distance_centrolign_rerun_tree_method2.csv \
+        -o /Users/miramastoras/Desktop/plot_all_tree_methods_just_trios/combine_HOR_flank_dist_chr12_rerun_centrolign
 ```
 ### Test out another round of inferring the tree and running centrolign
 
@@ -247,9 +260,10 @@ python3 /Users/miramastoras/Desktop/github_repos/centrolign_analysis/scripts/pai
         -o /Users/miramastoras/Desktop/combine_HOR_flank_dist/combine_HOR_flank_dist_chr12_rerun_centrolign_round2_
 ```
 ```
+# trios only
 python3 /Users/miramastoras/Desktop/github_repos/centrolign_analysis/scripts/pairwise_tree_heatmap.py \
         -t /Users/miramastoras/Desktop/combine_HOR_flank_dist/chr12_round2_HOR_flank_dist_weighted.formatted.nwk.txt \
-        -s /Users/miramastoras/Desktop/tree_heatmap_chr12/samples.txt \
+        -s /Users/miramastoras/Desktop/all_pairs_weighted_sum_trio_ch12/fasta_list.all_sample_ids.in_nwk.trio_only.txt \
         -p /Users/miramastoras/Desktop/combine_HOR_flank_dist/pairwise_distance_centrolign_rerun_tree_method2_round2.csv \
-        -o /Users/miramastoras/Desktop/combine_HOR_flank_dist/combine_HOR_flank_dist_chr12_rerun_centrolign_round2_
+        -o /Users/miramastoras/Desktop/plot_all_tree_methods_just_trios/combine_HOR_flank_dist_chr12_rerun_centrolign_round2_
 ```

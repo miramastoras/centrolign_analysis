@@ -133,13 +133,14 @@ Plot pairwise heatmap
 ```
 conda activate tree_python
 
+# combined distances as a spot check
 python3 /Users/miramastoras/Desktop/github_repos/centrolign_analysis/scripts/pairwise_tree_heatmap.py \
         -t /Users/miramastoras/Desktop/all_pairs_weighted_sum_trio_ch12/chr12_HOR_flank_dist_weighted.nwk \
         -s /Users/miramastoras/Desktop/all_pairs_weighted_sum_trio_ch12/fasta_list.all_sample_ids.in_nwk.trio_only.txt \
         -p /Users/miramastoras/Desktop/all_pairs_weighted_sum_trio_ch12/chr12_HOR_flank_dist_weighted.txt \
         -o /Users/miramastoras/Desktop/all_pairs_weighted_sum_trio_ch12/combine_HOR_flank_dist_chr12_all_pairs_
 
-#
+# just centrolign distances
 python3 /Users/miramastoras/Desktop/github_repos/centrolign_analysis/scripts/pairwise_tree_heatmap.py \
         -t /Users/miramastoras/Desktop/all_pairs_weighted_sum_trio_ch12/chr12_HOR_flank_dist_weighted.nwk \
         -s /Users/miramastoras/Desktop/all_pairs_weighted_sum_trio_ch12/fasta_list.all_sample_ids.in_nwk.trio_only.txt \
@@ -148,6 +149,8 @@ python3 /Users/miramastoras/Desktop/github_repos/centrolign_analysis/scripts/pai
 ```
 
 ### Test expanding out sequence into the flanks for chr12
+
+Slides: https://docs.google.com/presentation/d/1ucEL2VZXHVe3YCSrSSkUY6CO_osXBAWDeyyitBwrHOU/edit#slide=id.g331a6f2c84d_0_61
 
 Testing 100kb, 50kb, 500kb
 
@@ -282,4 +285,106 @@ TEMP_FASTA=${WORKDIR}/${SAMPLE1}_${SAMPLE2}.fa
 cat $FASTA1 $FASTA2 > $TEMP_FASTA
 time /private/home/mmastora/progs/centrolign/build/centrolign -v 3 --skip-calibration $TEMP_FASTA > $OUTDIR/pairwise_cigar_${SAMPLE1}_${SAMPLE2}.txt
 rm $TEMP_FASTA
+```
+Trio only samples:
+```
+/private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/initial_test_nogaps/chr12/fasta_list.all_sample_ids.in_nwk.trio_only.txt
+```
+
+Get pairwise distance matrix
+```
+for f in 100kb 50kb 500kb; do
+  python3 /private/groups/patenlab/mira/centrolign/github/centrolign_analysis/scripts/cigar_to_distance.py /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/initial_test_nogaps_${f}_flanks/chr12/all_pairs_pairwise/pairwise_cigar
+done
+
+for f in 100kb 50kb 500kb; do
+  mv /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/initial_test_nogaps_${f}_flanks/chr12/all_pairs_pairwise/pairwise_cigarpairwise_distance.csv /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/initial_test_nogaps_${f}_flanks/chr12/all_pairs_pairwise/initial_test_nogaps_${f}_flanks_pairwise_distance.csv
+done
+
+for f in 100kb 50kb 500kb; do
+  cp /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/initial_test_nogaps_${f}_flanks/chr12/all_pairs_pairwise/initial_test_nogaps_${f}_flanks_pairwise_distance.csv /private/groups/patenlab/mira/
+done
+```
+
+Combine distances matrices and infer tree
+```
+for f in 100kb 50kb 500kb; do
+    python3 /Users/miramastoras/Desktop/github_repos/centrolign_analysis/scripts/combine_HOR_flank_dist.py \
+        -c /Users/miramastoras/Desktop/centrolign_all_pairs_flanks/initial_test_nogaps_${f}_flanks_pairwise_distance.csv \
+        -f /Users/miramastoras/Desktop/distance_compare/KGP4_TRIOS_MAC5_chr12_CPR_EHet30_no_PS_PID_PGT_lifted_over.v1.1_hap.hD.txt \
+        -o /Users/miramastoras/Desktop/centrolign_all_pairs_flanks/initial_test_nogaps_${f}_flanks_all_pairs_combined_dist
+  done
+```
+Plot pairwise heatmap
+```
+conda activate tree_python
+
+# combined distances as a spot check
+for f in 100kb 50kb 500kb; do
+  python3 /Users/miramastoras/Desktop/github_repos/centrolign_analysis/scripts/pairwise_tree_heatmap.py \
+        -t /Users/miramastoras/Desktop/centrolign_all_pairs_flanks/initial_test_nogaps_${f}_flanks_all_pairs_combined_dist_HOR_flank_dist_weighted.nwk \
+        -s /Users/miramastoras/Desktop/all_pairs_weighted_sum_trio_ch12/fasta_list.all_sample_ids.in_nwk.trio_only.txt \
+        -p /Users/miramastoras/Desktop/centrolign_all_pairs_flanks/initial_test_nogaps_${f}_flanks_all_pairs_combined_dist_HOR_flank_dist_weighted.txt \
+        -o /Users/miramastoras/Desktop/centrolign_all_pairs_flanks/combine_HOR_flank_dist_tree_and_aligment_dists_chr12_all_pairs_${f}_flanks
+done
+
+# just centrolign distances
+for f in 100kb 50kb 500kb; do
+  python3 /Users/miramastoras/Desktop/github_repos/centrolign_analysis/scripts/pairwise_tree_heatmap.py \
+        -t /Users/miramastoras/Desktop/centrolign_all_pairs_flanks/initial_test_nogaps_${f}_flanks_all_pairs_combined_dist_HOR_flank_dist_weighted.nwk \
+        -s /Users/miramastoras/Desktop/all_pairs_weighted_sum_trio_ch12/fasta_list.all_sample_ids.in_nwk.trio_only.txt \
+        -p /Users/miramastoras/Desktop/centrolign_all_pairs_flanks/initial_test_nogaps_${f}_flanks_pairwise_distance.csv \
+        -o /Users/miramastoras/Desktop/centrolign_all_pairs_flanks/combine_HOR_flank_dist_tree_all_pairs_alignment_dists_chr12_${f}_flanks
+done
+```
+Comparing the trees
+```
+install.packages("phytools",repos="https://cloud.r-project.org",quiet=TRUE)
+library(phytools)
+library(ape)
+
+# create trees
+original_tree <- ape::read.tree("/Users/miramastoras/Desktop/all_pairs_weighted_sum_trio_ch12/chr12_HOR_flank_dist_weighted.nwk")
+new_tree <- ape::read.tree("/Users/miramastoras/Desktop/centrolign_all_pairs_flanks/initial_test_nogaps_100kb_flanks_all_pairs_combined_dist_HOR_flank_dist_weighted.nwk")
+
+samples <- readLines("/Users/miramastoras/Desktop/all_pairs_weighted_sum_trio_ch12/fasta_list.all_sample_ids.in_nwk.trio_only.txt")
+
+obj<-cophylo(original_tree,new_tree)
+svg(filename="/Users/miramastoras/Desktop/centrolign_all_pairs_flanks/HOR_vs_100kb_tree.svg")
+plot(obj, pts=FALSE,fsize=c(0.15,0.15),link.type="curved",link.lty="solid",link.col=make.transparent("blue",0.25),part=0.44)
+dev.off()
+```
+HOR vs 50kb tree
+```
+install.packages("phytools",repos="https://cloud.r-project.org",quiet=TRUE)
+library(phytools)
+library(ape)
+
+# create trees
+original_tree <- ape::read.tree("/Users/miramastoras/Desktop/all_pairs_weighted_sum_trio_ch12/chr12_HOR_flank_dist_weighted.nwk")
+new_tree <- ape::read.tree("/Users/miramastoras/Desktop/centrolign_all_pairs_flanks/initial_test_nogaps_50kb_flanks_all_pairs_combined_dist_HOR_flank_dist_weighted.nwk")
+
+samples <- readLines("/Users/miramastoras/Desktop/all_pairs_weighted_sum_trio_ch12/fasta_list.all_sample_ids.in_nwk.trio_only.txt")
+
+obj<-cophylo(original_tree,new_tree)
+svg(filename="/Users/miramastoras/Desktop/centrolign_all_pairs_flanks/HOR_vs_50kb_tree.svg")
+plot(obj, pts=FALSE,fsize=c(0.15,0.15),link.type="curved",link.lty="solid",link.col=make.transparent("blue",0.25),part=0.44)
+dev.off()
+```
+HOR vs 500kb tree
+```
+install.packages("phytools",repos="https://cloud.r-project.org",quiet=TRUE)
+library(phytools)
+library(ape)
+
+# create trees
+original_tree <- ape::read.tree("/Users/miramastoras/Desktop/all_pairs_weighted_sum_trio_ch12/chr12_HOR_flank_dist_weighted.nwk")
+new_tree <- ape::read.tree("/Users/miramastoras/Desktop/centrolign_all_pairs_flanks/initial_test_nogaps_500kb_flanks_all_pairs_combined_dist_HOR_flank_dist_weighted.nwk")
+
+samples <- readLines("/Users/miramastoras/Desktop/all_pairs_weighted_sum_trio_ch12/fasta_list.all_sample_ids.in_nwk.trio_only.txt")
+
+obj<-cophylo(original_tree,new_tree)
+svg(filename="/Users/miramastoras/Desktop/centrolign_all_pairs_flanks/HOR_vs_500kb_tree.svg")
+plot(obj, pts=FALSE,fsize=c(0.15,0.15),link.type="curved",link.lty="solid",link.col=make.transparent("blue",0.25),part=0.44)
+dev.off()
 ```

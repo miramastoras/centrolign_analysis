@@ -39,3 +39,11 @@ python3 pairwise_tree_heatmap.py \
         -p /Users/miramastoras/Desktop/tree_heatmap_chr12/pairwise_distance.csv \
         -o /Users/miramastoras/Desktop/tree_heatmap_chr12/
 ```
+Plot just trio samples
+```
+python3 /Users/miramastoras/Desktop/github_repos/centrolign_analysis/scripts/pairwise_tree_heatmap.py \
+        -t /Users/miramastoras/Desktop/tree_heatmap/KGP4_TRIOS_MAC5_chr12_CPR_EHet30_no_PS_PID_PGT_lifted_over.v1.1_mask.nwk.txt \
+        -s /Users/miramastoras/Desktop/all_pairs_weighted_sum_trio_ch12/fasta_list.all_sample_ids.in_nwk.trio_only.txt \
+        -p /Users/miramastoras/Desktop/tree_heatmap_chr12/pairwise_distance.csv \
+        -o /Users/miramastoras/Desktop/plot_all_tree_methods_just_trios/cenhap_tree_centrolign_MSA_distances_chr12_trios_
+```

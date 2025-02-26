@@ -39,6 +39,14 @@ python3 /Users/miramastoras/Desktop/github_repos/centrolign_analysis/scripts/pai
         -p /Users/miramastoras/Desktop/tree_heatmap_chr12/pairwise_distance.csv \
         -o /Users/miramastoras/Desktop/re_infer_whole_tree/re_infer_whole_tree
 ```
+Run just trios
+```
+python3 /Users/miramastoras/Desktop/github_repos/centrolign_analysis/scripts/pairwise_tree_heatmap.py \
+        -t /Users/miramastoras/Desktop/re_infer_whole_tree/chr12_inferred_tree.rescaled.nwk \
+        -s /Users/miramastoras/Desktop/all_pairs_weighted_sum_trio_ch12/fasta_list.all_sample_ids.in_nwk.trio_only.txt  \
+        -p /Users/miramastoras/Desktop/tree_heatmap_chr12/pairwise_distance.csv \
+        -o /Users/miramastoras/Desktop/plot_all_tree_methods_just_trios/chr12_tree_reinfer_entire_tree_original_distances_
+```
 
 ### 3. Restart centrolign
 
@@ -101,6 +109,14 @@ python3 /Users/miramastoras/Desktop/github_repos/centrolign_analysis/scripts/pai
         -s /Users/miramastoras/Desktop/tree_heatmap_chr12/samples.txt \
         -p /Users/miramastoras/Desktop/re_infer_whole_tree/pairwise_distance.re_infer_whole_tree.rerun.csv \
         -o /Users/miramastoras/Desktop/re_infer_whole_tree/pairwise_distance.re_infer_whole_tree_centrolign_
+```
+Run just trios
+```
+python3 /Users/miramastoras/Desktop/github_repos/centrolign_analysis/scripts/pairwise_tree_heatmap.py \
+        -t /Users/miramastoras/Desktop/re_infer_whole_tree/chr12_inferred_tree.rescaled.nwk.txt  \
+        -s /Users/miramastoras/Desktop/all_pairs_weighted_sum_trio_ch12/fasta_list.all_sample_ids.in_nwk.trio_only.txt  \
+        -p /Users/miramastoras/Desktop/re_infer_whole_tree/pairwise_distance.re_infer_whole_tree.rerun.csv \
+        -o chr12_tree_reinfer_entire_tree_rerun_centrolign_
 ```
 Compare alignment distances
 ```

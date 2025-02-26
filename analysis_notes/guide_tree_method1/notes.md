@@ -93,6 +93,13 @@ python3 /Users/miramastoras/Desktop/github_repos/centrolign_analysis/scripts/pai
         -s /Users/miramastoras/Desktop/tree_heatmap_chr12/samples.txt  \
         -p /Users/miramastoras/Desktop/tree_heatmap_chr12/pairwise_distance.csv \
         -o /Users/miramastoras/Desktop/replace_subtrees/all_subgroups_tree_method1
+
+# just trios
+python3 /Users/miramastoras/Desktop/github_repos/centrolign_analysis/scripts/pairwise_tree_heatmap.py \
+        -t /Users/miramastoras/Desktop/replace_subtrees/KGP4_TRIOS_MAC5_chr12_CPR_EHet30_no_PS_PID_PGT_lifted_over.v1.1_mask.all_samples.tree_method1.all_subgroups.nwk.txt \
+        -s /Users/miramastoras/Desktop/all_pairs_weighted_sum_trio_ch12/fasta_list.all_sample_ids.in_nwk.trio_only.txt  \
+        -p /Users/miramastoras/Desktop/tree_heatmap_chr12/pairwise_distance.csv \
+        -o /Users/miramastoras/Desktop/plot_all_tree_methods_just_trios/tree_method1_original_distances
 ```
 ![reinferred](pics/all_subgroups_tree_method1_pairwise_tree_heatmap.png)
 
@@ -176,6 +183,13 @@ python3 /Users/miramastoras/Desktop/github_repos/centrolign_analysis/scripts/pai
         -s /Users/miramastoras/Desktop/tree_heatmap_chr12/samples.txt \
         -p /Users/miramastoras/Desktop/replace_subtrees/pairwise_distance.tree_method1_rerun.csv \
         -o /Users/miramastoras/Desktop/replace_subtrees/pairwise_distance.tree_method1_rerun_centrolign_
+
+# just trios
+python3 /Users/miramastoras/Desktop/github_repos/centrolign_analysis/scripts/pairwise_tree_heatmap.py \
+        -t /Users/miramastoras/Desktop/replace_subtrees/KGP4_TRIOS_MAC5_chr12_CPR_EHet30_no_PS_PID_PGT_lifted_over.v1.1_mask.all_samples.tree_method1.all_subgroups.nwk.txt  \
+        -s /Users/miramastoras/Desktop/all_pairs_weighted_sum_trio_ch12/fasta_list.all_sample_ids.in_nwk.trio_only.txt \
+        -p /Users/miramastoras/Desktop/replace_subtrees/pairwise_distance.tree_method1_rerun.csv \
+        -o /Users/miramastoras/Desktop/plot_all_tree_methods_just_trios/tree_method1_rerun_centrolign_
 ```
 Plot pairwise distances before and after
 ```
