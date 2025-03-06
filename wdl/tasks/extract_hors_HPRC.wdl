@@ -132,7 +132,7 @@ task extract_hor_sequence {
         set -o xtrace
 
         # get sample id without haplotype label
-        SAMPLE=$(echo "~{sampleID}" | sed 's/_hap[12]//')
+        SAMPLE=$(echo "~{sampleID}" | sed 's/_hap[12]_hprc_r2_v1//')
 
         if [[ "~{sampleID}" == *"hap1"* ]]; then
           PARNUM=1
