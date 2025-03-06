@@ -1,8 +1,0 @@
-{
-  "asm2asmAlignerPaf.aligner": "minimap2",
-  "asm2asmAlignerPaf.preset": "asm5",
-  "asm2asmAlignerPaf.queryAssembly": "s3://human-pangenomics/submissions/DC27718F-5F38-43B0-9A78-270F395F13E8--INT_ASM_PRODUCTION/HG00609/assemblies/freeze_2/HG00609_pat_hprc_r2_v1.fa.gz",
-  "asm2asmAlignerPaf.refAssembly": "/private/groups/patenlab/mira/data/chm13v2.0.fa",
-  "asm2asmAlignerPaf.dockerImage": "mobinasri/long_read_aligner:v0.4.0",
-  "asm2asmAlignerPaf.kmerSize": 19
-}
