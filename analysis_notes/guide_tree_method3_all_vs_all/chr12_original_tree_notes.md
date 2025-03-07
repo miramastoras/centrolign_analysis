@@ -388,3 +388,113 @@ svg(filename="/Users/miramastoras/Desktop/centrolign_all_pairs_flanks/HOR_vs_500
 plot(obj, pts=FALSE,fsize=c(0.15,0.15),link.type="curved",link.lty="solid",link.col=make.transparent("blue",0.25),part=0.44)
 dev.off()
 ```
+### Infer tree from centrolign 50kb, all pairs + 100 and then + 500kb of the flanks
+
+```
+for f in 100kb 500kb ; do
+    python3 /private/groups/patenlab/mira/centrolign/github/centromere-scripts/data_exploration/infer_tree.py /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/initial_test_nogaps_${f}_flanks/chr12/all_pairs_pairwise/pairwise_cigar/ > /private/groups/patenlab/mira/centrolign/guide_tree_testing/method3_all_vs_all/initial_test_nogaps_${f}_flanks_chr12.all_pairs.nj.nwk
+done
+
+python3 /private/groups/patenlab/mira/centrolign/github/centromere-scripts/data_exploration/infer_tree.py /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/initial_test_nogaps/chr12/all_pairs_pairwise/pairwise_cigar/ > /private/groups/patenlab/mira/centrolign/guide_tree_testing/method3_all_vs_all/initial_test_nogaps_chr12.all_pairs.nj.nwk
+```
+
+Plot it against centrolign alignment distances
+```
+for f in 100kb 500kb; do
+  python3 /Users/miramastoras/Desktop/github_repos/centrolign_analysis/scripts/pairwise_tree_heatmap.py \
+        -t /Users/miramastoras/Desktop/all_pairs_flanks_tree/initial_test_nogaps_${f}_flanks_chr12.all_pairs.nj.nwk \
+        -s /Users/miramastoras/Desktop/all_pairs_weighted_sum_trio_ch12/fasta_list.all_sample_ids.in_nwk.trio_only.txt \
+        -p /Users/miramastoras/Desktop/centrolign_all_pairs_flanks/initial_test_nogaps_${f}_flanks_pairwise_distance.csv \
+        -o /Users/miramastoras/Desktop/all_pairs_flanks_tree/initial_test_nogaps_${f}_flanks_chr12.all_pairs.nj_vs_all_pairs_dists
+done
+```
+compare with Sasha's latest HPRC trees
+
+swap sample ids back to hprc convention
+```
+sed 's/\.1:/MIRA/g' /Users/miramastoras/Desktop/all_pairs_flanks_tree/initial_test_nogaps_500kb_flanks_chr12.all_pairs.nj.nwk | sed 's/\.2:/.1:/g' | sed 's/MIRA/.2:/g' > /Users/miramastoras/Desktop/all_pairs_flanks_tree/initial_test_nogaps_500kb_flanks_chr12.all_pairs.nj.HPRC_naming.nwk
+
+sed 's/\.1:/MIRA/g' /Users/miramastoras/Desktop/all_pairs_flanks_tree/initial_test_nogaps_100kb_flanks_chr12.all_pairs.nj.nwk | sed 's/\.2:/.1:/g' | sed 's/MIRA/.2:/g' > /Users/miramastoras/Desktop/all_pairs_flanks_tree/initial_test_nogaps_100kb_flanks_chr12.all_pairs.nj.HPRC_naming.nwk
+
+sed 's/\.1:/MIRA/g' /Users/miramastoras/Desktop/centrolign_all_pairs/chr12_centrolign_all_pairs_nj_tree.nwk | sed 's/\.2:/.1:/g' | sed 's/MIRA/.2:/g' > /Users/miramastoras/Desktop/centrolign_all_pairs/chr12_centrolign_all_pairs.nj.HPRC_naming.nwk
+
+sed 's/\.1/MIRA/g' /Users/miramastoras/Desktop/all_pairs_weighted_sum_trio_ch12/fasta_list.all_sample_ids.in_nwk.trio_only.txt | sed 's/\.2/.1/g' | sed 's/MIRA/.2/g' > /Users/miramastoras/Desktop/all_pairs_weighted_sum_trio_ch12/fasta_list.all_sample_ids.in_nwk.trio_only.HPRC_naming.txt
+```
+
+```
+install.packages("phytools",repos="https://cloud.r-project.org",quiet=TRUE)
+library(phytools)
+library(ape)
+
+# create trees
+original_tree <- ape::read.tree("/Users/miramastoras/Desktop/Sasha_HPRC_trees_2_25_25/HPRC_chr12_P_Q_mira.2.25.25.upgma.nwk")
+new_tree <- ape::read.tree("/Users/miramastoras/Desktop/all_pairs_flanks_tree/initial_test_nogaps_500kb_flanks_chr12.all_pairs.nj.HPRC_naming.nwk")
+
+samples <- readLines("/Users/miramastoras/Desktop/all_pairs_weighted_sum_trio_ch12/fasta_list.all_sample_ids.in_nwk.trio_only.HPRC_naming.txt")
+
+obj<-cophylo(original_tree,new_tree)
+svg(filename="/Users/miramastoras/Desktop/all_pairs_flanks_tree/HPRC_chr12_P_Q_mira.2.25.25.upgma_vs_500kb_flanks_all_pairs_nj.svg")
+plot(obj, pts=FALSE,fsize=c(0.15,0.15),link.type="curved",link.lty="solid",link.col=make.transparent("blue",0.25),part=0.44)
+dev.off()
+```
+100kb tree
+```
+install.packages("phytools",repos="https://cloud.r-project.org",quiet=TRUE)
+library(phytools)
+library(ape)
+
+# create trees
+original_tree <- ape::read.tree("/Users/miramastoras/Desktop/Sasha_HPRC_trees_2_25_25/HPRC_chr12_P_Q_mira.2.25.25.upgma.nwk")
+new_tree <- ape::read.tree("/Users/miramastoras/Desktop/all_pairs_flanks_tree/initial_test_nogaps_100kb_flanks_chr12.all_pairs.nj.HPRC_naming.nwk")
+
+samples <- readLines("/Users/miramastoras/Desktop/all_pairs_weighted_sum_trio_ch12/fasta_list.all_sample_ids.in_nwk.trio_only.txt")
+
+obj<-cophylo(original_tree,new_tree)
+svg(filename="/Users/miramastoras/Desktop/all_pairs_flanks_tree/HPRC_chr12_P_Q_mira.2.25.25.upgma_vs_100kb_flanks_all_pairs_nj.svg")
+plot(obj, pts=FALSE,fsize=c(0.15,0.15),link.type="curved",link.lty="solid",link.col=make.transparent("blue",0.25),part=0.44)
+dev.off()
+```
+HOR tree
+```
+install.packages("phytools",repos="https://cloud.r-project.org",quiet=TRUE)
+library(phytools)
+library(ape)
+
+# create trees
+original_tree <- ape::read.tree("/Users/miramastoras/Desktop/Sasha_HPRC_trees_2_25_25/HPRC_chr12_P_Q_mira.2.25.25.upgma.nwk")
+new_tree <- ape::read.tree("/Users/miramastoras/Desktop/centrolign_all_pairs/chr12_centrolign_all_pairs.nj.HPRC_naming.nwk")
+
+samples <- readLines("/Users/miramastoras/Desktop/all_pairs_weighted_sum_trio_ch12/fasta_list.all_sample_ids.in_nwk.trio_only.txt")
+
+obj<-cophylo(original_tree,new_tree)
+svg(filename="/Users/miramastoras/Desktop/all_pairs_flanks_tree/HPRC_chr12_P_Q_mira.2.25.25.upgma_vs_all_pairs_nj.svg")
+plot(obj, pts=FALSE,fsize=c(0.15,0.15),link.type="curved",link.lty="solid",link.col=make.transparent("blue",0.25),part=0.44)
+dev.off()
+```
+
+Sasha's nj trees
+```
+# create trees
+original_tree <- ape::read.tree("/Users/miramastoras/Desktop/Sasha_HPRC_trees_2_25_25/HPRC_chr12_P_Q_mira.2.25.25.rnj.format5.nwk")
+new_tree <- ape::read.tree("/Users/miramastoras/Desktop/all_pairs_flanks_tree/initial_test_nogaps_100kb_flanks_chr12.all_pairs.nj.HPRC_naming.nwk")
+
+samples <- readLines("/Users/miramastoras/Desktop/all_pairs_weighted_sum_trio_ch12/fasta_list.all_sample_ids.in_nwk.trio_only.txt")
+
+obj<-cophylo(original_tree,new_tree)
+svg(filename="/Users/miramastoras/Desktop/all_pairs_flanks_tree/HPRC_chr12_P_Q_mira.2.25.25.rnj_vs_100kb_flanks_all_pairs_nj.svg")
+plot(obj, pts=FALSE,fsize=c(0.15,0.15),link.type="curved",link.lty="solid",link.col=make.transparent("blue",0.25),part=0.44)
+dev.off()
+```
+Tree using 100kb flanks only vs tree using upgma distances and centrolign distances in the formula
+```
+# create trees
+original_tree <- ape::read.tree("/Users/miramastoras/Desktop/all_pairs_flanks_tree/initial_test_nogaps_100kb_flanks_chr12.all_pairs.nj.nwk")
+new_tree <- ape::read.tree("/Users/miramastoras/Desktop/centrolign_all_pairs_flanks/initial_test_nogaps_100kb_flanks_all_pairs_combined_dist_HOR_flank_dist_weighted.nwk")
+
+samples <- readLines("/Users/miramastoras/Desktop/all_pairs_weighted_sum_trio_ch12/fasta_list.all_sample_ids.in_nwk.trio_only.txt")
+
+obj<-cophylo(original_tree,new_tree)
+svg(filename="/Users/miramastoras/Desktop/all_pairs_flanks_tree/centrolign_100kb_flanks_all_pairs_only_vs_weighted_sum_old_tree.svg")
+plot(obj, pts=FALSE,fsize=c(0.15,0.15),link.type="curved",link.lty="solid",link.col=make.transparent("blue",0.25),part=0.44)
+dev.off()
+```

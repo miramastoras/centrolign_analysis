@@ -40,9 +40,9 @@ export PYTHONPATH="/private/home/juklucas/miniconda3/envs/toil/bin/python"
 # submit job
 sbatch \
      --job-name=Asm2AsmAlignerPaf \
-     --array=[1]%30 \
-     --partition=medium \
-     --time=12:00:00 \
+     --array=[2-462]%100 \
+     --partition=short \
+     --time=1:00:00 \
      --cpus-per-task=32 \
      --exclude=phoenix-[09,10,22,23,24,18] \
      --mem=400gb \
@@ -60,6 +60,6 @@ sbatch \
 cd /private/groups/patenlab/mira/centrolign/batch_submissions/Asm2AsmAlignerPaf/release2/
 
 python3 /private/groups/hprc/polishing/hprc_intermediate_assembly/hpc/update_table_with_outputs.py \
-      --input_data_table Asm2AsmAlignerPaf.csv  \
-      --output_data_table Asm2AsmAlignerPaf.results.csv  \
+      --input_data_table Asm2AsmAlignerPaf_release2.csv  \
+      --output_data_table Asm2AsmAlignerPaf_release2.results.csv  \
       --json_location '{sample_id}_Asm2AsmAlignerPaf_outputs.json'

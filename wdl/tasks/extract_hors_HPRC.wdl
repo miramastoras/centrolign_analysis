@@ -14,7 +14,7 @@ workflow extract_hors {
         File AsHorSFBedFile
         File CenSatBedFile
 
-        String sampleName # required to be in the format HG01530_hap2
+        String sampleName # required to be in the format HG01530_hap2 or HG01530_mat
 
         String dockerImage
 
@@ -132,7 +132,7 @@ task extract_hor_sequence {
         set -o xtrace
 
         # get sample id without haplotype label
-        SAMPLE=$(echo "~{sampleID}" | sed 's/_hap[12]_hprc_r2_v1//')
+        SAMPLE=$(echo "~{sampleID}" | sed 's/_hap[12]//' | sed 's/_[mp]at//')
 
         if [[ "~{sampleID}" == *"hap1"* ]]; then
           PARNUM=1

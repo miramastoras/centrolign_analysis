@@ -40,7 +40,7 @@ export PYTHONPATH="/private/home/juklucas/miniconda3/envs/toil/bin/python"
 # submit job
 sbatch \
      --job-name=extract_hors_HPRC \
-     --array=[1-189]%30 \
+     --array=[146,163,166,173,178]%30 \
      --partition=short \
      --time=1:00:00 \
      --cpus-per-task=8 \

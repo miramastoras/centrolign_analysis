@@ -70,7 +70,7 @@ def main():
 
     # scale flank distance value to be between 0 and 1
     scaled_flank_df=min_max_scale_df(flank_df)
-
+    print(scaled_flank_df)
     # compute weighted sum, write to file, store in matrix for skbio
     mat = {}
     with open(args.output_pre +"_HOR_flank_dist_weighted.txt", "a") as file:
