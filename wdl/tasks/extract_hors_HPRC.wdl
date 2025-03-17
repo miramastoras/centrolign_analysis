@@ -45,6 +45,7 @@ workflow extract_hors {
     }
     output {
         File horArrayBed=locate_hors.horArrayBed
+        File locateHorsFromCensatLog=locate_hors.locateHorsFromCensatLog
         Array[File] horFastas=extract_hor_sequence.horFastas
     }
 }
@@ -86,11 +87,11 @@ task locate_hors {
             -a ~{AsHorSFBedFile} \
             -p ~{asmToRefPaf} \
             -f ~{sampleID}.fasta \
-            > ~{sampleID}_hor_arrays.bed
+            > ~{sampleID}_hor_arrays.bed &> ~{sampleID}_locate_hors_from_censat.log
 
         if [ -n "~{expandFlanks}" ]
         then
-            echo "expand flanks worked"
+            echo "expanding flanks by " "~{expandFlanks}"
             awk -v OFS='\t' {'print $1,$2'} ~{sampleID}.fasta.fai > ~{sampleID}.fasta.fai.genome
 
             bedtools slop -i ~{sampleID}_hor_arrays.bed \
@@ -103,6 +104,7 @@ task locate_hors {
     >>>
     output {
         File horArrayBed=glob("*hor_arrays.bed")[0]
+        File locateHorsFromCensatLog=glob("*_locate_hors_from_censat.log")[0]
 
     }
     runtime {

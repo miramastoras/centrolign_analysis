@@ -15,7 +15,7 @@ from matplotlib.patches import Rectangle
 import matplotlib.patches as patches
 import csv
 from matplotlib.cm import get_cmap
-from matplotlib.colors import Normalize
+from matplotlib.ticker import FuncFormatter
 
 def arg_parser():
     '''
@@ -43,6 +43,10 @@ def arg_parser():
                         help="directory path to write output files to")
 
     return parser.parse_args()
+
+def check_values_in_range(lst):
+    # Check if all values are between 0 and 1
+    return all(0 <= x <= 1 for x in lst)
 
 def tree_to_linkage_matrix(biopython_tree):
     # definition of linkage matrix:
@@ -134,6 +138,22 @@ def main():
     min_pairwise = min(pairwise_vals.values())  # 10
     max_pairwise = max(pairwise_vals.values())
 
+    # check if all values fall between 0 and 1. If not, we need to rescale them for the colormap
+    # labels for heatmap scale. default is 0 to 1
+    heatmap_y_labels=[0,.2,.4,.6,.8,1]
+    if check_values_in_range(pairwise_vals.values()):
+        print("All values are between 0 and 1.")
+    else:
+        print("Rescaling data for colormap")
+        # Apply min-max scaling with a small epsilon to avoid exact 0 or 1
+        epsilon = 1e-8
+        for key in pairwise_vals.keys():
+            rescaled_val= (pairwise_vals[key] - min_pairwise) / (max_pairwise - min_pairwise + epsilon)
+            pairwise_vals[key]=rescaled_val
+
+            # reverse min-max scaling to get the original data values for the y axes labels
+        heatmap_y_labels = [((scaled * (max_pairwise - min_pairwise + epsilon)) + min_pairwise) for scaled in heatmap_y_labels]
+        print(heatmap_y_labels)
     # Plot two matplotlib grids side by side
     # scale width ratio for middle axes (containing labels) by number of samples
     axes1_width_ratio=(-0.00356*len(samples))+0.52492
@@ -184,7 +204,7 @@ def main():
     #G = np.linspace(seafoam[1], deepblue[1], 101)
     #B = np.linspace(seafoam[2], deepblue[2], 101)
 
-    cmap = get_cmap('viridis_r')
+    cmap = get_cmap('coolwarm')
     # plot color scale in fourth grid
     for i in np.arange(0, 100, 1):
         rectangle = patches.Rectangle([0,( i / 100)], 1, 0.1,
@@ -197,6 +217,15 @@ def main():
     axes[3].yaxis.set_label_position("right")
     #axes[3].set_yticks([0,1])
     axes[3].set_xticklabels([])
+    axes[3].set_yticks([0,.2,.4,.6,.8,1])
+
+
+    def scientific_formatter(x):
+        return f"{x:.2e}"  # Convert to scientific notation with 2 decimal places
+
+    # Apply the custom formatter to the y-axis ticks
+    formatted_labels = [scientific_formatter(val) for val in heatmap_y_labels]
+    axes[3].set_yticklabels(formatted_labels)
 
     # loop through id_map position labels (0 to num samples - 1)
     positions = list(id_map.keys())
