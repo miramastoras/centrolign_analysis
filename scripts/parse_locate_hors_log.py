@@ -11,7 +11,7 @@ with open(args.input_file, 'r') as file:
     input_data = file.read()
 
 # Regular expressions to match the relevant lines
-filtering_pattern = re.compile(r"filtering")
+filtering_pattern = re.compile(r"filter")
 numbers_in_parentheses_pattern = re.compile(r"\(([^)]+)\)")
 
 # Variables to keep track of the current filter and results
