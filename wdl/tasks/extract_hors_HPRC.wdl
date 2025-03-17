@@ -87,11 +87,11 @@ task locate_hors {
             -a ~{AsHorSFBedFile} \
             -p ~{asmToRefPaf} \
             -f ~{sampleID}.fasta \
-            > ~{sampleID}_hor_arrays.bed &> ~{sampleID}_locate_hors_from_censat.log
+            > ~{sampleID}_hor_arrays.bed 2> ~{sampleID}_locate_hors_from_censat.log
 
         if [ -n "~{expandFlanks}" ]
         then
-            echo "expanding flanks by " "~{expandFlanks}"
+
             awk -v OFS='\t' {'print $1,$2'} ~{sampleID}.fasta.fai > ~{sampleID}.fasta.fai.genome
 
             bedtools slop -i ~{sampleID}_hor_arrays.bed \
