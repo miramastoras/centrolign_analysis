@@ -16,7 +16,7 @@ chromosomes=("chr1" "chr2" "chr3" "chr4" "chr5" "chr6" "chr7" "chr8" "chr9" "chr
 for chr in "${chromosomes[@]}"
 do
     echo "Processing $chr"
-    ls | grep hap | \
+    cut -f 1 -d"," extract_hors_HPRC_release2.csv | grep -v "sample_id" | \
     while read line ; do
         ls $line/analysis/extract_hors_HPRC_outputs/*${chr}_hor_array.fasta | cut -f4 -d"/" | cut -f3 -d"_"
       done | grep -v "cannot access" > /private/groups/patenlab/mira/centrolign/batch_submissions/extract_hors_HPRC/release2/contiguous_HORs/HPRC_release2_contiguous_HORs_${chr}.txt
@@ -25,7 +25,7 @@ done
 # Count number of contiguous arrays per chromosome
 for chr in "${chromosomes[@]}"
 do  
-  count=`wc -l /private/groups/patenlab/mira/centrolign/batch_submissions/extract_hors_HPRC/release2/contiguous_HORs/HPRC_release2_contiguous_HORs_${chr}.txt | cut -f1 -d" "`
+  count=`wc -l contiguous_HORs/HPRC_release2_contiguous_HORs_${chr}.txt | cut -f1 -d" "`
   echo $chr $count
 done
 ```
@@ -108,36 +108,33 @@ do
 done
 ```
 ```
-17391 /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2/all_pairs/chr1/HPRC_release2_contiguous_HOR_all_pairs_combinations_chr1.txt
-
-3321 /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2/all_pairs/chr6/HPRC_release2_contiguous_HOR_all_pairs_combinations_chr6.txt
-
-12720 /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2/all_pairs/chr8/HPRC_release2_contiguous_HOR_all_pairs_combinations_chr8.txt
-
-14535 /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2/all_pairs/chr10/HPRC_release2_contiguous_HOR_all_pairs_combinations_chr10.txt
-
-15051 /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2/all_pairs/chr12/HPRC_release2_contiguous_HOR_all_pairs_combinations_chr12.txt
+78913 /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2/all_pairs/chr1/HPRC_release2_contiguous_HOR_all_pairs_combinations_chr1.txt
+18118 /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2/all_pairs/chr6/HPRC_release2_contiguous_HOR_all_pairs_combinations_chr6.txt
+63823 /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2/all_pairs/chr8/HPRC_release2_contiguous_HOR_all_pairs_combinations_chr8.txt
+63118 /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2/all_pairs/chr10/HPRC_release2_contiguous_HOR_all_pairs_combinations_chr10.txt
+73829 /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2/all_pairs/chr12/HPRC_release2_contiguous_HOR_all_pairs_combinations_chr12.txt
 ```
 Slurm parameters:
 ```
 #SBATCH --job-name=chr6_pairwise-centrolign
-#SBATCH --array=[1-3321]%128
+#SBATCH --array=[1-18118]%32
 CHR=chr6
 
 #SBATCH --job-name=chr1_pairwise-centrolign
-#SBATCH --array=[1-17391]%128
+#SBATCH --array=[1-78913]%128
 CHR=chr1
 
 #SBATCH --job-name=chr12_pairwise-centrolign
-#SBATCH --array=[1-15051]%128
+#SBATCH --array=[1-10000]%128
+#SBATCH --array=[10001-73829]%128
 CHR=chr12
 
 #SBATCH --job-name=chr10_pairwise-centrolign
-#SBATCH --array=[1-14535]%32
+#SBATCH --array=[1-63118]%128
 CHR=chr10
 
 #SBATCH --job-name=chr8_pairwise-centrolign
-#SBATCH --array=[1-12720]%32
+#SBATCH --array=[1-63823]%32
 CHR=chr8
 ```
 Slurm script for running pairwise centrolign
