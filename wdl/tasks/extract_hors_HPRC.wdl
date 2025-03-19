@@ -138,11 +138,15 @@ task extract_hor_sequence {
 
         if [[ "~{sampleID}" == *"hap1"* ]]; then
           PARNUM=1
-          HPRC_PARENT=hap1
-        else
+
+        if [[ "~{sampleID}" == *"pat"* ]]; then
+          PARNUM=1
+
+        if [[ "~{sampleID}" == *"hap2"* ]]; then
           PARNUM=2
-          HPRC_PARENT=hap2
-        fi
+
+        if [[ "~{sampleID}" == *"mat"* ]]; then
+          PARNUM=2
 
         mkdir -p ./~{sampleID}_hor_fastas/
 
