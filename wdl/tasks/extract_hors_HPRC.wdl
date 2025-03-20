@@ -153,7 +153,7 @@ task extract_hor_sequence {
         if [[ "~{sampleID}" == *"mat"* ]]; then
           PARNUM=2
         fi
-        
+
         echo "sample id and parnum: " $SAMPLE $PARNUM
 
         mkdir -p ./~{sampleID}_hor_fastas/
@@ -162,9 +162,7 @@ task extract_hor_sequence {
             echo "chr${CHR}"
 
             REGIONFILE=~{sampleID}.chr${CHR}.hor.txt
-            touch $REGIONFILE
             grep -w chr${CHR} ~{horArrayBed} | awk '{ printf "%s:%d-%d\n", $1, $2+1, $3 }' > ${REGIONFILE}
-            ls $REGIONFILE
             STRAND=$(grep -w chr${CHR} ~{horArrayBed} | cut -f 6)
             echo $STRAND
             if [ -s $REGIONFILE ];
