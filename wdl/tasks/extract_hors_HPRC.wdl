@@ -131,7 +131,6 @@ task extract_hor_sequence {
     }
     command <<<
         # exit when a command fails, fail with unset variables, print commands before execution
-        set -eux -o pipefail
         set -o xtrace
 
         # get sample id without haplotype label
@@ -162,7 +161,9 @@ task extract_hor_sequence {
             echo "chr${CHR}"
 
             REGIONFILE=~{sampleID}.chr${CHR}.hor.txt
+            touch $REGIONFILE
             grep -w chr${CHR} ~{horArrayBed} | awk '{ printf "%s:%d-%d\n", $1, $2+1, $3 }' > ${REGIONFILE}
+            ls $REGIONFILE
             STRAND=$(grep -w chr${CHR} ~{horArrayBed} | cut -f 6)
             echo $STRAND
             if [ -s $REGIONFILE ];
