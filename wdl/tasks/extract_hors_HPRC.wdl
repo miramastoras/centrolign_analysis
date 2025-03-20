@@ -148,6 +148,7 @@ task extract_hor_sequence {
         if [[ "~{sampleID}" == *"mat"* ]]; then
           PARNUM=2
 
+        echo "sample id and parnum " $SAMPLE_ID $PARNUM
         mkdir -p ./~{sampleID}_hor_fastas/
 
         for CHR in {1..22} X Y M; do
