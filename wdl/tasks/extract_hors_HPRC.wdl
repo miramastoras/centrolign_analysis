@@ -138,19 +138,22 @@ task extract_hor_sequence {
         SAMPLE=$(echo "~{sampleID}" | sed 's/_hap[12]//' | sed 's/_[mp]at//')
 
         echo "assigning parnum"
-        
+
         if [[ "~{sampleID}" == *"hap1"* ]]; then
           PARNUM=1
+        fi
 
         if [[ "~{sampleID}" == *"pat"* ]]; then
           PARNUM=1
+        fi
 
         if [[ "~{sampleID}" == *"hap2"* ]]; then
           PARNUM=2
-
+        fi
         if [[ "~{sampleID}" == *"mat"* ]]; then
           PARNUM=2
-
+        fi
+        
         echo "sample id and parnum: " $SAMPLE $PARNUM
 
         mkdir -p ./~{sampleID}_hor_fastas/
