@@ -131,11 +131,14 @@ task extract_hor_sequence {
     }
     command <<<
         # exit when a command fails, fail with unset variables, print commands before execution
+        set -eux -o pipefail
         set -o xtrace
 
         # get sample id without haplotype label
         SAMPLE=$(echo "~{sampleID}" | sed 's/_hap[12]//' | sed 's/_[mp]at//')
 
+        echo "assigning parnum"
+        
         if [[ "~{sampleID}" == *"hap1"* ]]; then
           PARNUM=1
 
@@ -148,7 +151,8 @@ task extract_hor_sequence {
         if [[ "~{sampleID}" == *"mat"* ]]; then
           PARNUM=2
 
-        echo "sample id and parnum " $SAMPLE_ID $PARNUM
+        echo "sample id and parnum: " $SAMPLE $PARNUM
+
         mkdir -p ./~{sampleID}_hor_fastas/
 
         for CHR in {1..22} X Y M; do
