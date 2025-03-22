@@ -62,7 +62,7 @@ chromosomes=("chr1" "chr2" "chr3" "chr4" "chr5" "chr6" "chr7" "chr8" "chr9" "chr
 for chr in "${chromosomes[@]}"
 do
     echo "Processing $chr"
-    ls | grep hap | \
+    cut -f 1 -d"," extract_hors_HPRC_release2.csv | grep -v "sample_id" | \
     while read line ; do
         ls $line/analysis/extract_hors_HPRC_outputs/*${chr}_hor_array.fasta
       done | grep -v "cannot access" > /private/groups/patenlab/mira/centrolign/batch_submissions/extract_hors_HPRC/release2/HPRC_release2_contiguous_HORs_${chr}.fasta_list.txt
@@ -108,33 +108,36 @@ do
 done
 ```
 ```
-78913 /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2/all_pairs/chr1/HPRC_release2_contiguous_HOR_all_pairs_combinations_chr1.txt
-18118 /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2/all_pairs/chr6/HPRC_release2_contiguous_HOR_all_pairs_combinations_chr6.txt
-63823 /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2/all_pairs/chr8/HPRC_release2_contiguous_HOR_all_pairs_combinations_chr8.txt
-63118 /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2/all_pairs/chr10/HPRC_release2_contiguous_HOR_all_pairs_combinations_chr10.txt
-73829 /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2/all_pairs/chr12/HPRC_release2_contiguous_HOR_all_pairs_combinations_chr12.txt
+79003 /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2/all_pairs/chr1/HPRC_release2_contiguous_HOR_all_pairs_combinations_chr1.txt
+18145 /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2/all_pairs/chr6/HPRC_release2_contiguous_HOR_all_pairs_combinations_chr6.txt
+63903 /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2/all_pairs/chr8/HPRC_release2_contiguous_HOR_all_pairs_combinations_chr8.txt
+63190 /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2/all_pairs/chr10/HPRC_release2_contiguous_HOR_all_pairs_combinations_chr10.txt
+73920 /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2/all_pairs/chr12/HPRC_release2_contiguous_HOR_all_pairs_combinations_chr12.txt
 ```
 Slurm parameters:
 ```
 #SBATCH --job-name=chr6_pairwise-centrolign
-#SBATCH --array=[1-18118]%32
+#SBATCH --array=[1-18145]%128
 CHR=chr6
 
 #SBATCH --job-name=chr1_pairwise-centrolign
-#SBATCH --array=[1-78913]%128
+#SBATCH --array=[1-30000]%128
+#SBATCH --array=[30001-78913]%128
 CHR=chr1
 
 #SBATCH --job-name=chr12_pairwise-centrolign
-#SBATCH --array=[1-10000]%128
-#SBATCH --array=[10001-73829]%128
+#SBATCH --array=[1-30000]%128
+#SBATCH --array=[30001-73829]%128
 CHR=chr12
 
 #SBATCH --job-name=chr10_pairwise-centrolign
-#SBATCH --array=[1-63118]%128
+#SBATCH --array=[1-30000]%128
+#SBATCH --array=[30001-63118]%128
 CHR=chr10
 
 #SBATCH --job-name=chr8_pairwise-centrolign
-#SBATCH --array=[1-63823]%32
+#SBATCH --array=[1-30000]%128
+#SBATCH --array=[30001-63823]%128
 CHR=chr8
 ```
 Slurm script for running pairwise centrolign
@@ -143,7 +146,7 @@ Slurm script for running pairwise centrolign
 # Slurm script to use centrolign as a pairwise aligner on all pairs of sequences
 # from an input directory
 
-#SBATCH --job-name=chr8_pairwise-centrolign
+#SBATCH --job-name=chr1_pairwise-centrolign
 #SBATCH --partition=short
 #SBATCH --mail-user=mmastora@ucsc.edu
 #SBATCH --mail-type=ALL
@@ -151,7 +154,7 @@ Slurm script for running pairwise centrolign
 #SBATCH --mem=56gb
 #SBATCH --ntasks=1
 #SBATCH --cpus-per-task=1
-#SBATCH --array=[1-12720]%32
+#SBATCH --array=[1-30000]%128
 #SBATCH --output=logs/array_job_%A_task_%a.log
 #SBATCH --time=1:00:00
 
@@ -159,7 +162,7 @@ date
 hostname
 pwd
 
-CHR=chr8
+CHR=chr1
 CHROMDIR=/private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2/all_pairs/${CHR}
 FASTADIR=/private/groups/patenlab/mira/centrolign/batch_submissions/extract_hors_HPRC/release2/
 WORKDIR=$CHROMDIR/work/
@@ -177,29 +180,10 @@ echo "sample 1:" $SAMPLE1
 echo "sample 2:" $SAMPLE2
 echo "out:" $OUTDIR
 
-S1_hap=`echo $SAMPLE1 | cut -f2 -d"."`
-S2_hap=`echo $SAMPLE2 | cut -f2 -d"."`
-
-S1_ID=`echo $SAMPLE1 | cut -f1 -d"."`
-S2_ID=`echo $SAMPLE2 | cut -f1 -d"."`
-
-if [ ${S1_hap} == 1 ];
-then
-    S1_HPRC_hap="hap1"
-else
-    S1_HPRC_hap="hap2"
-fi
-
-if [ ${S2_hap} == 1 ];
-then
-    S2_HPRC_hap="hap1"
-else
-    S2_HPRC_hap="hap2"
-fi
-
-FASTA1=${FASTADIR}${S1_ID}_${S1_HPRC_hap}/analysis/extract_hors_HPRC_outputs/${S1_ID}_${S1_HPRC_hap}_${SAMPLE1}_${CHR}_hor_array.fasta
-
-FASTA2=${FASTADIR}${S2_ID}_${S2_HPRC_hap}/analysis/extract_hors_HPRC_outputs/${S2_ID}_${S2_HPRC_hap}_${SAMPLE2}_${CHR}_hor_array.fasta
+FASTA1=`grep ${SAMPLE1} /private/groups/patenlab/mira/centrolign/batch_submissions/extract_hors_HPRC/release2/HPRC_release2_contiguous_HORs_${CHR}.fasta_list.txt`
+FASTA1="/private/groups/patenlab/mira/centrolign/batch_submissions/extract_hors_HPRC/release2/${FASTA1}"
+FASTA2=`grep ${SAMPLE2} /private/groups/patenlab/mira/centrolign/batch_submissions/extract_hors_HPRC/release2/HPRC_release2_contiguous_HORs_${CHR}.fasta_list.txt`
+FASTA2="/private/groups/patenlab/mira/centrolign/batch_submissions/extract_hors_HPRC/release2/${FASTA2}"
 
 echo "fasta 1:" $FASTA1
 echo "fasta 2:" $FASTA2
