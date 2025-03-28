@@ -19,8 +19,9 @@ RUN git clone --recursive https://github.com/metaphysicser/RaMA.git /app
 
 # Set the working directory to the cloned RaMA folder
 WORKDIR /app
-WORKDIR RaMA
-WORKDIR build
+WORKDIR /app/RaMA
+WORKDIR /app/RaMA/build
+RUN pwd
 RUN cmake .. -DCMAKE_BUILD_TYPE=Release
 RUN make -j$(nproc)
 RUN ./RaMA -h
