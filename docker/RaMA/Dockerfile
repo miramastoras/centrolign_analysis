@@ -11,6 +11,7 @@ RUN apt-get update && apt-get install -y \
     g++ \
     cmake \
     curl \
+    pkg-config \
     wget \
     ca-certificates \
     && rm -rf /var/lib/apt/lists/*
