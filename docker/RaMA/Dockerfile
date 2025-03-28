@@ -15,13 +15,14 @@ RUN apt-get update && apt-get install -y \
     ca-certificates \
     && rm -rf /var/lib/apt/lists/*
 
-RUN git clone --recursive https://github.com/metaphysicser/RaMA.git /app
+RUN mkdir app
+WORKDIR app
+RUN git clone --recursive https://github.com/metaphysicser/RaMA.git
 
 # Set the working directory to the cloned RaMA folder
-WORKDIR /app
-WORKDIR /app/RaMA
-WORKDIR /app/RaMA/build
-RUN pwd
+WORKDIR RaMA
+RUN mkdir build
+WORKDIR build
 RUN cmake .. -DCMAKE_BUILD_TYPE=Release
 RUN make -j$(nproc)
 RUN ./RaMA -h
