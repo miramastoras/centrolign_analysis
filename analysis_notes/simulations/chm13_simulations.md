@@ -43,6 +43,18 @@ done
 #### Step 1: make sim cases
 
 ```sh
+
+mkdir -p /private/groups/patenlab/mira/centrolign/simulations/MSA_simulations/make_sim_cases_slurm_logs
+
+chromosomes=("chr2" "chr3" "chr4" "chr6" "chr7" "chr10" "chr11" "chr12" "chr14" "chr15" "chr16" "chr17" "chr20" "chr21" "chr22" "chrX" "chrY")
+
+for chr in "${chromosomes[@]}"
+do
+    sbatch /private/groups/patenlab/mira/centrolign/github/centrolign_analysis/analysis_notes/simulations/slurm_scripts/make_sim_cases_MSA.sh $chr
+```
+
+
+```sh
 #!/bin/bash
 #SBATCH --job-name=make-sim-cases
 # Partition - This is the queue it goes in:
@@ -260,7 +272,7 @@ CENTROLIGN=$CENTROLIGN_DIR/centrolign
 TRUTH_COMPARE=$CENTROLIGN_DIR/compare_truth_aln
 UNIALIGNER=/private/groups/patenlab/mira/centrolign/github/unialigner/tandem_aligner/build/bin/tandem_aligner
 TO_RAW_SEQ=$SCRIPTS_DIR/data_processing_utils/fasta_to_raw_seq.py
-ANALYZE_CASE=$SCRIPTS_DIR/benchmarking/analyze_pair_case.py
+ANALYZE_CASE=/private/groups/patenlab/mira/centrolign/github/centrolign_analysis/scripts/analyze_pair_case.py
 
 mkdir -p $WORKDIR
 cd $WORKDIR

@@ -1,8 +1,7 @@
 library(ggplot2)
 
-setwd("/Users/Jordan/Documents/Research/Pangenomics/Centromeres/working/")
 
-dat = read.table("pairwise_chrX_summary_tables.txt")
+dat = read.table("/Users/miramastoras/Desktop/pair_chr12_sim_cases_20250331_aln_summary_table.txt")
 colnames(dat) = c("case", "aligner", "distance", "truth_matches", "truth_match_rate", "matches", "match_rate", 
                   "mismatches", "mismatch_rate", "recall", "precision")
 
