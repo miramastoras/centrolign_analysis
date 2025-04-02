@@ -6,7 +6,7 @@
 #SBATCH --job-name=simulated-centrolign-msa
 #SBATCH --partition=medium
 #SBATCH --mail-user=mmastora@ucsc.edu
-#SBATCH --mail-type=NONE
+#SBATCH --mail-type=END
 #SBATCH --nodes=1
 #SBATCH --mem=160gb
 #SBATCH --ntasks=1
