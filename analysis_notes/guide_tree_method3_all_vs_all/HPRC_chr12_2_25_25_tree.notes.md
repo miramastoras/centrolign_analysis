@@ -106,6 +106,29 @@ time /private/home/mmastora/progs/centrolign/build/centrolign -v 4 \
     /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/HPRC_chr12_2_25_25_tree_initial_test_nogaps/chr12/initial_test_nogaps_HPRC_labels_chr12.fasta \
     > /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/HPRC_chr12_2_25_25_tree_initial_test_nogaps/chr12/rnj_tree/initial_test_nogaps_HPRC_labels_chr12_2_25_25.rnj.centrolign.gfa
 ```
+
+RUn centrolign with 100 kb flanks
+```
+#!/bin/bash
+#SBATCH --job-name=centrolign_chr12_upgma_100kb
+#SBATCH --partition=long
+#SBATCH --mail-user=mmastora@ucsc.edu
+#SBATCH --mail-type=ALL
+#SBATCH --nodes=1
+#SBATCH --mem=700gb
+#SBATCH --ntasks=1
+#SBATCH --cpus-per-task=1
+#SBATCH --output=centrolign_%x.%j.log
+#SBATCH --time=7-00:00
+
+array_job_7828600_task_9.log
+time /private/home/mmastora/progs/centrolign/build/centrolign -v 4 \
+    -S /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/HPRC_chr12_2_25_25_tree_initial_test_nogaps_100kb_flanks/chr12/upgma_tree/jobstore/ \
+    -T /private/groups/patenlab/mira/centrolign/annotations/guide_trees/HPRC_chr12_P_Q_mira.2.25.25.upgma.format5.nwk \
+    /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/HPRC_chr12_2_25_25_tree_initial_test_nogaps_100kb_flanks/chr12/initial_test_nogaps_100kb_flanks_HPRC_labels_chr12.fasta \
+    > /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/HPRC_chr12_2_25_25_tree_initial_test_nogaps_100kb_flanks/chr12/upgma_tree/initial_test_nogaps_100kb_flanks_HPRC_labels_chr12_2_25_25.upgma.centrolign.gfa
+
+```
 ## Combine distances from new guide trees with centrolign all pairs alignments, rerun centrolign
 
 Rerun centrolign all pairs pairwise with the new HOR fastas

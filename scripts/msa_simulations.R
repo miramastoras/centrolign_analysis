@@ -1,8 +1,7 @@
 library(ggplot2)
 
-setwd("/Users/Jordan/Documents/Research/Pangenomics/Centromeres/working/")
 
-dat = read.table("msa_chrX_summary_tables_max_scale_20240308.txt")
+dat = read.table("/Users/miramastoras/Desktop/msa_simulations_chr12_20250331_aln_sum_tables.txt")
 colnames(dat) = c("case", "distance", "truth_matches", "truth_match_rate", "matches", "match_rate", 
                   "mismatches", "mismatch_rate", "recall", "precision")
 

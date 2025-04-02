@@ -64,17 +64,17 @@ echo "array job" $SLURM_ARRAY_TASK_ID
 
 # note: sample size is handled in sbatch array size
 CHR=12
-DATE=20250324
+DATE=20250331
 
-SIMDIR=/private/groups/patenlab/mira/centrolign/simulations
+SIMDIR=/private/groups/patenlab/mira/centrolign/simulations/MSA_simulations
 OUTDIR=$SIMDIR/msa_chr"$CHR"_sim_cases_"$DATE"/case_"$SLURM_ARRAY_TASK_ID"/
 
 GEN_TREE=/private/groups/patenlab/mira/centrolign/github/centromere-scripts/benchmarking/generate_tree.py
 SIM_CENTROMERE=/private/home/mmastora/progs/centrolign/build/sim_centromere
 
 # the base array that we'll simulate
-FASTA=/private/groups/patenlab/jeizenga/centromere/simulation/chm13_chr12_active_array.upper.fasta
-BED=/private/groups/patenlab/jeizenga/centromere/simulation/chr12_shifted_hors.bed
+FASTA=/private/groups/patenlab/mira/centrolign/annotations/chm13/per_chrom/chm13v2.0.chr12.active_hor.upper.fa
+BED=/private/groups/patenlab/mira/centrolign/annotations/chm13/per_chrom/chm13v2.0.labels.as_hor.chr12.active.shifted.bed
 
 # number of sequences in each case
 N_SEQS=8
@@ -94,6 +94,71 @@ time $SIM_CENTROMERE -o $OUTDIR/sim -T $TREE $FASTA $BED
 cat $OUTDIR/sim*.fasta > $OUTDIR/all_seqs.fasta
 ```
 
+#### Step 2: analyze simulation results
+
+```sh
+#!/bin/bash
+# Slurm script to benchmark the output of a centrolign multiple sequence alignment
+# of simulated sequences, created by the sim_centromere script.
+# Calls the analyze_case.py and infer_tree.py scripts.
+
+#SBATCH --job-name=simulated-centrolign-msa
+#SBATCH --partition=medium
+#SBATCH --mail-user=mmastora@ucsc.edu
+#SBATCH --mail-type=ALL
+#SBATCH --nodes=1
+#SBATCH --mem=160gb
+#SBATCH --ntasks=1
+#SBATCH --cpus-per-task=1
+#SBATCH --array=1-30
+#SBATCH --output=logs/analysis_array_job_%A_task_%a.log
+#SBATCH --time=12:00:00
+
+date
+hostname
+pwd
+
+CHR=12
+DATE=20250331
+
+SIMDIR=/private/groups/patenlab/mira/centrolign/simulations/MSA_simulations
+CASEDIR=$SIMDIR/msa_chr"$CHR"_sim_cases_"$DATE"/
+
+CASE=$(ls $CASEDIR | sort | head -n $SLURM_ARRAY_TASK_ID | tail -n 1)
+
+source /private/groups/patenlab/jeizenga/centromere/venv/bin/activate
+cd $CASEDIR/$CASE
+mkdir -p induced
+mkdir -p subprobs
+
+CENTROLIGNDIR=/private/home/mmastora/progs/centrolign/build/
+CENTROLIGN=$CENTROLIGNDIR/centrolign
+TRUTH_COMPARE=$CENTROLIGNDIR/compare_truth_aln
+TREE_COMPARE=$CENTROLIGNDIR/tree_compare
+TREE_DIST=$CENTROLIGNDIR/tree_pair_dist
+ANALYZE_CASE=/private/groups/patenlab/mira/centrolign/github/centromere-scripts/benchmarking/analyze_case.py
+INFER_TREE=/private/groups/patenlab/mira/centrolign/github/centromere-scripts/data_exploration/infer_tree.py
+
+#echo "beginning alignment of case" $CASEDIR/$CASE
+#time $CENTROLIGN -v 3 -T tree.txt -A induced/aln -S subprobs/sp all_seqs.fasta > msa.gfa 2> >( tee err.txt >&2 )
+
+echo "alignment completed, analyzing results"
+
+source /private/home/mmastora/miniconda3/etc/profile.d/conda.sh
+conda activate skbio
+
+time $INFER_TREE induced 1 > inferred_tree.txt
+time $TREE_COMPARE tree.txt inferred_tree.txt > tree_comparison.tsv
+
+# the output makes more sense if we give it a non-trivial directory
+cd $CASEDIR
+time $ANALYZE_CASE $CASE $TREE_DIST $TRUTH_COMPARE
+```
+
+Plot results for chr12
+```
+
+```
 ### 3. Run pairwise simulations and comparisons to other tools
 
 Location:
@@ -125,7 +190,7 @@ echo "array job" $SLURM_ARRAY_TASK_ID
 
 # note: sample size is handled in sbatch array size
 CHR=12
-DATE=20250327
+DATE=20250331
 
 SIMDIR=/private/groups/patenlab/mira/centrolign/simulations/pairwise_simulations/
 OUTPARDIR=$SIMDIR/pair_chr"$CHR"_sim_cases_"$DATE"/
@@ -158,39 +223,42 @@ Run centrolign and the alternative tools
 # Slurm script to align simulated sequences pairwise with centrolign, Unialigner, winnowmap, and RaMa
 # and to analyze the accuracy, storing the results in a table
 #SBATCH --job-name=simulated-centrolign
-#SBATCH --partition=main
+#SBATCH --partition=medium
 #SBATCH --mail-user=mmastora@ucsc.edu
 #SBATCH --mail-type=ALL
 #SBATCH --nodes=1
 #SBATCH --mem=56gb
 #SBATCH --ntasks=1
 #SBATCH --cpus-per-task=1
-#SBATCH --array=2-150
-#SBATCH --output=logs/array_job_%A_task_%a.log
-#SBATCH --time=1:00:00
+#SBATCH --array=1-60
+#SBATCH --output=logs/analysis_array_job_%A_task_%a.log
+#SBATCH --time=12:00:00
 
 date
 hostname
 pwd
 
 # list cases in $SIMDIR/cases.txt
-CHR=X
-DATE=20231215
+CHR=12
+DATE=20250331
 
-SIMDIR=/private/groups/patenlab/mira/centrolign/simulations/pairwise_simulations/
-OUTPARDIR=$SIMDIR/pair_chr"$CHR"_sim_cases_"$DATE"/CASE=$(awk "NR==$SLURM_ARRAY_TASK_ID" "$SIMDIR"/cases.txt)
+SIMDIR=/private/groups/patenlab/mira/centrolign/simulations/pairwise_simulations/pair_chr"$CHR"_sim_cases_"$DATE"/
+CASE=$(awk "NR==$SLURM_ARRAY_TASK_ID" "$SIMDIR"/cases.txt)
 CASEDIR=$SIMDIR/$CASE
 WORKDIR=$SIMDIR/work
 
 CENTROLIGN_OUTFILE=$CASEDIR/aln_centrolign.txt
 UNIALIGNER_OUTFILE=$CASEDIR/aln_unialigner.txt
+RAMA_OUTFILE=$CASEDIR/aln_rama.txt
+#WINNOWMAP_OUTFILE=$CASEDIR/aln_winnowmap.txt
+#MINIMAP2_OUTFILE=$CASEDIR/aln_minimap2.txt
 
 CENTROLIGN_DIR=/private/home/mmastora/progs/centrolign/build/
 SCRIPTS_DIR=/private/groups/patenlab/mira/centrolign/github/centromere-scripts/
 
 CENTROLIGN=$CENTROLIGN_DIR/centrolign
 TRUTH_COMPARE=$CENTROLIGN_DIR/compare_truth_aln
-UNIALIGNER=/private/groups/patenlab/jeizenga/GitHub/unialigner/tandem_aligner/build/bin/tandem_aligner
+UNIALIGNER=/private/groups/patenlab/mira/centrolign/github/unialigner/tandem_aligner/build/bin/tandem_aligner
 TO_RAW_SEQ=$SCRIPTS_DIR/data_processing_utils/fasta_to_raw_seq.py
 ANALYZE_CASE=$SCRIPTS_DIR/benchmarking/analyze_pair_case.py
 
@@ -211,35 +279,57 @@ mkdir -p `dirname $TEMP_FASTA`
 cat $FASTA1 $FASTA2 > $TEMP_FASTA
 mkdir -p `dirname $CENTROLIGN_OUTFILE`
 /usr/bin/time -v ${CENTROLIGN} -v 3 $TEMP_FASTA > $CENTROLIGN_OUTFILE
-rm $TEMP_FASTA
+#rm $TEMP_FASTA
 
 echo "aligning with unaligner"
 mkdir -p `dirname $UNIALIGNER_OUTFILE`
-UNIALIGNER_TEMP_OUTDIR=$WORKDIR/tmp_out_"$SLURM_ARRAY_TASK_ID"
-/usr/bin/time -v ${UNIALIGNER} --first $FASTA1 --second $FASTA2 -o $UNIALIGNER_TEMP_OUTDIR
+UNIALIGNER_TEMP_OUTDIR=$WORKDIR/uni_tmp_out_"$SLURM_ARRAY_TASK_ID"
+time ${UNIALIGNER} --first $FASTA1 --second $FASTA2 -o $UNIALIGNER_TEMP_OUTDIR
 mv $UNIALIGNER_TEMP_OUTDIR/cigar.txt $UNIALIGNER_OUTFILE
 # delete the rest of the output
-rm -r $UNIALIGNER_TEMP_OUTDIR
+#rm -r $UNIALIGNER_TEMP_OUTDIR
+
+echo "aligning with RAMA"
+RAMA_TEMP_OUTDIR=$WORKDIR/rama_tmp_out_"$SLURM_ARRAY_TASK_ID"
+mkdir -p `dirname $RAMA_OUTFILE`
+time docker run -u `id -u`:`id -g` -v /private/groups:/private/groups \
+    miramastoras/rama:latest ./RaMA -t 5 \
+    -r $FASTA1 \
+    -q $FASTA2 \
+    -o $RAMA_TEMP_OUTDIR
+
+mv $RAMA_TEMP_OUTDIR/cigar.txt $RAMA_OUTFILE
+# delete the rest of the output
+#rm -r $RAMA_TEMP_OUTDIR
+
+# echo "aligning with winnowmap"
+#
+# WINNOWMAP_TEMP_OUTDIR=$WORKDIR/winnow_tmp_out_"$SLURM_ARRAY_TASK_ID"
+#
+# mkdir -p ${WINNOWMAP_TEMP_OUTDIR}
+# mkdir -p ${WINNOWMAP_OUTFILE}
+#
+# time docker run -u `id -u`:`id -g` -v /private/groups:/private/groups \
+#     mobinasri/long_read_aligner:v0.3.3 \
+#     meryl count k=19 output ${WINNOWMAP_TEMP_OUTDIR}/merylDB $FASTA1
+#
+# time docker run -u `id -u`:`id -g` -v /private/groups:/private/groups \
+#     mobinasri/long_read_aligner:v0.3.3 \
+#     meryl print greater-than distinct=0.9998 \
+#     ${WINNOWMAP_TEMP_OUTDIR}/merylDB \
+#     > ${WINNOWMAP_TEMP_OUTDIR}/repetitive_k19.txt
+#
+# docker run -u `id -u`:`id -g` -v /private/groups:/private/groups \
+#     mobinasri/long_read_aligner:v0.3.3 \
+#     winnowmap \
+#     -W ${WINNOWMAP_TEMP_OUTDIR}/repetitive_k19.txt \
+#     --eqx -cx asm20 -t 1 \
+#     $FASTA1 $FASTA2 \
+#     > ${WINNOWMAP_OUTFILE}
+#
+# #rm -r $WINNOWMAP_TEMP_OUTDIR
 
 # do this from outside the directory to get more sensible output
 cd $SIMDIR
-$ANALYZE_CASE $CASE $TRUTH_COMPARE
-```
-Test out ramma
-```
-conda activate RaMA
-
-RaMA -r sim_seq1.fasta -q sim_seq2.fasta -o /private/groups/patenlab/mira/centrolign/simulations/pairwise_simulations/pair_chr12_sim_cases_20250327/gen100/case_50/rama
-
-/private/home/mmastora/progs/centrolign/build/centrolign -v 3 both.fasta > both.centrolign
-```
-```
-RaMA -r /private/groups/patenlab/mira/centrolign/batch_submissions/extract_hors_HPRC/release2/HG04184_mat/analysis/extract_hors_HPRC_outputs/HG04184_mat_HG04184.2_chr12_hor_array.fasta -q /private/groups/patenlab/mira/centrolign/batch_submissions/extract_hors_HPRC/release2/HG00673_mat/analysis/extract_hors_HPRC_outputs/HG00673_mat_HG00673.2_chr12_hor_array.fasta -o /private/groups/patenlab/mira/centrolign/test/rama
-
-RaMA -t 5 -r /private/groups/patenlab/mira/HG04184_mat_HG04184.2_chr12_hor_array.fasta -q /private/groups/patenlab/mira/HG00673_mat_HG00673.2_chr12_hor_array.fasta -o /private/groups/patenlab/mira/rama_test
-
-
-cat /private/groups/patenlab/mira/HG04184_mat_HG04184.2_chr12_hor_array.fasta /private/groups/patenlab/mira/HG00673_mat_HG00673.2_chr12_hor_array.fasta > /private/groups/patenlab/mira/centrolign/test/hprc_test.fa
-/private/home/mmastora/progs/centrolign/build/centrolign -v 3 /private/groups/patenlab/mira/centrolign/test/hprc_test.fa > /private/groups/patenlab/mira/centrolign/test/hprc_test_centrolign
-
+python3 $ANALYZE_CASE $CASE $TRUTH_COMPARE
 ```
