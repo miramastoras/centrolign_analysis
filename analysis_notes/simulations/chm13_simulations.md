@@ -46,11 +46,16 @@ done
 
 mkdir -p /private/groups/patenlab/mira/centrolign/simulations/MSA_simulations/make_sim_cases_slurm_logs
 
+git -C /private/groups/patenlab/mira/centrolign/github/centrolign_analysis/ pull
+
+cd /private/groups/patenlab/mira/centrolign/simulations/MSA_simulations
+
 chromosomes=("chr2" "chr3" "chr4" "chr6" "chr7" "chr10" "chr11" "chr12" "chr14" "chr15" "chr16" "chr17" "chr20" "chr21" "chr22" "chrX" "chrY")
 
 for chr in "${chromosomes[@]}"
 do
     sbatch /private/groups/patenlab/mira/centrolign/github/centrolign_analysis/analysis_notes/simulations/slurm_scripts/make_sim_cases_MSA.sh $chr
+done 
 ```
 
 

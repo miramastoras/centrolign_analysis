@@ -22,7 +22,7 @@ CHR=$1
 DATE=20250402
 
 SIMDIR=/private/groups/patenlab/mira/centrolign/simulations/MSA_simulations
-OUTDIR=$SIMDIR/msa_chr"$CHR"_sim_cases_"$DATE"/case_"$SLURM_ARRAY_TASK_ID"/
+OUTDIR=$SIMDIR/msa_"$CHR"_sim_cases_"$DATE"/case_"$SLURM_ARRAY_TASK_ID"/
 
 GEN_TREE=/private/groups/patenlab/mira/centrolign/github/centromere-scripts/benchmarking/generate_tree.py
 SIM_CENTROMERE=/private/home/mmastora/progs/centrolign/build/sim_centromere
