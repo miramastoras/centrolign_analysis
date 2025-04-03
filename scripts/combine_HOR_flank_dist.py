@@ -97,6 +97,7 @@ def main():
             mat[(sample1, sample2)] = d
             mat[(sample2, sample1)] = d
 
+    print(mat)
     # reorganize as an array
     D = []
     for samp1 in samps:
