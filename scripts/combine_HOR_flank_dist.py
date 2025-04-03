@@ -84,8 +84,8 @@ def main():
             sample1=key.split("_")[0]
             sample2=key.split("_")[1]
 
-            print(sample1)
-            print(type(sample1))
+            #print(sample1)
+            #print(type(sample1))
             f=scaled_flank_df.loc[sample1, sample2] # flank distance
 
             d = (1 - (1 - h)**2 + f**2) / 2
