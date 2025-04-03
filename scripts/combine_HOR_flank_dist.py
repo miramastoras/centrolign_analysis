@@ -81,8 +81,6 @@ def main():
             sample1=key.split("_")[0]
             sample2=key.split("_")[1]
 
-            #print(sample1)
-            #print(type(sample1))
             f=scaled_flank_df.loc[sample1, sample2] # flank distance
 
             d = (1 - (1 - h)**2 + f**2) / 2
@@ -94,9 +92,6 @@ def main():
             mat[(sample1, sample2)] = d
             mat[(sample2, sample1)] = d
 
-    print(len(mat.keys()))
-    print(mat[('HG01150.2', 'HG01786.1')])
-    print(mat[('HG02841.1', 'HG01993.2')])
     # reorganize as an array
     D = []
     for samp1 in samps:
