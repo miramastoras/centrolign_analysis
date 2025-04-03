@@ -65,12 +65,15 @@ def main():
 
     samps = sorted(set(sample_list))
 
+    print(type(samps[0]))
+    print(samps[0])
+
     # Read in flank distance values
     flank_df = pd.read_csv(args.flank_dists, sep=',', index_col=0)
 
     # scale flank distance value to be between 0 and 1
     scaled_flank_df=min_max_scale_df(flank_df)
-    print(scaled_flank_df)
+
     # compute weighted sum, write to file, store in matrix for skbio
     mat = {}
     with open(args.output_pre +"_HOR_flank_dist_weighted.txt", "a") as file:
@@ -81,6 +84,8 @@ def main():
             sample1=key.split("_")[0]
             sample2=key.split("_")[1]
 
+            print(sample1)
+            print(type(sample1))
             f=scaled_flank_df.loc[sample1, sample2] # flank distance
 
             d = (1 - (1 - h)**2 + f**2) / 2
