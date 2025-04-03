@@ -94,6 +94,7 @@ def main():
             mat[(sample1, sample2)] = d
             mat[(sample2, sample1)] = d
 
+    print(len(mat.keys()))
     print(mat[('HG01150.2', 'HG01786.1')])
     print(mat[('HG02841.1', 'HG01993.2')])
     # reorganize as an array
