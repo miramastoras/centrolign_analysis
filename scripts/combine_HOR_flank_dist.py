@@ -65,9 +65,6 @@ def main():
 
     samps = sorted(set(sample_list))
 
-    print(type(samps[0]))
-    print(samps[0])
-
     # Read in flank distance values
     flank_df = pd.read_csv(args.flank_dists, sep=',', index_col=0)
 
@@ -97,7 +94,8 @@ def main():
             mat[(sample1, sample2)] = d
             mat[(sample2, sample1)] = d
 
-    print(mat)
+    print(mat[('HG01993.2', 'HG02841.1')])
+    print(mat[('HG02841.1', 'HG01993.2')])
     # reorganize as an array
     D = []
     for samp1 in samps:
