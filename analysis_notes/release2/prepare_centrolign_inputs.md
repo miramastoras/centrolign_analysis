@@ -331,7 +331,7 @@ time /private/home/mmastora/progs/centrolign/build/centrolign -v 3 --skip-calibr
 rm $TEMP_FASTA
 ```
 
-### Starting with Chr2, Chr3, Chr4, Chr5, Chr7
+### chr9" "chr11" "chr13" "chr14" "chr15
 
 ```sh
 chromosomes=("chr9" "chr11" "chr13" "chr14" "chr15")
@@ -382,16 +382,15 @@ CHR=chr11
 #SBATCH --array=[1-45753]%128
 CHR=chr13
 
-#SBATCH --job-name=chr5_pairwise-centrolign
+#SBATCH --job-name=chr14_pairwise-centrolign
 #SBATCH --array=[1-30000]%128
-#SBATCH --array=[30001-70125]%128
-CHR=chr5
+#SBATCH --array=[30001-60378]%128
+CHR=chr14
 
-#SBATCH --job-name=chr2_pairwise-centrolign
+#SBATCH --job-name=chr15_pairwise-centrolign
 #SBATCH --array=[1-30000]%128
-#SBATCH --array=[30001-60000]%128
-#SBATCH --array=[60001-93528]%128
-CHR=chr2
+#SBATCH --array=[30001-54615]%128
+CHR=chr15
 ```
 Slurm script for running pairwise centrolign
 ```sh
@@ -399,7 +398,7 @@ Slurm script for running pairwise centrolign
 # Slurm script to use centrolign as a pairwise aligner on all pairs of sequences
 # from an input directory
 
-#SBATCH --job-name=chr13_pairwise-centrolign
+#SBATCH --job-name=chr15_pairwise-centrolign
 #SBATCH --partition=short
 #SBATCH --mail-user=mmastora@ucsc.edu
 #SBATCH --mail-type=ALL
@@ -407,7 +406,7 @@ Slurm script for running pairwise centrolign
 #SBATCH --mem=56gb
 #SBATCH --ntasks=1
 #SBATCH --cpus-per-task=1
-#SBATCH --array=[1-45753]%128
+#SBATCH --array=[30001-54615]%128
 #SBATCH --output=logs/array_job_%A_task_%a.log
 #SBATCH --time=1:00:00
 
@@ -415,7 +414,7 @@ date
 hostname
 pwd
 
-CHR=chr13
+CHR=chr15
 CHROMDIR=/private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2/all_pairs/${CHR}
 FASTADIR=/private/groups/patenlab/mira/centrolign/batch_submissions/extract_hors_HPRC/release2/
 WORKDIR=$CHROMDIR/work/

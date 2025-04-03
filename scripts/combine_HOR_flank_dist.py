@@ -66,7 +66,7 @@ def main():
     samps = sorted(set(sample_list))
 
     # Read in flank distance values
-    flank_df = pd.read_csv(args.flank_dists, sep='\t', index_col=0)
+    flank_df = pd.read_csv(args.flank_dists, sep=',', index_col=0)
 
     # scale flank distance value to be between 0 and 1
     scaled_flank_df=min_max_scale_df(flank_df)
