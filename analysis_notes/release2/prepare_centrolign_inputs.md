@@ -412,7 +412,7 @@ rm $TEMP_FASTA
 Identify samples that align well to other samples in Faith's test set GFA, but are not in the GFA
 
 ```sh
-# all pairwise alignments in release 2 that align well
+# all pairwise alignments in release 2 with < 0.5 alignment distance
 awk -F, '$3 < 0.5' /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2/all_pairs/chr12/pairwise_distance.csv  > /private/groups/patenlab/mira/centrolign/giraffe/pairwise_dist_lt0.5.csv
 
 # all pairwise alignments involving samples inside Faith's test graph
