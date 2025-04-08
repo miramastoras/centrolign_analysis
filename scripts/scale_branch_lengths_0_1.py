@@ -1,6 +1,6 @@
 from ete3 import Tree
 
-tree = Tree("/Users/miramastoras/Desktop/Sasha_HPRC_trees_2_25_25/HPRC_chr12_P_Q_mira.2.25.25.rnj.format5.nwk")
+tree = Tree("/Users/miramastoras/Desktop/chr12_r2_tree_comparison/HPRC_chr12_34543495_34593492_37202490_37286092_het66.7_m_mira_dgp_rnj_upgma.nwk")
 
 # A small epsilon to avoid zero branch lengths
 epsilon = 1e-6
@@ -28,4 +28,4 @@ else:
 
 # Check the tree with scaled branch lengths
 # tree.write(outfile="/Users/miramastoras/Desktop/Sasha_HPRC_trees_2_25_25/HPRC_chr12_P_Q_mira.2.25.25.upgma.rescaled_0_1.nwk", format=1)
-tree.write(outfile="/Users/miramastoras/Desktop/Sasha_HPRC_trees_2_25_25/HPRC_chr12_P_Q_mira.2.25.25.rnj.rescaled_0_1.nwk", format=1)
+tree.write(outfile="/Users/miramastoras/Desktop/chr12_r2_tree_comparison/HPRC_chr12_34543495_34593492_37202490_37286092_het66.7_m_mira_dgp_rnj_upgma.rescaled_0_1.nwk", format=5)

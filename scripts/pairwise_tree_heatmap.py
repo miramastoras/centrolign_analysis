@@ -38,6 +38,14 @@ def arg_parser():
                         required=False,
                         default="Alignment Distance",
                         help="label of pairwise metric to plot in heatmap")
+    parser.add_argument("-n", "--tree_label",
+                        required=False,
+                        default="Guide Tree",
+                        help="label of tree to plot in heatmap")
+    parser.add_argument("-d", "--tree_distance_unit",
+                        required=False,
+                        default="KYA",
+                        help="unit of tree distances for x axis label")
     parser.add_argument("-o", "--output_dir",
                         required=True,
                         help="directory path to write output files to")
@@ -115,7 +123,7 @@ def main():
         samples = [line.strip() for line in file]
 
     # Prune the tree to retain only the target samples
-    tree = Tree(args.tree, format=1)
+    tree = Tree(args.tree, format=5)
     tree.prune(samples, preserve_branch_length=True)
 
     # write out pruned tree to file
@@ -204,6 +212,7 @@ def main():
     #G = np.linspace(seafoam[1], deepblue[1], 101)
     #B = np.linspace(seafoam[2], deepblue[2], 101)
 
+    #cmap = get_cmap('viridis_r')
     cmap = get_cmap('coolwarm')
     # plot color scale in fourth grid
     for i in np.arange(0, 100, 1):
@@ -258,9 +267,9 @@ def main():
     axes[0].spines['top'].set_visible(False)
     # Keep the x-axis
     axes[0].xaxis.set_visible(True)
-    axes[0].set_title('Pruned Guide Tree')
+    axes[0].set_title(args.tree_label)
     axes[2].set_title(args.metric_label)
-    axes[0].set_xlabel('KYA')
+    axes[0].set_xlabel(args.tree_distance_unit)
 
     #plt.show()
     fig.savefig(args.output_dir+"pairwise_tree_heatmap.svg", dpi=600)
