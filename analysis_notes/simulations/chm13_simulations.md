@@ -75,6 +75,24 @@ do
     sbatch /private/groups/patenlab/mira/centrolign/github/centrolign_analysis/analysis_notes/simulations/slurm_scripts/simulated_centrolign_MSA.sh $chr
 done
 ```
+#### Plot results for MSA simulations
+
+```sh
+cd /private/groups/patenlab/mira/centrolign/simulations/MSA_simulations
+
+chromosomes=("chr2" "chr3" "chr4" "chr6" "chr7" "chr10" "chr11" "chr12" "chr14" "chr15" "chr16" "chr17" "chr20" "chr21" "chr22" "chrX" "chrY")
+
+mkdir -p /private/groups/patenlab/mira/centrolign/simulations/MSA_simulations/summary_tables
+
+for chr in "${chromosomes[@]}"
+do
+    echo "Processing $chr"
+    cat msa_${chr}_sim_cases_20250402/*/aln_summary_table.txt > summary_tables/msa_${chr}_sim_cases_20250402_aln_summary_tables.txt
+done
+```
+Ran [msa_simulations.R](https://github.com/miramastoras/centrolign_analysis/blob/main/scripts/msa_simulations.R) on my local computer.
+
+Plots located here. 
 
 ### 3. Run pairwise simulations and comparisons to other tools
 
@@ -147,7 +165,7 @@ Run centrolign and the alternative tools
 #SBATCH --mem=56gb
 #SBATCH --ntasks=1
 #SBATCH --cpus-per-task=1
-#SBATCH --array=1-60
+#SBATCH --array=1
 #SBATCH --output=logs/analysis_array_job_%A_task_%a.log
 #SBATCH --time=12:00:00
 
@@ -167,11 +185,18 @@ WORKDIR=$SIMDIR/work
 CENTROLIGN_OUTFILE=$CASEDIR/aln_centrolign.txt
 UNIALIGNER_OUTFILE=$CASEDIR/aln_unialigner.txt
 RAMA_OUTFILE=$CASEDIR/aln_rama.txt
+WFA_OUTFILE=$CASEDIR/aln_wfa.txt
 #WINNOWMAP_OUTFILE=$CASEDIR/aln_winnowmap.txt
 #MINIMAP2_OUTFILE=$CASEDIR/aln_minimap2.txt
 
+WFA=/private/groups/patenlab/jeizenga/GitHub/WFA2-lib/bin/align_benchmark
 CENTROLIGN_DIR=/private/home/mmastora/progs/centrolign/build/
 SCRIPTS_DIR=/private/groups/patenlab/mira/centrolign/github/centromere-scripts/
+
+# scores: M,X,O1,E1,O2,E2
+# heuristic: min distance, max distance from lead, reduction interval
+WFA_PARAMS="-a gap-affine2p-wfa --affine2p-penalties -20,80,100,30,5000,1 --wfa-heuristic wfa-adaptive --wfa-heuristic-parameters 1000,20000,50 --wfa-memory ultralow --wfa-span global"
+
 
 CENTROLIGN=$CENTROLIGN_DIR/centrolign
 TRUTH_COMPARE=$CENTROLIGN_DIR/compare_truth_aln
@@ -216,8 +241,25 @@ time docker run -u `id -u`:`id -g` -v /private/groups:/private/groups \
     -o $RAMA_TEMP_OUTDIR
 
 mv $RAMA_TEMP_OUTDIR/cigar.txt $RAMA_OUTFILE
+
 # delete the rest of the output
-#rm -r $RAMA_TEMP_OUTDIR
+rm -r $RAMA_TEMP_OUTDIR
+
+echo "aligning with WFA"
+RAW_SEQ_TEMP=${WORKDIR}/tmp_raw_seq_"$SLURM_ARRAY_TASK_ID".txt
+WFA_TEMP_OUT=${WORKDIR}/tmp_wfa_out_"$SLURM_ARRAY_TASK_ID".txt
+$TO_RAW_SEQ $FASTA1 > $RAW_SEQ_TEMP
+$TO_RAW_SEQ $FASTA2 >> $RAW_SEQ_TEMP
+# limit memory to 32 gB and runtime to 30 min, but don't consider it a failure if we don't get it
+true || timeout -v 30m ulimit -m 33554432 $WFA $WFA_PARAMS -i $RAW_SEQ_TEMP -o $WFA_TEMP_OUT
+# remove the score from the output
+if [ -f $WFA_TEMP_OUT ]; then
+   cut -f 2 $WFA_TEMP_OUT > $WFA_OUTFILE
+else
+   touch $WFA_OUTFILE
+fi
+rm -f $RAW_SEQ_TEMP
+rm -f $WFA_TEMP_OUT
 
 # echo "aligning with winnowmap"
 #

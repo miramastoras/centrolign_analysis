@@ -353,6 +353,14 @@ CHR=chr18
 #SBATCH --array=[30001-76636]%128
 CHR=chr19
 
+#SBATCH --job-name=chr20_pairwise-centrolign
+#SBATCH --array=[1-30000]%128
+#SBATCH --array=[30001-58653]%128
+CHR=chr20
+
+#SBATCH --job-name=chr21_pairwise-centrolign
+#SBATCH --array=[1-37675]%128
+CHR=chr21
 ```
 
 Slurm script for running pairwise centrolign
@@ -361,7 +369,7 @@ Slurm script for running pairwise centrolign
 # Slurm script to use centrolign as a pairwise aligner on all pairs of sequences
 # from an input directory
 
-#SBATCH --job-name=chr19_pairwise-centrolign
+#SBATCH --job-name=chr21_pairwise-centrolign
 #SBATCH --partition=short
 #SBATCH --mail-user=mmastora@ucsc.edu
 #SBATCH --mail-type=ALL
@@ -369,7 +377,7 @@ Slurm script for running pairwise centrolign
 #SBATCH --mem=56gb
 #SBATCH --ntasks=1
 #SBATCH --cpus-per-task=1
-#SBATCH --array=[1-30000]%128
+#SBATCH --array=[1-37675]%128
 #SBATCH --output=logs/array_job_%A_task_%a.log
 #SBATCH --time=1:00:00
 
@@ -377,7 +385,7 @@ date
 hostname
 pwd
 
-CHR=chr19
+CHR=chr21
 CHROMDIR=/private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2/all_pairs/${CHR}
 FASTADIR=/private/groups/patenlab/mira/centrolign/batch_submissions/extract_hors_HPRC/release2/
 WORKDIR=$CHROMDIR/work/
@@ -429,4 +437,7 @@ grep -v -f /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign
 
 # get their fasta locations
 cat /private/groups/patenlab/mira/centrolign/giraffe/samples_aligning_well_not_in_graph.txt | while read line ; do grep $line /private/groups/patenlab/mira/centrolign/batch_submissions/extract_hors_HPRC/release2/HPRC_release2_contiguous_HORs_chr12.fasta_list.txt ; done > /private/groups/patenlab/mira/centrolign/giraffe/fastas_not_in_graph_to_align.txt
+
+# append full path
+sed 's/^/\/private\/groups\/patenlab\/mira\/centrolign\/batch_submissions\/extract_hors_HPRC\/release2\//' /private/groups/patenlab/mira/centrolign/giraffe/fastas_not_in_graph_to_align.txt > tmp ; mv tmp /private/groups/patenlab/mira/centrolign/giraffe/fastas_not_in_graph_to_align.txt
 ```
