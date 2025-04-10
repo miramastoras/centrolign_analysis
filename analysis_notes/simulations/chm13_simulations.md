@@ -90,9 +90,14 @@ do
     cat msa_${chr}_sim_cases_20250402/*/aln_summary_table.txt > summary_tables/msa_${chr}_sim_cases_20250402_aln_summary_tables.txt
 done
 ```
-Ran [msa_simulations.R](https://github.com/miramastoras/centrolign_analysis/blob/main/scripts/msa_simulations.R) on my local computer.
+Plot results
+```sh
+cd /private/groups/patenlab/mira/centrolign/simulations/MSA_simulations/summary_tables
 
-Plots located here. 
+ls | while read line ; do
+    Rscript /private/groups/patenlab/mira/centrolign/github/centrolign_analysis/scripts/msa_simulations.R /private/groups/patenlab/mira/centrolign/simulations/MSA_simulations/summary_tables/msa_chr2_sim_cases_20250402_aln_summary_tables.txt /private/groups/patenlab/mira/centrolign/simulations/MSA_simulations/test_chr2_plots chr2
+  done
+```
 
 ### 3. Run pairwise simulations and comparisons to other tools
 
