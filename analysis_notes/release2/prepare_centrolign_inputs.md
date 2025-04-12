@@ -361,6 +361,18 @@ CHR=chr20
 #SBATCH --job-name=chr21_pairwise-centrolign
 #SBATCH --array=[1-37675]%128
 CHR=chr21
+
+#SBATCH --job-name=chr22_pairwise-centrolign
+#SBATCH --array=[1-55278]%128
+CHR=chr22
+
+#SBATCH --job-name=chrX_pairwise-centrolign
+#SBATCH --array=[1-49455]%128
+CHR=chrX
+
+#SBATCH --job-name=chrY_pairwise-centrolign
+#SBATCH --array=[1-1176]%128
+CHR=chrY
 ```
 
 Slurm script for running pairwise centrolign
@@ -369,7 +381,7 @@ Slurm script for running pairwise centrolign
 # Slurm script to use centrolign as a pairwise aligner on all pairs of sequences
 # from an input directory
 
-#SBATCH --job-name=chr21_pairwise-centrolign
+#SBATCH --job-name=chrY_pairwise-centrolign
 #SBATCH --partition=short
 #SBATCH --mail-user=mmastora@ucsc.edu
 #SBATCH --mail-type=ALL
@@ -377,7 +389,7 @@ Slurm script for running pairwise centrolign
 #SBATCH --mem=56gb
 #SBATCH --ntasks=1
 #SBATCH --cpus-per-task=1
-#SBATCH --array=[1-37675]%128
+#SBATCH --array=[1-1176]%128
 #SBATCH --output=logs/array_job_%A_task_%a.log
 #SBATCH --time=1:00:00
 
@@ -385,7 +397,7 @@ date
 hostname
 pwd
 
-CHR=chr21
+CHR=chrY
 CHROMDIR=/private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2/all_pairs/${CHR}
 FASTADIR=/private/groups/patenlab/mira/centrolign/batch_submissions/extract_hors_HPRC/release2/
 WORKDIR=$CHROMDIR/work/
