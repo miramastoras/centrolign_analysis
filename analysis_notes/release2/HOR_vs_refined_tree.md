@@ -114,6 +114,9 @@ Run centrolign using HOR tree, and using refined tree
 time /private/home/mmastora/progs/centrolign/build/centrolign -v 4 \
     -S /private/groups/patenlab/mira/centrolign/benchmarking/HOR_vs_refined_tree/top_subtree/centrolign_HOR_all_pairs_NJ/jobstore/ \
     -T /private/groups/patenlab/mira/centrolign/guide_tree_testing/release2_all_pairs/chr12_r2_centrolign_all_pairs_nj_tree.format5.nwk \
+    -A /private/groups/patenlab/mira/centrolign/benchmarking/HOR_vs_refined_tree/top_subtree/centrolign_HOR_all_pairs_NJ/pairwise_cigars/pairwise_cigar \
+    -R \
+    --threads 32 \
     /private/groups/patenlab/mira/centrolign/benchmarking/HOR_vs_refined_tree/top_subtree/subset_tree_79_samples.fasta \
     > /private/groups/patenlab/mira/centrolign/benchmarking/HOR_vs_refined_tree/top_subtree/centrolign_HOR_all_pairs_NJ/HPRC_r2.chr12.allpairs_HOR_NJ.79.centrolign.gfa
 ```
@@ -135,9 +138,28 @@ Refined tree
 time /private/home/mmastora/progs/centrolign/build/centrolign -v 4 \
     -S /private/groups/patenlab/mira/centrolign/benchmarking/HOR_vs_refined_tree/top_subtree/centrolign_refined_tree/jobstore/ \
     -T /private/groups/patenlab/mira/centrolign/guide_tree_testing/release2_weighted_sum/HPRC_r2_chr12_cenhap_20250402_centrolign_all_pairs_HOR_flank_dist_weighted.format5.nwk \
+    -A /private/groups/patenlab/mira/centrolign/benchmarking/HOR_vs_refined_tree/top_subtree/centrolign_refined_tree/pairwise_cigars/pairwise_cigar \
+    -R \
+    --threads 32 \
     /private/groups/patenlab/mira/centrolign/benchmarking/HOR_vs_refined_tree/top_subtree/subset_tree_79_samples.fasta \
     > /private/groups/patenlab/mira/centrolign/benchmarking/HOR_vs_refined_tree/top_subtree/centrolign_refined_tree/HPRC_r2.chr12.allpairs_HOR_NJ.79.centrolign.gfa
 ```
+
+Run pairwise consistency script
+```sh
+# all pairs tree
+python3 /private/groups/patenlab/mira/centrolign/github/centromere-scripts/benchmarking/pairwise_consistency.py \
+    /private/groups/patenlab/mira/centrolign/benchmarking/HOR_vs_refined_tree/top_subtree/centrolign_refined_tree/pairwise_cigars/pairwise_cigar_ \
+    /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2/all_pairs/chr12/pairwise_cigar/pairwise_cigar_ \
+    > /private/groups/patenlab/mira/centrolign/benchmarking/HOR_vs_refined_tree/top_subtree/centrolign_refined_tree/chr12_79_refined_tree_pairwise_consistency.txt
+
+# refined tree
+python3 /private/groups/patenlab/mira/centrolign/github/centromere-scripts/benchmarking/pairwise_consistency.py \
+    /private/groups/patenlab/mira/centrolign/benchmarking/HOR_vs_refined_tree/top_subtree/centrolign_HOR_all_pairs_NJ/pairwise_cigars/pairwise_cigar_ \
+    /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2/all_pairs/chr12/pairwise_cigar/pairwise_cigar_ \
+    > /private/groups/patenlab/mira/centrolign/benchmarking/HOR_vs_refined_tree/top_subtree/centrolign_HOR_all_pairs_NJ/chr12_79_HOR_all_pairs_NJ_pairwise_consistency.txt
+```
+
 ## How different are the centrolign alignments when using just the HOR tree vs the refined tree?
 
 Prepare a test set of 50 randomly selected samples from chr12 r2
@@ -204,4 +226,11 @@ python3 /private/groups/patenlab/mira/centrolign/github/centromere-scripts/bench
     /private/groups/patenlab/mira/centrolign/benchmarking/HOR_vs_refined_tree/chr12_shuf50_HOR_all_pairs_NJ/pairwise_cigars/pairwise_cigar_ \
     /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2/all_pairs/chr12/pairwise_cigar/pairwise_cigar_ \
     > chr12_shuf50_HOR_all_pairs_NJ_pairwise_consistency.txt
+```
+
+```
+python3 /private/groups/patenlab/mira/centrolign/github/centromere-scripts/benchmarking/pairwise_consistency.py \
+    /private/groups/patenlab/mira/centrolign/test/pairwise_consistency/induced/pairwise_cigar_ \
+    /private/groups/patenlab/mira/centrolign/test/pairwise_consistency/direct/pairwise_cigar_ \
+    > pairwise_consistency.txt
 ```

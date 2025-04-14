@@ -427,29 +427,3 @@ cat $FASTA1 $FASTA2 > $TEMP_FASTA
 time /private/home/mmastora/progs/centrolign/build/centrolign -v 3 --skip-calibration $TEMP_FASTA > $OUTDIR/pairwise_cigar_${SAMPLE1}_${SAMPLE2}.txt
 rm $TEMP_FASTA
 ```
-#### Preparing inputs for centrolign giraffe testing
-
-Identify samples that align well to other samples in Faith's test set GFA, but are not in the GFA
-
-```sh
-# all pairwise alignments in release 2 with < 0.5 alignment distance
-awk -F, '$3 < 0.5' /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2/all_pairs/chr12/pairwise_distance.csv  > /private/groups/patenlab/mira/centrolign/giraffe/pairwise_dist_lt0.5.csv
-
-# all pairwise alignments involving samples inside Faith's test graph
-cat /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/HPRC_chr12_2_25_25_tree_initial_test_nogaps/chr12/fasta_list.all_sample_ids.txt | while read line ; do grep $line /private/groups/patenlab/mira/centrolign/giraffe/pairwise_dist_lt0.5.csv ; done | sort | uniq > /private/groups/patenlab/mira/centrolign/giraffe/pairwise_alns_inside_graph.csv
-
-# get all sample names involved in these pairwise alignments
-cut -f 1 -d"," /private/groups/patenlab/mira/centrolign/giraffe/pairwise_alns_inside_graph.csv > samps
-cut -f 2 -d"," /private/groups/patenlab/mira/centrolign/giraffe/pairwise_alns_inside_graph.csv >> samps
-
-sort samps | uniq > tmp ; mv tmp samps
-
-# now sample names that are NOT in graph
-grep -v -f /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/HPRC_chr12_2_25_25_tree_initial_test_nogaps/chr12/fasta_list.all_sample_ids.txt samps > /private/groups/patenlab/mira/centrolign/giraffe/samples_aligning_well_not_in_graph.txt
-
-# get their fasta locations
-cat /private/groups/patenlab/mira/centrolign/giraffe/samples_aligning_well_not_in_graph.txt | while read line ; do grep $line /private/groups/patenlab/mira/centrolign/batch_submissions/extract_hors_HPRC/release2/HPRC_release2_contiguous_HORs_chr12.fasta_list.txt ; done > /private/groups/patenlab/mira/centrolign/giraffe/fastas_not_in_graph_to_align.txt
-
-# append full path
-sed 's/^/\/private\/groups\/patenlab\/mira\/centrolign\/batch_submissions\/extract_hors_HPRC\/release2\//' /private/groups/patenlab/mira/centrolign/giraffe/fastas_not_in_graph_to_align.txt > tmp ; mv tmp /private/groups/patenlab/mira/centrolign/giraffe/fastas_not_in_graph_to_align.txt
-```
