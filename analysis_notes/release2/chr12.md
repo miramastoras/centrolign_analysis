@@ -51,7 +51,7 @@ python3 /private/groups/patenlab/mira/centrolign/github/centrolign_analysis/scri
     -f /private/groups/patenlab/mira/centrolign/annotations/guide_trees/HPRC_chr12_34543495_34593492_37202490_37286092_het66.7_m_mira_dgp_rnj.reformatted.m \
     -o /private/groups/patenlab/mira/centrolign/guide_tree_testing/release2_weighted_sum/HPRC_r2_chr12_cenhap_20250402_centrolign_all_pairs
 ```
-Convert trio to ete3 format 5 which is accepted by centrolign
+Convert tree to ete3 format 5 which is accepted by centrolign
 
 ```py
 from ete3 import Tree
@@ -63,7 +63,6 @@ tree.write(outfile="/private/groups/patenlab/mira/centrolign/guide_tree_testing/
 Remove HG00741.1 from fasta file
 ```sh
 cd /private/groups/patenlab/mira/centrolign/batch_submissions/extract_hors_HPRC/release2
-
 
 cat /private/groups/patenlab/mira/centrolign/batch_submissions/extract_hors_HPRC/release2/HPRC_release2_contiguous_HORs_chr12.fasta_list.txt | grep -v "HG00741.1" | while read line ; do cat $line ; done > /private/groups/patenlab/mira/centrolign/batch_submissions/extract_hors_HPRC/release2/centrolign_fastas/HPRC_release2_HORs_chr12.excl_HG00741.1.fasta
 samtools faidx /private/groups/patenlab/mira/centrolign/batch_submissions/extract_hors_HPRC/release2/centrolign_fastas/HPRC_release2_HORs_chr12.excl_HG00741.1.fasta
