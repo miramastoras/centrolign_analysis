@@ -4,7 +4,7 @@
 #SBATCH --job-name=make-pair-sim-cases
 #SBATCH --partition=short
 #SBATCH --mail-user=mmastora@ucsc.edu
-#SBATCH --mail-type=ALL
+#SBATCH --mail-type=END
 #SBATCH --nodes=1
 #SBATCH --mem=3gb
 #SBATCH --ntasks=1
