@@ -10,7 +10,7 @@
 #SBATCH --ntasks=1
 #SBATCH --cpus-per-task=1
 #SBATCH --array=1-60
-#SBATCH --output=logs/array_job_%A_task_%a.log
+#SBATCH --output=make_sim_cases_slurm_logs/array_job_%A_task_%a.log
 #SBATCH --time=1:00:00
 
 date
@@ -20,7 +20,7 @@ echo "array job" $SLURM_ARRAY_TASK_ID
 
 # note: sample size is handled in sbatch array size
 CHR=$1
-DATE=20250410
+DATE=20250415
 
 SIMDIR=/private/groups/patenlab/mira/centrolign/simulations/pairwise_simulations/
 OUTPARDIR=$SIMDIR/pair_chr"$CHR"_sim_cases_"$DATE"/

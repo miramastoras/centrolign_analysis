@@ -9,7 +9,6 @@ library(ape)
 original_tree <- ape::read.tree("/Users/miramastoras/Desktop/chr12_r2_centrolign_all_pairs_nj_tree.format5.nwk")
 new_tree <- ape::read.tree("/Users/miramastoras/Desktop/HPRC_r2_chr12_cenhap_20250402_centrolign_all_pairs_HOR_flank_dist_weighted.format5.nwk")
 
-samples <- readLines("/Users/miramastoras/Desktop/HPRC_release2_contiguous_HORs_chr12.excl_HG00741.1.txt")
 
 obj<-cophylo(original_tree,new_tree)
 svg(filename="/Users/miramastoras/Desktop/chr12_r2_all_pairs_vs_refined_tree.svg")
@@ -158,6 +157,36 @@ python3 /private/groups/patenlab/mira/centrolign/github/centromere-scripts/bench
     /private/groups/patenlab/mira/centrolign/benchmarking/HOR_vs_refined_tree/top_subtree/centrolign_HOR_all_pairs_NJ/pairwise_cigars/pairwise_cigar_ \
     /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2/all_pairs/chr12/pairwise_cigar/pairwise_cigar_ \
     > /private/groups/patenlab/mira/centrolign/benchmarking/HOR_vs_refined_tree/top_subtree/centrolign_HOR_all_pairs_NJ/chr12_79_HOR_all_pairs_NJ_pairwise_consistency.txt
+```
+Plot using self_consistency.R
+
+HOR NJ tree
+```R
+library(ggplot2)
+dat = read.table("/Users/miramastoras/Desktop/chr12_79_HOR_all_pairs_NJ_pairwise_consistency.txt", header = T)
+dists = read.csv("/Users/miramastoras/Desktop/pairwise_distance_excl_HG00741.1.csv", header = T)
+
+key1 = paste(dists$sample1, dists$sample2, sep = "_")
+key2 = paste(dists$sample2, dists$sample1, sep = "_")
+
+dists = rbind(dists, dists)
+row.names(dists) = c(key1, key2)
+
+sample_dists = dists[paste(dat$sample1, dat$sample2, sep = "_"), "distance"]
+
+dat[["dist"]] = sample_dists
+
+#plot(density(dat$jaccard))
+
+plot(hist(dat$jaccard, breaks = 100), xlim = c(0, 1.1), ylim = c(0, 250))
+
+plot(dat$dist, dat$jaccard, pch = 19, col = alpha("black", 0.1), xlim = c(0, 1.1), ylim = c(0, 1.1),
+     xlab = "Patristic distance", ylab = "Jaccard similarity", main = "All pairs (chr12 HOR NJ tree)")
+
+plot(hist(dat$aligned_jaccard, breaks = 100),xlim = c(0, 1.1), ylim = c(0, 250))
+
+plot(dat$dist, dat$aligned_jaccard, pch = 19, col = alpha("black", 0.1),  xlim = c(0, 1.1), ylim = c(0, 1.1),
+     xlab = "Patristic distance", ylab = "Jaccard similarity", main = "Only aligned pairs (chr12 HOR NJ tree)")
 ```
 
 ## How different are the centrolign alignments when using just the HOR tree vs the refined tree?

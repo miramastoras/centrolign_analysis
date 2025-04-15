@@ -25,7 +25,7 @@ dev.off()
 precision = (ggplot(data = dat) + aes(x = truth_match_rate, y = precision)
              + geom_point(alpha = 0.25)
              + labs(x = "True match rate (pairwise upper bound)", y = "Recall")
-             + ggtitle(paste("Induced pairwise alignments from MSA",chr, sep=" "))
+             + ggtitle(paste("Induced pairwise alignments from MSA", chr, sep=" "))
              + ylim(c(0,1))
 )
 

@@ -95,18 +95,38 @@ Plot results
 cd /private/groups/patenlab/mira/centrolign/simulations/MSA_simulations/summary_tables
 
 ls | while read line ; do
-    Rscript /private/groups/patenlab/mira/centrolign/github/centrolign_analysis/scripts/msa_simulations.R /private/groups/patenlab/mira/centrolign/simulations/MSA_simulations/summary_tables/msa_chr2_sim_cases_20250402_aln_summary_tables.txt /private/groups/patenlab/mira/centrolign/simulations/MSA_simulations/test_chr2_plots chr2
+    chr=`echo $line | cut -f2 -d"_"`
+    Rscript /private/groups/patenlab/mira/centrolign/github/centrolign_analysis/scripts/msa_simulations.R $line $chr /private/groups/patenlab/mira/centrolign/simulations/MSA_simulations/png_plots/${chr}_MSA_simulations
   done
 ```
 
-### 3. Run pairwise simulations and comparisons to other tools
+## 3. Run pairwise simulations and comparisons to other tools
 
 Location:
 ```
 /private/groups/patenlab/mira/centrolign/simulations/pairwise_simulations
 ```
 
-Prepare simulated sequences
+#### Step 1: make sim cases
+
+```sh
+
+mkdir -p /private/groups/patenlab/mira/centrolign/simulations/pairwise_simulations/make_sim_cases_slurm_logs
+
+git -C /private/groups/patenlab/mira/centrolign/github/centrolign_analysis/ pull
+
+cd /private/groups/patenlab/mira/centrolign/simulations/pairwise_simulations
+
+chromosomes=("chr2" "chr3" "chr4" "chr6" "chr7" "chr10" "chr11" "chr12" "chr14" "chr15" "chr16" "chr17" "chr20" "chr21" "chr22" "chrX" "chrY")
+
+for chr in "${chromosomes[@]}"
+do
+    sbatch /private/groups/patenlab/mira/centrolign/github/centrolign_analysis/analysis_notes/simulations/slurm_scripts/make_sim_cases_pairwise.sh $chr
+done
+```
+
+
+
 ```sh
 #!/bin/bash
 # Slurm script to run the sim_centromere script to generate pairwise sequence
