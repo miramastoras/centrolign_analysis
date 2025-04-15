@@ -23,13 +23,13 @@ CHR=$1
 DATE=20250415
 
 SIMDIR=/private/groups/patenlab/mira/centrolign/simulations/pairwise_simulations/
-OUTPARDIR=$SIMDIR/pair_chr"$CHR"_sim_cases_"$DATE"/
+OUTPARDIR=$SIMDIR/pair_"$CHR"_sim_cases_"$DATE"/
 
 SIM_CENTROMERE=/private/home/mmastora/progs/centrolign/build/sim_centromere
 
 # the base array that we'll simulate
-FASTA=/private/groups/patenlab/mira/centrolign/annotations/chm13/per_chrom/chm13v2.0.chr${CHR}.active_hor.upper.fa
-BED=/private/groups/patenlab/mira/centrolign/annotations/chm13/per_chrom/chm13v2.0.labels.as_hor.chr${CHR}.active.shifted.bed
+FASTA=/private/groups/patenlab/mira/centrolign/annotations/chm13/per_chrom/chm13v2.0.${CHR}.active_hor.upper.fa
+BED=/private/groups/patenlab/mira/centrolign/annotations/chm13/per_chrom/chm13v2.0.labels.as_hor.${CHR}.active.shifted.bed
 
 GENS=("25" "50" "100" "150" "200" "300")
 i=$(($SLURM_ARRAY_TASK_ID % 6))
