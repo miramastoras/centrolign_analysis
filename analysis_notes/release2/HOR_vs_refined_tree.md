@@ -189,77 +189,68 @@ plot(dat$dist, dat$aligned_jaccard, pch = 19, col = alpha("black", 0.1),  xlim =
      xlab = "Patristic distance", ylab = "Jaccard similarity", main = "Only aligned pairs (chr12 HOR NJ tree)")
 ```
 
-## How different are the centrolign alignments when using just the HOR tree vs the refined tree?
+## Subset samples from chr 6
 
-Prepare a test set of 50 randomly selected samples from chr12 r2
+Split the 130 random samples into 2 subtrees
+```
 
+```
 ```sh
-shuf -n 50 /private/groups/patenlab/mira/centrolign/batch_submissions/extract_hors_HPRC/release2/HPRC_release2_contiguous_HORs_chr12.fasta_list.txt > /private/groups/patenlab/mira/centrolign/benchmarking/HOR_vs_refined_tree/HPRC_release2_contiguous_HORs_chr12.fasta_list.shuf50.txt
-
 cd /private/groups/patenlab/mira/centrolign/batch_submissions/extract_hors_HPRC/release2
 
-cat /private/groups/patenlab/mira/centrolign/benchmarking/HOR_vs_refined_tree/HPRC_release2_contiguous_HORs_chr12.fasta_list.shuf50.txt | while read line ; do cat $line ; done > /private/groups/patenlab/mira/centrolign/benchmarking/HOR_vs_refined_tree/HPRC_release2_HORs_chr12.shuf50.fasta
-samtools faidx /private/groups/patenlab/mira/centrolign/benchmarking/HOR_vs_refined_tree/HPRC_release2_HORs_chr12.shuf50.fasta
+cat /private/groups/patenlab/mira/centrolign/batch_submissions/extract_hors_HPRC/release2/contiguous_HORs/HPRC_release2_contiguous_HORs_chr6.shuf_130.txt | while read line ; do
+    grep $line HPRC_release2_contiguous_HORs_chr6.fasta_list.txt ; done | while read line ; do cat $line ; done >> /private/groups/patenlab/mira/centrolign/benchmarking/HOR_vs_refined_tree/chr6_shuf_130/HPRC_release2_HORs_chr6_shuf_130.fasta
+
+samtools faidx /private/groups/patenlab/mira/centrolign/benchmarking/HOR_vs_refined_tree/chr6_shuf_130/HPRC_release2_HORs_chr6_shuf_130.fasta
 ```
-Run centrolign using HOR tree, and using refined tree
+```sh
+python3 /private/groups/patenlab/mira/centrolign/github/centromere-scripts/benchmarking/split_fasta_by_tree.py \
+    -t /private/groups/patenlab/mira/centrolign/guide_tree_testing/release2_all_pairs/chr6_r2_centrolign_all_pairs_nj_tree.format5.nwk \
+    -f /private/groups/patenlab/mira/centrolign/benchmarking/HOR_vs_refined_tree/chr6_shuf_130/HPRC_release2_HORs_chr6_shuf_130.fasta \
+    -n 2 \
+    -o /private/groups/patenlab/mira/centrolign/benchmarking/HOR_vs_refined_tree/chr6_shuf_130/split_fasta_by_tree/
+```
+Quickly ran tanglegram to confirm that subgroup 0 is the subtree with more switching between the two trees.
+
+Run centrolign on subgroup 0 with both trees
 ```sh
 #!/bin/bash
-#SBATCH --job-name=centrolign_r2_chr12_allpairs_NJ_HOR_tree_shuf50
+#SBATCH --job-name=centrolign_release2_chr6_69_allpairs_NJ_HOR_tree
 #SBATCH --partition=long
 #SBATCH --mail-user=mmastora@ucsc.edu
 #SBATCH --mail-type=ALL
 #SBATCH --nodes=1
 #SBATCH --mem=700gb
 #SBATCH --ntasks=1
-#SBATCH --cpus-per-task=32
+#SBATCH --cpus-per-task=1
 #SBATCH --output=centrolign_%x.%j.log
-#SBATCH --time=12:00:00
+#SBATCH --time=7-00:00
 
 
 time /private/home/mmastora/progs/centrolign/build/centrolign -v 4 \
-    -S /private/groups/patenlab/mira/centrolign/benchmarking/HOR_vs_refined_tree/chr12_shuf50_HOR_all_pairs_NJ/jobstore/ \
-    -T /private/groups/patenlab/mira/centrolign/guide_tree_testing/release2_all_pairs/chr12_r2_centrolign_all_pairs_nj_tree.format5.nwk \
-    -A /private/groups/patenlab/mira/centrolign/benchmarking/HOR_vs_refined_tree/chr12_shuf50_HOR_all_pairs_NJ/pairwise_cigars/pairwise_cigar \
-    -R \
-    --threads 32 \
-    /private/groups/patenlab/mira/centrolign/benchmarking/HOR_vs_refined_tree/HPRC_release2_HORs_chr12.shuf50.fasta \
-    > /private/groups/patenlab/mira/centrolign/benchmarking/HOR_vs_refined_tree/chr12_shuf50_HOR_all_pairs_NJ/HPRC_r2.chr12.allpairs_HOR_NJ.shuf50.centrolign.gfa
+    -S /private/groups/patenlab/mira/centrolign/benchmarking/HOR_vs_refined_tree/chr6_shuf_130/subset_69_MSA_HOR_all_pairs_NJ/jobstore/ \
+    -T /private/groups/patenlab/mira/centrolign/guide_tree_testing/release2_all_pairs/chr6_r2_centrolign_all_pairs_nj_tree.format5.nwk \
+    /private/groups/patenlab/mira/centrolign/benchmarking/HOR_vs_refined_tree/chr6_shuf_130/split_fasta_by_tree/subgroup_0_seqs.fasta \
+    > /private/groups/patenlab/mira/centrolign/benchmarking/HOR_vs_refined_tree/chr6_shuf_130/subset_69_MSA_HOR_all_pairs_NJ//HPRC_r2.chr6_sub69.allpairs_HOR_NJ.centrolign.gfa
 ```
 Refined tree
 ```sh
 #!/bin/bash
-#SBATCH --job-name=centrolign_r2_chr12_refined_tree_shuf50
-#SBATCH --partition=medium
+#SBATCH --job-name=centrolign_r2_chr6_69_refined_tree
+#SBATCH --partition=long
 #SBATCH --mail-user=mmastora@ucsc.edu
 #SBATCH --mail-type=ALL
 #SBATCH --nodes=1
 #SBATCH --mem=700gb
 #SBATCH --ntasks=1
-#SBATCH --cpus-per-task=32
+#SBATCH --cpus-per-task=1
 #SBATCH --output=centrolign_%x.%j.log
-#SBATCH --time=12:00:00
+#SBATCH --time=7-00:00
 
 
 time /private/home/mmastora/progs/centrolign/build/centrolign -v 4 \
-    -S /private/groups/patenlab/mira/centrolign/benchmarking/HOR_vs_refined_tree/chr12_shuf50_refined_tree/jobstore/ \
-    -T /private/groups/patenlab/mira/centrolign/guide_tree_testing/release2_weighted_sum/HPRC_r2_chr12_cenhap_20250402_centrolign_all_pairs_HOR_flank_dist_weighted.format5.nwk \
-    -A /private/groups/patenlab/mira/centrolign/benchmarking/HOR_vs_refined_tree/chr12_shuf50_refined_tree/pairwise_cigars/pairwise_cigar \
-    -R \
-    --threads 32 \
-    /private/groups/patenlab/mira/centrolign/benchmarking/HOR_vs_refined_tree/HPRC_release2_HORs_chr12.shuf50.fasta \
-    > /private/groups/patenlab/mira/centrolign/benchmarking/HOR_vs_refined_tree/chr12_shuf50_refined_tree/HPRC_r2.chr12.allpairs_HOR_NJ.shuf50.centrolign.gfa
-```
-Run pairwise consistency script
-```sh
-python3 /private/groups/patenlab/mira/centrolign/github/centromere-scripts/benchmarking/pairwise_consistency.py \
-    /private/groups/patenlab/mira/centrolign/benchmarking/HOR_vs_refined_tree/chr12_shuf50_HOR_all_pairs_NJ/pairwise_cigars/pairwise_cigar_ \
-    /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2/all_pairs/chr12/pairwise_cigar/pairwise_cigar_ \
-    > chr12_shuf50_HOR_all_pairs_NJ_pairwise_consistency.txt
-```
-
-```
-python3 /private/groups/patenlab/mira/centrolign/github/centromere-scripts/benchmarking/pairwise_consistency.py \
-    /private/groups/patenlab/mira/centrolign/test/pairwise_consistency/induced/pairwise_cigar_ \
-    /private/groups/patenlab/mira/centrolign/test/pairwise_consistency/direct/pairwise_cigar_ \
-    > pairwise_consistency.txt
+    -S /private/groups/patenlab/mira/centrolign/benchmarking/HOR_vs_refined_tree/chr6_shuf_130/subset_69_MSA_refined_tree/jobstore/ \
+    -T /private/groups/patenlab/mira/centrolign/guide_tree_testing/release2_weighted_sum/HPRC_r2_chr6_cenhap_20250414_centrolign_all_pairs_HOR_flank_dist_weighted.format5.nwk \
+    /private/groups/patenlab/mira/centrolign/benchmarking/HOR_vs_refined_tree/chr6_shuf_130/split_fasta_by_tree/subgroup_0_seqs.fasta \
+    > /private/groups/patenlab/mira/centrolign/benchmarking/HOR_vs_refined_tree/chr6_shuf_130/subset_69_MSA_refined_tree/HPRC_r2.chr6_sub69.refined_tree.centrolign.gfa
 ```

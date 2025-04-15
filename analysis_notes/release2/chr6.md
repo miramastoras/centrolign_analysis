@@ -128,7 +128,7 @@ time /private/home/mmastora/progs/centrolign/build/centrolign -v 4 \
 ```
 
 Plot tanglegram between refined tree and HOR tree:
-```
+```R
 install.packages("phytools",repos="https://cloud.r-project.org",quiet=TRUE)
 library(phytools)
 library(ape)
@@ -139,6 +139,112 @@ new_tree <- ape::read.tree("/Users/miramastoras/Desktop/HPRC_r2_chr6_cenhap_2025
 
 obj<-cophylo(original_tree,new_tree)
 svg(filename="/Users/miramastoras/Desktop/chr6_r2_all_pairs_vs_refined_tree.svg")
+plot(obj, pts=FALSE,fsize=c(0.15,0.15),link.type="curved",link.lty="solid",link.col=make.transparent("blue",0.25),part=0.44)
+dev.off()
+```
+
+##### Plot pairwise distances
+
+Select 130 random samples from the list for the heatmap
+```sh
+cd /private/groups/patenlab/mira/centrolign/batch_submissions/extract_hors_HPRC/release2/contiguous_HORs
+
+cat HPRC_release2_contiguous_HORs_chr6.txt | grep -v "HG00642.2" | grep -v "HG00344.2" | grep -v "HG00639.1" | grep -v "HG02622.1" | grep -v "HG02145.1" | grep -v "NA20799.2" | grep -v "NA20827.1" | shuf -n 130 > HPRC_release2_contiguous_HORs_chr6.shuf_130.txt
+```
+
+Plot pairwise heatmap for the HOR tree
+```sh
+python3 /Users/miramastoras/Desktop/github_repos/centrolign_analysis/scripts/pairwise_tree_heatmap.py \
+        -t /Users/miramastoras/Desktop/chr6_pairwise_heatmaps/chr6_r2_centrolign_all_pairs_nj_tree.format5.nwk \
+        -s /Users/miramastoras/Desktop/chr6_pairwise_heatmaps/HPRC_release2_contiguous_HORs_chr6.shuf_130.txt \
+        -p /Users/miramastoras/Desktop/chr6_pairwise_heatmaps/chr6_pairwise_distance.csv \
+        -m "Centrolign all pairs distances" \
+        -n "Centrolign all pairs HOR NJ Tree" \
+        -d "All pairs Distances" \
+        -o /Users/miramastoras/Desktop/chr6_pairwise_heatmaps/chr6_centrolign_all_pairs.shuf130.HOR_NJ_tree_
+
+```
+Plot pairwise heatmap for the refined tree
+```sh
+python3 /Users/miramastoras/Desktop/github_repos/centrolign_analysis/scripts/pairwise_tree_heatmap.py \
+        -t /Users/miramastoras/Desktop/chr6_pairwise_heatmaps/HPRC_r2_chr6_cenhap_20250414_centrolign_all_pairs_HOR_flank_dist_weighted.format5.nwk \
+        -s /Users/miramastoras/Desktop/chr6_pairwise_heatmaps/HPRC_release2_contiguous_HORs_chr6.shuf_130.txt \
+        -p /Users/miramastoras/Desktop/chr6_pairwise_heatmaps/chr6_pairwise_distance.csv \
+        -m "Centrolign all pairs distances" \
+        -n "Centrolign all pairs refined tree" \
+        -d "weighted distances" \
+        -o /Users/miramastoras/Desktop/chr6_pairwise_heatmaps/chr6_centrolign_all_pairs.shuf130.refined_tree_
+```
+### 2.2 Run linear regression on all the trees
+
+```sh
+cat /Users/miramastoras/Desktop/chr6_pairwise_heatmaps/HPRC_release2_contiguous_HORs_chr6.txt | grep -v "HG00642.2" | grep -v "HG00344.2" | grep -v "HG00639.1" | grep -v "HG02622.1" | grep -v "HG02145.1" | grep -v "NA20799.2" | grep -v "NA20827.1" > tmp ; mv tmp /Users/miramastoras/Desktop/chr6_pairwise_heatmaps/HPRC_release2_contiguous_HORs_chr6.txt
+```
+
+HOR tree
+```sh
+python3 /Users/miramastoras/Desktop/github_repos/centrolign_analysis/scripts/regression_tree_eval.py \
+    -t /Users/miramastoras/Desktop/chr6_pairwise_heatmaps/chr6_r2_centrolign_all_pairs_nj_tree.format5.nwk \
+    -s /Users/miramastoras/Desktop/chr6_pairwise_heatmaps/HPRC_release2_contiguous_HORs_chr6.txt \
+    -d /Users/miramastoras/Desktop/chr6_pairwise_heatmaps/chr6_pairwise_distance.csv \
+    -f col \
+    -o /Users/miramastoras/Desktop/chr6_pairwise_heatmaps/chr6_all_pairs_NJ_tree_vs_centrolign_all_pairs_
+
+# results
+Number of internal nodes: 183
+Number of leaves: 184
+Root Mean Squared Error: 0.03914495287746881
+
+```
+Plot linear regression
+```sh
+python3 /Users/miramastoras/Desktop/github_repos/centrolign_analysis/scripts/pairwise_tree_heatmap.py \
+        -t /Users/miramastoras/Desktop/chr6_pairwise_heatmaps/chr6_r2_centrolign_all_pairs_nj_tree.format5.nwk \
+        -s /Users/miramastoras/Desktop/chr6_pairwise_heatmaps/HPRC_release2_contiguous_HORs_chr6.shuf_130.txt \
+        -p /Users/miramastoras/Desktop/chr6_pairwise_heatmaps/chr6_all_pairs_NJ_tree_vs_centrolign_all_pairs_residuals_pairwise.csv \
+        -m "Centrolign all pairs residuals" \
+        -n "Centrolign all pairs HOR NJ Tree" \
+        -d "NJ Distances" \
+        -o /Users/miramastoras/Desktop/chr6_pairwise_heatmaps/chr6_centrolign_all_pairs_residuals.HOR_nj_tree_
+```
+
+HOR tree
+```sh
+python3 /Users/miramastoras/Desktop/github_repos/centrolign_analysis/scripts/regression_tree_eval.py \
+    -t /Users/miramastoras/Desktop/chr6_pairwise_heatmaps/HPRC_r2_chr6_cenhap_20250414_centrolign_all_pairs_HOR_flank_dist_weighted.format5.nwk \
+    -s /Users/miramastoras/Desktop/chr6_pairwise_heatmaps/HPRC_release2_contiguous_HORs_chr6.txt \
+    -d /Users/miramastoras/Desktop/chr6_pairwise_heatmaps/chr6_pairwise_distance.csv \
+    -f col \
+    -o /Users/miramastoras/Desktop/chr6_pairwise_heatmaps/chr6_all_refined_tree_vs_centrolign_all_pairs_
+
+# results
+Number of internal nodes: 183
+Number of leaves: 184
+Root Mean Squared Error: 0.03493871852999413
+```
+Plot linear regression
+```sh
+python3 /Users/miramastoras/Desktop/github_repos/centrolign_analysis/scripts/pairwise_tree_heatmap.py \
+        -t /Users/miramastoras/Desktop/chr6_pairwise_heatmaps/HPRC_r2_chr6_cenhap_20250414_centrolign_all_pairs_HOR_flank_dist_weighted.format5.nwk \
+        -s /Users/miramastoras/Desktop/chr6_pairwise_heatmaps/HPRC_release2_contiguous_HORs_chr6.shuf_130.txt \
+        -p /Users/miramastoras/Desktop/chr6_pairwise_heatmaps/chr6_all_refined_tree_vs_centrolign_all_pairs_residuals_pairwise.csv \
+        -m "Centrolign all pairs residuals" \
+        -n "Centrolign refined Tree" \
+        -d "weighted distances" \
+        -o /Users/miramastoras/Desktop/chr6_pairwise_heatmaps/chr6_centrolign_all_pairs_residuals.refined_tree_
+```
+Tanglegram for the 130 samples
+```R
+install.packages("phytools",repos="https://cloud.r-project.org",quiet=TRUE)
+library(phytools)
+library(ape)
+
+# create trees
+original_tree <- ape::read.tree("/Users/miramastoras/Desktop/chr6_pairwise_heatmaps/chr6_centrolign_all_pairs.shuf130.HOR_NJ_tree_pruned_tree.nwk")
+new_tree <- ape::read.tree("/Users/miramastoras/Desktop/chr6_pairwise_heatmaps/chr6_centrolign_all_pairs.shuf130.refined_tree_pruned_tree.nwk")
+
+obj<-cophylo(original_tree,new_tree)
+svg(filename="/Users/miramastoras/Desktop/chr6_pairwise_heatmaps/chr6_r2_all_pairs_vs_refined_tree.shuf130.svg")
 plot(obj, pts=FALSE,fsize=c(0.15,0.15),link.type="curved",link.lty="solid",link.col=make.transparent("blue",0.25),part=0.44)
 dev.off()
 ```
