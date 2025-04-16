@@ -29,17 +29,17 @@ WORKDIR=$SIMDIR/work
 CENTROLIGN_OUTFILE=$CASEDIR/aln_centrolign.txt
 UNIALIGNER_OUTFILE=$CASEDIR/aln_unialigner.txt
 RAMA_OUTFILE=$CASEDIR/aln_rama.txt
-WFA_OUTFILE=$CASEDIR/aln_wfa.txt
+#WFA_OUTFILE=$CASEDIR/aln_wfa.txt
 #WINNOWMAP_OUTFILE=$CASEDIR/aln_winnowmap.txt
 #MINIMAP2_OUTFILE=$CASEDIR/aln_minimap2.txt
 
-WFA=/private/groups/patenlab/jeizenga/GitHub/WFA2-lib/bin/align_benchmark
+#WFA=/private/groups/patenlab/jeizenga/GitHub/WFA2-lib/bin/align_benchmark
 CENTROLIGN_DIR=/private/home/mmastora/progs/centrolign/build/
 SCRIPTS_DIR=/private/groups/patenlab/mira/centrolign/github/centromere-scripts/
 
 # scores: M,X,O1,E1,O2,E2
 # heuristic: min distance, max distance from lead, reduction interval
-WFA_PARAMS="-a gap-affine2p-wfa --affine2p-penalties -20,80,100,30,5000,1 --wfa-heuristic wfa-adaptive --wfa-heuristic-parameters 1000,20000,50 --wfa-memory ultralow --wfa-span global"
+#WFA_PARAMS="-a gap-affine2p-wfa --affine2p-penalties -20,80,100,30,5000,1 --wfa-heuristic wfa-adaptive --wfa-heuristic-parameters 1000,20000,50 --wfa-memory ultralow --wfa-span global"
 
 
 CENTROLIGN=$CENTROLIGN_DIR/centrolign
@@ -89,21 +89,21 @@ mv $RAMA_TEMP_OUTDIR/cigar.txt $RAMA_OUTFILE
 # delete the rest of the output
 rm -r $RAMA_TEMP_OUTDIR
 
-echo "aligning with WFA"
-RAW_SEQ_TEMP=${WORKDIR}/tmp_raw_seq_"$SLURM_ARRAY_TASK_ID".txt
-WFA_TEMP_OUT=${WORKDIR}/tmp_wfa_out_"$SLURM_ARRAY_TASK_ID".txt
-$TO_RAW_SEQ $FASTA1 > $RAW_SEQ_TEMP
-$TO_RAW_SEQ $FASTA2 >> $RAW_SEQ_TEMP
-# limit memory to 32 gB and runtime to 30 min, but don't consider it a failure if we don't get it
-true || timeout -v 30m ulimit -m 33554432 $WFA $WFA_PARAMS -i $RAW_SEQ_TEMP -o $WFA_TEMP_OUT
-# remove the score from the output
-if [ -f $WFA_TEMP_OUT ]; then
-   cut -f 2 $WFA_TEMP_OUT > $WFA_OUTFILE
-else
-   touch $WFA_OUTFILE
-fi
-rm -f $RAW_SEQ_TEMP
-rm -f $WFA_TEMP_OUT
+# echo "aligning with WFA"
+# RAW_SEQ_TEMP=${WORKDIR}/tmp_raw_seq_"$SLURM_ARRAY_TASK_ID".txt
+# WFA_TEMP_OUT=${WORKDIR}/tmp_wfa_out_"$SLURM_ARRAY_TASK_ID".txt
+# $TO_RAW_SEQ $FASTA1 > $RAW_SEQ_TEMP
+# $TO_RAW_SEQ $FASTA2 >> $RAW_SEQ_TEMP
+# # limit memory to 32 gB and runtime to 30 min, but don't consider it a failure if we don't get it
+# true || timeout -v 30m ulimit -m 33554432 $WFA $WFA_PARAMS -i $RAW_SEQ_TEMP -o $WFA_TEMP_OUT
+# # remove the score from the output
+# if [ -f $WFA_TEMP_OUT ]; then
+#    cut -f 2 $WFA_TEMP_OUT > $WFA_OUTFILE
+# else
+#    touch $WFA_OUTFILE
+# fi
+# rm -f $RAW_SEQ_TEMP
+# rm -f $WFA_TEMP_OUT
 
 # echo "aligning with winnowmap"
 #
