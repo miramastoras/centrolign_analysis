@@ -82,7 +82,7 @@ task locate_hors {
 
         samtools faidx ~{sampleID}.fasta
 
-        python3 /opt/centromere-scripts/benchmarking/locate_hors_from_censat.py \
+        python3 /opt/centromere-scripts/benchmarking/locate_hors_from_censat_relaxed.py \
             -c ~{CenSatBedFile} \
             -a ~{AsHorSFBedFile} \
             -p ~{asmToRefPaf} \
