@@ -46,6 +46,7 @@ RUN pip install pandas
 RUN pip install --upgrade scipy
 
 # Get centromere scripts
+ARG TEST="test"
 WORKDIR /opt
 RUN git clone https://github.com/miramastoras/centromere-scripts.git
 
