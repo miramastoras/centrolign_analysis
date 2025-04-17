@@ -1,0 +1,8 @@
+{
+  "extract_hors.AsHorSFBedFile": "s3://human-pangenomics/submissions/DC27718F-5F38-43B0-9A78-270F395F13E8--INT_ASM_PRODUCTION/HG06807/assemblies/freeze_2/annotation/censat/HG06807_pat_v1.0.genbank.as_hor_sf.bed",
+  "extract_hors.assemblyFasta": "s3://human-pangenomics/working/HPRC_PLUS/HG06807/assemblies/genbank/HG06807_pat_v1.0.genbank.fa.gz",
+  "extract_hors.sampleName": "HG06807_pat",
+  "extract_hors.CenSatBedFile": "s3://human-pangenomics/submissions/DC27718F-5F38-43B0-9A78-270F395F13E8--INT_ASM_PRODUCTION/HG06807/assemblies/freeze_2/annotation/censat/HG06807_pat_v1.0.genbank.cenSat.bed",
+  "extract_hors.asmToRefPaf": "/private/groups/patenlab/mira/centrolign/batch_submissions/Asm2AsmAlignerPaf/release2/HG06807_pat_v1.0.genbank/analysis/Asm2AsmAlignerPaf_outputs/HG06807_pat_v1.0.genbank.paf",
+  "extract_hors.dockerImage": "miramastoras/centromere_scripts:v0.1.3"
+}
