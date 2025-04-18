@@ -427,3 +427,62 @@ cat $FASTA1 $FASTA2 > $TEMP_FASTA
 time /private/home/mmastora/progs/centrolign/build/centrolign -v 3 --skip-calibration $TEMP_FASTA > $OUTDIR/pairwise_cigar_${SAMPLE1}_${SAMPLE2}.txt
 rm $TEMP_FASTA
 ```
+#### Test version of locate_hors_from_censat with relaxed discontiguity filters
+
+For each chr, get list of samples with contiguous arrays
+```sh
+cd /private/groups/patenlab/mira/centrolign/batch_submissions/extract_hors_HPRC_relaxed/release2
+mkdir -p /private/groups/patenlab/mira/centrolign/batch_submissions/extract_hors_HPRC_relaxed/release2/contiguous_HORs/
+
+chromosomes=("chr1" "chr2" "chr3" "chr4" "chr5" "chr6" "chr7" "chr8" "chr9" "chr10" "chr11" "chr12" "chr13" "chr14" "chr15" "chr16" "chr17" "chr18" "chr19" "chr20" "chr21" "chr22" "chrX" "chrY")
+
+for chr in "${chromosomes[@]}"
+do
+    echo "Processing $chr"
+    cut -f 1 -d"," extract_hors_HPRC_relaxed_release2.csv | grep -v "sample_id" | \
+    while read line ; do
+        ls $line/analysis/extract_hors_HPRC_relaxed_outputs/*${chr}_hor_array.fasta | cut -f4 -d"/" | cut -f3 -d"_"
+      done | grep -v "cannot access" > /private/groups/patenlab/mira/centrolign/batch_submissions/extract_hors_HPRC_relaxed/release2/contiguous_HORs/HPRC_release2_contiguous_HORs_${chr}.txt
+done
+
+# Count number of contiguous arrays per chromosome
+for chr in "${chromosomes[@]}"
+do  
+  count=`wc -l contiguous_HORs/HPRC_release2_contiguous_HORs_${chr}.txt | cut -f1 -d" "`
+  echo $chr $count
+done
+```
+```
+chr1 398
+chr2 442
+chr3 195
+chr4 221
+chr5 375
+chr6 222
+chr7 369
+chr8 373
+chr9 424
+chr10 385
+chr11 433
+chr12 401
+chr13 303
+chr14 348
+chr15 358
+chr16 417
+chr17 158
+chr18 150
+chr19 392
+chr20 354
+chr21 275
+chr22 333
+chrX 324
+chrY 60
+```
+
+Copy all bed files into one directory:
+```
+cut -f 1 -d"," extract_hors_HPRC_relaxed_release2.csv | grep -v "sample_id" | \
+while read line ; do
+  cp ${line}/analysis/extract_hors_HPRC_relaxed_outputs/${line}_hor_arrays.bed contiguous_HORs_bed_files/
+done
+```
