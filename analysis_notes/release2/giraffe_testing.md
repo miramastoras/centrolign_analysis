@@ -42,7 +42,7 @@ chosen from here:
 Data table with locations for the alignments of HiFi reads to the assemblies [located here](https://github.com/human-pangenomics/hprc_intermediate_assembly/blob/main/data_tables/assembly_qc/flagger/flagger_hifi_processing_metadata_v0.1.csv)
 
 
-Download HiFi reads for HG00706 and HG00099 to phoenix:
+Download HiFi reads to phoenix:
 ```sh
 aws s3 cp s3://human-pangenomics/submissions/ca366a13-5bad-487b-8a57-97344e9aa0e4--HPRC_RELEASE_2_SUPPLEMENTARY_ASSEMBLY_QC/HG00408/hprc_r2/assembly_qc/read_alignments/hifi/HG00408.hifi_DC_minimap2_2.28.corrected.bam /private/groups/patenlab/mira/centrolign/giraffe/extract_hifi_reads/
 
@@ -50,7 +50,7 @@ aws s3 cp s3://human-pangenomics/submissions/ca366a13-5bad-487b-8a57-97344e9aa0e
 
 aws s3 cp s3://human-pangenomics/submissions/ca366a13-5bad-487b-8a57-97344e9aa0e4--HPRC_RELEASE_2_SUPPLEMENTARY_ASSEMBLY_QC/HG00706/hprc_r2/assembly_qc/read_alignments/hifi/HG00706.hifi_minimap2_2.28.corrected.bam /private/groups/patenlab/mira/centrolign/giraffe/extract_hifi_reads/
 ```
-Get coordinates of the chr12 HOR array for HG00099.1 and HG00706.1
+Get coordinates of the chr12 HOR arrays
 
 > .1 means hap1 or pat, .2 means hap2 or mat
 
