@@ -6,10 +6,10 @@
 #SBATCH --mail-user=mmastora@ucsc.edu
 #SBATCH --mail-type=END
 #SBATCH --nodes=1
-#SBATCH --mem=56gb
+#SBATCH --mem=100gb
 #SBATCH --ntasks=1
 #SBATCH --cpus-per-task=1
-#SBATCH --array=1
+#SBATCH --array=1-60
 #SBATCH --output=simulated_centrolign_slurm_logs/analysis_array_job_%A_task_%a.log
 #SBATCH --time=12:00:00
 
