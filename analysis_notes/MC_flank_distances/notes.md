@@ -76,6 +76,10 @@ ls chr12* | while read line ;
     do bcftools stats $line > bcftools_stats/$line.txt
   done
 ```
+Merge p and q arm vcfs
+```
+bcftools concat 
+```
 
 Use plink to generate distance matrix for each vcf
 ```sh
