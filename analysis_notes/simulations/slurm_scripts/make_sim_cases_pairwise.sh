@@ -2,7 +2,7 @@
 # Slurm script to run the sim_centromere script to generate pairwise sequence
 # alignment problems
 #SBATCH --job-name=make-pair-sim-cases
-#SBATCH --partition=short
+#SBATCH --partition=medium
 #SBATCH --mail-user=mmastora@ucsc.edu
 #SBATCH --mail-type=END
 #SBATCH --nodes=1
@@ -11,7 +11,7 @@
 #SBATCH --cpus-per-task=1
 #SBATCH --array=1-60
 #SBATCH --output=make_sim_cases_slurm_logs/array_job_%A_task_%a.log
-#SBATCH --time=1:00:00
+#SBATCH --time=12:00:00
 
 date
 hostname
@@ -20,7 +20,7 @@ echo "array job" $SLURM_ARRAY_TASK_ID
 
 # note: sample size is handled in sbatch array size
 CHR=$1
-DATE=20250415
+DATE=20250421
 
 SIMDIR=/private/groups/patenlab/mira/centrolign/simulations/pairwise_simulations/
 OUTPARDIR=$SIMDIR/pair_"$CHR"_sim_cases_"$DATE"/
