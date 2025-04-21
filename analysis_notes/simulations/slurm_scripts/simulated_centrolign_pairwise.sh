@@ -4,7 +4,7 @@
 #SBATCH --job-name=simulated-centrolign_pairwise
 #SBATCH --partition=medium
 #SBATCH --mail-user=mmastora@ucsc.edu
-#SBATCH --mail-type=ALL
+#SBATCH --mail-type=END
 #SBATCH --nodes=1
 #SBATCH --mem=56gb
 #SBATCH --ntasks=1
@@ -19,7 +19,7 @@ pwd
 
 # list cases in $SIMDIR/cases.txt
 CHR=$1
-DATE=20250415
+DATE=20250421
 
 SIMDIR=/private/groups/patenlab/mira/centrolign/simulations/pairwise_simulations/pair_"$CHR"_sim_cases_"$DATE"/
 CASE=$(awk "NR==$SLURM_ARRAY_TASK_ID" "$SIMDIR"/cases.txt)
