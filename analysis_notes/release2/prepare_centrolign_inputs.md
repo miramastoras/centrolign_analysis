@@ -486,3 +486,25 @@ while read line ; do
   cp ${line}/analysis/extract_hors_HPRC_relaxed_outputs/${line}_hor_arrays.bed contiguous_HORs_bed_files/
 done
 ```
+Checking contigs in disagreement with hailey's script
+```sh
+grep -v "Contig" /private/groups/patenlab/mira/contigs_disagreement.txt | while read line ; do
+  SAMPLE=`echo $line | cut -f1 -d"#"`
+  CONTIG=`echo $line | cut -f2-3 -d"#"`
+  awk -v target="$CONTIG" '
+      /^filtering/ { filter_line = $0 }
+      {
+          if ($0 ~ target) {
+              if ($0 ~ /filtering/) {
+                  print $0
+              } else {
+                  print filter_line
+                  print $0
+              }
+          }
+      }
+  ' /private/groups/patenlab/mira/centrolign/batch_submissions/extract_hors_HPRC_relaxed/release2/${SAMPLE}*/analysis/extract_hors_HPRC_relaxed_outputs/${SAMPLE}*_locate_hors_from_censat.log
+done > /private/groups/patenlab/mira/contigs_disagreement_reasons.log
+
+grep "filtering" /private/groups/patenlab/mira/contigs_disagreement_reasons.log | sort | uniq -c
+```

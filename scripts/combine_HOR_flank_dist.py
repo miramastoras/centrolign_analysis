@@ -23,6 +23,9 @@ def arg_parser():
     parser.add_argument("-f", "--flank_dists",
                         required=True,
                         help="comma separated matrix of pairwise distance values from flanks")
+    parser.add_argument("-s", "--samples",
+                        required=False,
+                        help="txt file with samples to use.Default uses samples from centrolign HOR list.")
     parser.add_argument("-o", "--output_pre",
                         required=True,
                         help="directory path and file prefix to write output file to")
@@ -62,6 +65,11 @@ def main():
             key = "_".join(sorted([row[0], row[1]]))
             value = float(row[2])  # Column 3 as the value
             alignment_dists[key] = value
+
+    if args.samples is not None:
+        with open(args.samples, 'r') as file:
+            samples = [line.strip() for line in file]
+        sample_list=samples
 
     samps = sorted(set(sample_list))
 
