@@ -73,7 +73,7 @@ def main():
         sample_list=samples
 
     samps = sorted(set(sample_list))
-
+    print(len(samps))
     # Read in flank distance values
     flank_df = pd.read_csv(args.flank_dists, sep=',', index_col=0)
 
