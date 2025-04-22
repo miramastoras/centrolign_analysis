@@ -77,4 +77,6 @@ RUN wget https://github.com/mummer4/mummer/releases/download/v${MUMMER_VER}rc1/m
   cd .. && \
   mkdir /data
 
+RUN pip install scikit-bio
+
 WORKDIR /data

@@ -164,3 +164,18 @@ ls | while read line ; do
     Rscript /private/groups/patenlab/mira/centrolign/github/centrolign_analysis/scripts/msa_simulations.R $line $chr /private/groups/patenlab/mira/centrolign/simulations/MSA_simulations/png_plots/${chr}_MSA_simulations
   done
 ```
+Debugging pairwise isues
+```
+-rw-r--r-- 1 mmastora patenlab  7782 Apr 22 02:49 analysis_array_job_8514984_task_52.log
+-rw-r--r-- 1 mmastora patenlab  7879 Apr 22 02:50 analysis_array_job_8514984_task_59.log
+```
+
+59
+```
+/private/groups/patenlab/mira/centrolign/simulations/pairwise_simulations/pair_chr14_sim_cases_20250421/gen100/case_14
+
+/usr/bin/time -v /private/groups/patenlab/mira/centrolign/github/unialigner/tandem_aligner/build/bin/tandem_aligner \
+    --first /private/groups/patenlab/mira/centrolign/simulations/pairwise_simulations/pair_chr14_sim_cases_20250421/gen100/case_14/sim_seq1.fasta \
+    --second /private/groups/patenlab/mira/centrolign/simulations/pairwise_simulations/pair_chr14_sim_cases_20250421/gen100/case_14/sim_seq2.fasta \
+    -o /private/groups/patenlab/mira/centrolign/simulations/pairwise_simulations/pair_chr14_sim_cases_20250421/gen100/case_14/aln_unialigner.txt
+```

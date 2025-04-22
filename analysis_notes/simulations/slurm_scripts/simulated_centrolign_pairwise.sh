@@ -6,7 +6,7 @@
 #SBATCH --mail-user=mmastora@ucsc.edu
 #SBATCH --mail-type=END
 #SBATCH --nodes=1
-#SBATCH --mem=300gb
+#SBATCH --mem=400gb
 #SBATCH --ntasks=1
 #SBATCH --cpus-per-task=1
 #SBATCH --array=1-60

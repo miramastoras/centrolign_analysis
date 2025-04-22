@@ -301,11 +301,19 @@ time python3 /private/groups/patenlab/mira/centrolign/github/centromere-scripts/
     /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2/all_pairs/chr6/pairwise_cigar/pairwise_cigar_ \
     > /private/groups/patenlab/mira/centrolign/benchmarking/HOR_vs_refined_tree/chr6_shuf_130/subset_69_MSA_HOR_all_pairs_NJ/chr6_69_all_pairs_tree_pairwise_consistency.txt
 
+#real    597m38.658s
+#user    546m35.449s
+#sys     35m41.605s
+
 # refined tree
 time python3 /private/groups/patenlab/mira/centrolign/github/centromere-scripts/benchmarking/pairwise_consistency.py \
     /private/groups/patenlab/mira/centrolign/benchmarking/HOR_vs_refined_tree/chr6_shuf_130/subset_69_MSA_refined_tree/pairwise_cigars/pairwise_cigar_ \
     /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2/all_pairs/chr6/pairwise_cigar/pairwise_cigar_ \
     > /private/groups/patenlab/mira/centrolign/benchmarking/HOR_vs_refined_tree/chr6_shuf_130/subset_69_MSA_refined_tree/chr6_69_refined_tree_pairwise_consistency.txt
+
+#real    597m17.650s
+#user    545m14.004s
+#sys     35m45.879s
 ```
 
 Plot using self_consistency.R, and run a paired t test to compare the jaccard distributions  
@@ -315,8 +323,8 @@ HOR NJ tree
 library(ggplot2)
 
 # read in data for refined tree
-dat = read.table("/Users/miramastoras/Desktop/chr12_tree_consistency_79/chr12_79_refined_tree_pairwise_consistency.txt", header = T)
-dists = read.csv("/Users/miramastoras/Desktop/chr12_tree_consistency_79/pairwise_distance_excl_HG00741.1.csv", header = T)
+dat = read.table("/Users/miramastoras/Desktop/chr6_tree_consistency_69/chr6_69_refined_tree_pairwise_consistency.txt", header = T)
+dists = read.csv("/Users/miramastoras/Desktop/chr6_tree_consistency_69/chr6_all_pairs_pairwise_distance.csv", header = T)
 
 key1 = paste(dists$sample1, dists$sample2, sep = "_")
 key2 = paste(dists$sample2, dists$sample1, sep = "_")
@@ -341,7 +349,7 @@ plot(dat$dist, dat$aligned_jaccard, pch = 19, col = alpha("black", 0.1),  xlim =
      xlab = "Patristic distance", ylab = "Jaccard similarity", main = "Only aligned pairs (chr12 refined tree)")
 
 # read in data for all pairs tree
-dat2 = read.table("/Users/miramastoras/Desktop/chr12_tree_consistency_79/chr12_79_HOR_all_pairs_NJ_pairwise_consistency.txt", header = T)
+dat2 = read.table("/Users/miramastoras/Desktop/chr6_tree_consistency_69/chr6_69_all_pairs_tree_pairwise_consistency.txt", header = T)
 
 sample_dists2 = dists[paste(dat2$sample1, dat2$sample2, sep = "_"), "distance"]
 

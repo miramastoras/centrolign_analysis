@@ -22,7 +22,7 @@ def arg_parser():
                         help="csv file with pairwise distance values from centrolign in this format: Sample1,Sample2,Dist")
     parser.add_argument("-f", "--flank_dists",
                         required=True,
-                        help="tab separated matrix of pairwise distance values from flanks")
+                        help="comma separated matrix of pairwise distance values from flanks")
     parser.add_argument("-o", "--output_pre",
                         required=True,
                         help="directory path and file prefix to write output file to")
