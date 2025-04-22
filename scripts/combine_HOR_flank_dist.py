@@ -56,21 +56,37 @@ def main():
     # collect list of samples
     sample_list =[]
 
-    with open(args.centrolign_HOR_dists, "r") as csvfile:
-        reader = csv.reader(csvfile)
-        headers = next(reader)  # Skip the header row
-        for row in reader:
-            sample_list.append(row[0])
-
-            sample_list.append(row[1])
-            key = "_".join(sorted([row[0], row[1]]))
-            value = float(row[2])  # Column 3 as the value
-            alignment_dists[key] = value
 
     if args.samples is not None:
+        # read in arg samples
         with open(args.samples, 'r') as file:
-            samples = [line.strip() for line in file]
-        sample_list=samples
+            args_samples = [line.strip() for line in file]
+
+        # only read in HOR dists if both samples are in list
+        with open(args.centrolign_HOR_dists, "r") as csvfile:
+            reader = csv.reader(csvfile)
+            headers = next(reader)  # Skip the header row
+            for row in reader:
+                if row[0] in args_samples and row[1] in args_samples:
+                    sample_list.append(row[0])
+                    sample_list.append(row[1])
+                    key = "_".join(sorted([row[0], row[1]]))
+                    value = float(row[2])  # Column 3 as the value
+                    alignment_dists[key] = value
+                else:
+                    continue
+                    
+    else: # use all samples in input HOR distance list
+        with open(args.centrolign_HOR_dists, "r") as csvfile:
+            reader = csv.reader(csvfile)
+            headers = next(reader)  # Skip the header row
+            for row in reader:
+                sample_list.append(row[0])
+
+                sample_list.append(row[1])
+                key = "_".join(sorted([row[0], row[1]]))
+                value = float(row[2])  # Column 3 as the value
+                alignment_dists[key] = value
 
     samps = sorted(set(sample_list))
 
@@ -90,19 +106,17 @@ def main():
             sample1=key.split("_")[0]
             sample2=key.split("_")[1]
 
-            if sample1 in samps and sample2 in samps:
-                f=scaled_flank_df.loc[sample1, sample2] # flank distance
+            f=scaled_flank_df.loc[sample1, sample2] # flank distance
 
-                d = (1 - (1 - h)**2 + f**2) / 2
+            d = (1 - (1 - h)**2 + f**2) / 2
 
-                # write to new file
-                print(sample1, sample2, d, sep=",", file=file)
+            # write to new file
+            print(sample1, sample2, d, sep=",", file=file)
 
-                # add to dictionary
-                mat[(sample1, sample2)] = d
-                mat[(sample2, sample1)] = d
-            else:
-                continue
+            # add to dictionary
+            mat[(sample1, sample2)] = d
+            mat[(sample2, sample1)] = d
+
     # reorganize as an array
     D = []
     for samp1 in samps:
@@ -111,7 +125,6 @@ def main():
             if samp1 == samp2:
                 D[-1].append(0.0)
             else:
-                print(samp1,samp2)
                 D[-1].append(mat[(samp1, samp2)])
 
     # make skbio type
