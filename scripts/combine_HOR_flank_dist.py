@@ -83,7 +83,7 @@ def main():
     # compute weighted sum, write to file, store in matrix for skbio
     mat = {}
     with open(args.output_pre +"_HOR_flank_dist_weighted.txt", "a") as file:
-        for key in alignment_dists.keys():
+        for key in samps:
 
             h=alignment_dists[key] # hor distance for each pairwise combination
 
