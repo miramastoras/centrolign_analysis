@@ -61,11 +61,12 @@ def main():
         headers = next(reader)  # Skip the header row
         for row in reader:
             sample_list.append(row[0])
+
             sample_list.append(row[1])
             key = "_".join(sorted([row[0], row[1]]))
             value = float(row[2])  # Column 3 as the value
             alignment_dists[key] = value
-
+    print(type(sample_list[1]))
     if args.samples is not None:
         print("sample list found")
         with open(args.samples, 'r') as file:
@@ -73,6 +74,7 @@ def main():
         sample_list=samples
 
     samps = sorted(set(sample_list))
+    print(type(sample_list[1]))
     print(len(samps))
     # Read in flank distance values
     flank_df = pd.read_csv(args.flank_dists, sep=',', index_col=0)
