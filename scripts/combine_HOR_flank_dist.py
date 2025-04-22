@@ -68,14 +68,12 @@ def main():
             alignment_dists[key] = value
     print(type(sample_list[1]))
     if args.samples is not None:
-        print("sample list found")
         with open(args.samples, 'r') as file:
             samples = [line.strip() for line in file]
         sample_list=samples
 
     samps = sorted(set(sample_list))
-    print(type(sample_list[1]))
-    print(len(samps))
+
     # Read in flank distance values
     flank_df = pd.read_csv(args.flank_dists, sep=',', index_col=0)
 
@@ -106,6 +104,7 @@ def main():
             else:
                 continue
     # reorganize as an array
+    print(len(mat.keys()))
     D = []
     for samp1 in samps:
         D.append([])
