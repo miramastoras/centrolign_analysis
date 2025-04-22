@@ -66,7 +66,7 @@ def main():
             key = "_".join(sorted([row[0], row[1]]))
             value = float(row[2])  # Column 3 as the value
             alignment_dists[key] = value
-    print(type(sample_list[1]))
+
     if args.samples is not None:
         with open(args.samples, 'r') as file:
             samples = [line.strip() for line in file]
@@ -104,7 +104,6 @@ def main():
             else:
                 continue
     # reorganize as an array
-    print(len(mat.keys()))
     D = []
     for samp1 in samps:
         D.append([])
@@ -112,6 +111,7 @@ def main():
             if samp1 == samp2:
                 D[-1].append(0.0)
             else:
+                print(samp1,samp2)
                 D[-1].append(mat[(samp1, samp2)])
 
     # make skbio type
