@@ -83,24 +83,26 @@ def main():
     # compute weighted sum, write to file, store in matrix for skbio
     mat = {}
     with open(args.output_pre +"_HOR_flank_dist_weighted.txt", "a") as file:
-        for key in samps:
+        for key in alignment_dists.keys():
 
             h=alignment_dists[key] # hor distance for each pairwise combination
 
             sample1=key.split("_")[0]
             sample2=key.split("_")[1]
 
-            f=scaled_flank_df.loc[sample1, sample2] # flank distance
+            if sample1 in samps and sample2 in samps:
+                f=scaled_flank_df.loc[sample1, sample2] # flank distance
 
-            d = (1 - (1 - h)**2 + f**2) / 2
+                d = (1 - (1 - h)**2 + f**2) / 2
 
-            # write to new file
-            print(sample1, sample2, d, sep=",", file=file)
+                # write to new file
+                print(sample1, sample2, d, sep=",", file=file)
 
-            # add to dictionary
-            mat[(sample1, sample2)] = d
-            mat[(sample2, sample1)] = d
-
+                # add to dictionary
+                mat[(sample1, sample2)] = d
+                mat[(sample2, sample1)] = d
+            else:
+                continue
     # reorganize as an array
     D = []
     for samp1 in samps:
