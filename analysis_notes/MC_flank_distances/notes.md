@@ -222,15 +222,15 @@ Combine with centrolign all pairs distances and create a new tree
 cd /private/groups/patenlab/mira/centrolign/guide_tree_testing/MC_flank_distances/MC_hap_separated_vcfs
 
 bcftools query -l chr12.HOR.10kb.p.hprc-v2.0-mc-chm13.wave.hap_separated.vcf > MC_samples.txt
-comm -12 <(sort MC_samples.txt) <(sort /private/groups/patenlab/mira/centrolign/batch_submissions/extract_hors_HPRC/release2/contiguous_HORs/HPRC_release2_contiguous_HORs_chr12.txt) > 
-
+comm -12 <(sort MC_samples.txt) <(sort /private/groups/patenlab/mira/centrolign/batch_submissions/extract_hors_HPRC/release2/contiguous_HORs/HPRC_release2_contiguous_HORs_chr12.txt) > samples_in_MC_and_centrolign.txt
 
 mkdir -p /private/groups/patenlab/mira/centrolign/guide_tree_testing/MC_flank_distances/MC_hap_separated_vcfs/combine_HOR_flank_trees
 
-docker run -u `id -u`:`id -g` -v /private/groups:/private/groups/ \
+docker run -it -u `id -u`:`id -g` -v /private/groups:/private/groups/ \
     miramastoras/centromere_scripts:v0.1.4 \
     python3 /private/groups/patenlab/mira/centrolign/github/centrolign_analysis/scripts/combine_HOR_flank_dist.py \
     -c /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2/all_pairs/chr12/pairwise_distance.csv \
     -f /private/groups/patenlab/mira/centrolign/guide_tree_testing/MC_flank_distances/MC_hap_separated_vcfs/plink_dists/chr12.HOR.20kb.q.hprc-v2.0-mc-chm13.wave.hap_separated.dist.formatted.csv \
+    -s /private/groups/patenlab/mira/centrolign/guide_tree_testing/MC_flank_distances/MC_hap_separated_vcfs/samples_in_MC_and_centrolign.txt \
     -o /private/groups/patenlab/mira/centrolign/guide_tree_testing/MC_flank_distances/MC_hap_separated_vcfs/combine_HOR_flank_trees/test
 ```

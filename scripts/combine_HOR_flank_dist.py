@@ -67,6 +67,7 @@ def main():
             alignment_dists[key] = value
 
     if args.samples is not None:
+        print("sample list found")
         with open(args.samples, 'r') as file:
             samples = [line.strip() for line in file]
         sample_list=samples
