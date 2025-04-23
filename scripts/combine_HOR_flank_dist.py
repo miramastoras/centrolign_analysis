@@ -104,6 +104,8 @@ def main():
                 D[-1].append(mat[(samp1, samp2)])
 
     # make skbio type
+    with open ("/private/groups/patenlab/mira/centrolign/guide_tree_testing/MC_flank_distances/MC_hap_separated_vcfs/combine_HOR_flank_trees/df.txt","a") as file:
+        print(D, file=file)
     dist_mat = skbio.DistanceMatrix(D, samps)
     # print(dist_mat.to_data_frame(), file = sys.stderr)
 
