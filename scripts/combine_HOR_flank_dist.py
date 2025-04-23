@@ -67,7 +67,7 @@ def main():
 
     # Read in flank distance values
     flank_df = pd.read_csv(args.flank_dists, sep=',', index_col=0)
-
+    print(flank_df)
     # scale flank distance value to be between 0 and 1
     df_min = flank_df.min().min()
     df_max = flank_df.max().max()
