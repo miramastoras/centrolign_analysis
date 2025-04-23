@@ -217,6 +217,15 @@ ls *.dist | while read line ; do
 done
 ```
 Combine with centrolign all pairs distances and create a new tree
+
+> Ran into an error because all of the q matrix files have some NAN files due to the small number of SNPs.
+```sh
+cd /private/groups/patenlab/mira/centrolign/guide_tree_testing/MC_flank_distances/MC_hap_separated_vcfs/plink_dists
+ls *.dist | while read line ; do echo $line ; grep "nan" $line | wc -l ; done
+ls *.dist | while read line ; do echo $line ; awk '{ for (i=1; i<=NF; i++) if ($i == "nan") col[i]++ } END { for (i in col) print i, col[i] }' $line | wc -l ; done
+```
+
+Prepare input files
 ```sh
 cd /private/groups/patenlab/mira/centrolign/guide_tree_testing/MC_flank_distances/MC_hap_separated_vcfs
 
@@ -227,13 +236,75 @@ comm -23 <(sort /private/groups/patenlab/mira/centrolign/batch_submissions/extra
 # HG00272.1 is the only sample in the centrolign list that is missing from MC vcf
 echo "sample1,sample2,dist" > chr12_direct_pairwise_distance_excl_HG00272.1.csv
 grep -v HG00272.1 /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2/all_pairs/chr12/pairwise_distance.csv >> chr12_direct_pairwise_distance_excl_HG00272.1.csv
-
+```
+Run combined distance script
+```sh
 mkdir -p /private/groups/patenlab/mira/centrolign/guide_tree_testing/MC_flank_distances/MC_hap_separated_vcfs/combine_HOR_flank_trees
 
-docker run -it -u `id -u`:`id -g` -v /private/groups:/private/groups/ \
-    miramastoras/centromere_scripts:v0.1.4 \
-    python3 /private/groups/patenlab/mira/centrolign/github/centrolign_analysis/scripts/combine_HOR_flank_dist.py \
-    -c /private/groups/patenlab/mira/centrolign/guide_tree_testing/MC_flank_distances/MC_hap_separated_vcfs/chr12_direct_pairwise_distance_excl_HG00272.1.csv \
-    -f /private/groups/patenlab/mira/centrolign/guide_tree_testing/MC_flank_distances/MC_hap_separated_vcfs/plink_dists/chr12.HOR.10kb.pq.hprc-v2.0-mc-chm13.wave.hap_separated.dist.formatted.csv \
-    -o /private/groups/patenlab/mira/centrolign/guide_tree_testing/MC_flank_distances/MC_hap_separated_vcfs/combine_HOR_flank_trees/test_10kb
+cd /private/groups/patenlab/mira/centrolign/guide_tree_testing/MC_flank_distances/MC_hap_separated_vcfs/plink_dists
+
+ls *.p*.formatted.csv | while read line ; do
+    MATRIX=`realpath $line`
+    SAMPLE=`basename $line .dist.formatted.csv`
+    docker run -u `id -u`:`id -g` -v /private/groups:/private/groups/ \
+        miramastoras/centromere_scripts:v0.1.4 \
+        python3 /private/groups/patenlab/mira/centrolign/github/centrolign_analysis/scripts/combine_HOR_flank_dist.py \
+        -c /private/groups/patenlab/mira/centrolign/guide_tree_testing/MC_flank_distances/MC_hap_separated_vcfs/chr12_direct_pairwise_distance_excl_HG00272.1.csv \
+        -f ${MATRIX} \
+        -o /private/groups/patenlab/mira/centrolign/guide_tree_testing/MC_flank_distances/MC_hap_separated_vcfs/combine_HOR_flank_trees/${SAMPLE}
+      done
+```
+
+Plot a random sampling of 130 samples against the chr12 all pairs distances in the pairwise heatmap
+```sh
+shuf -n 130 /private/groups/patenlab/mira/centrolign/batch_submissions/extract_hors_HPRC/release2/contiguous_HORs/HPRC_release2_contiguous_HORs_chr12.txt > /private/groups/patenlab/mira/centrolign/guide_tree_testing/MC_flank_distances/MC_hap_separated_vcfs/combine_HOR_flank_trees/chr12_0402225_random130_samples.txt
+```
+Plot heatmaps - local computer
+```sh
+# change format of input tree to 1
+conda activate tree_python
+mkdir -p /Users/miramastoras/Desktop/MC_vcf_heatmaps_0402225/heatmaps
+
+ls /Users/miramastoras/Desktop/MC_vcf_heatmaps_0402225/combine_HOR_flank_trees/*nwk | while read line ; do
+  SAMPLE=`basename $line hprc-v2.0-mc-chm13.wave.hap_separated_HOR_flank_dist_weighted.nwk`
+  TITLE=`echo Refined Tree $SAMPLE`
+  python3 /Users/miramastoras/Desktop/github_repos/centrolign_analysis/scripts/pairwise_tree_heatmap.py \
+          -t ${line} \
+          -s /Users/miramastoras/Desktop/MC_vcf_heatmaps_0402225/chr12_0402225_random130_samples.txt \
+          -p /Users/miramastoras/Desktop/MC_vcf_heatmaps_0402225/chr12_direct_pairwise_distance_excl_HG00272.1.csv \
+          -m "Centrolign all pairs" \
+          -n ${TITLE} \
+          -d "Combined distances" \
+          -o /Users/miramastoras/Desktop/MC_vcf_heatmaps_0402225/heatmaps/${SAMPLE}_
+  done
+```
+For p and pq 5kb, plot tanglegram with the chr12 refined tree
+```sh
+install.packages("phytools",repos="https://cloud.r-project.org",quiet=TRUE)
+library(phytools)
+library(ape)
+
+# create trees
+original_tree <- ape::read.tree("/Users/miramastoras/Desktop/MC_vcf_heatmaps_0402225/HPRC_r2_chr12_cenhap_20250402_centrolign_all_pairs_HOR_flank_dist_weighted.format5.nwk")
+new_tree <- ape::read.tree("/Users/miramastoras/Desktop/MC_vcf_heatmaps_0402225/combine_HOR_flank_trees/chr12.HOR.5kb.p.hprc-v2.0-mc-chm13.wave.hap_separated_HOR_flank_dist_weighted.nwk")
+
+obj<-cophylo(original_tree,new_tree)
+svg(filename="/Users/miramastoras/Desktop/MC_vcf_heatmaps_0402225/tanglegrams/chr12.HOR.5kb.p_vs_chr12_cenhap_refined_tree.svg")
+plot(obj, pts=FALSE,fsize=c(0.15,0.15),link.type="curved",link.lty="solid",link.col=make.transparent("blue",0.25),part=0.44)
+dev.off()
+```
+For p and pq 5kb, plot tanglegram with the chr12 refined tree
+```sh
+install.packages("phytools",repos="https://cloud.r-project.org",quiet=TRUE)
+library(phytools)
+library(ape)
+
+# create trees
+original_tree <- ape::read.tree("/Users/miramastoras/Desktop/MC_vcf_heatmaps_0402225/HPRC_r2_chr12_cenhap_20250402_centrolign_all_pairs_HOR_flank_dist_weighted.format5.nwk")
+new_tree <- ape::read.tree("/Users/miramastoras/Desktop/MC_vcf_heatmaps_0402225/combine_HOR_flank_trees/chr12.HOR.5kb.pq.hprc-v2.0-mc-chm13.wave.hap_separated_HOR_flank_dist_weighted.nwk")
+
+obj<-cophylo(original_tree,new_tree)
+svg(filename="/Users/miramastoras/Desktop/MC_vcf_heatmaps_0402225/tanglegrams/chr12.HOR.5kb.pq_vs_chr12_cenhap_refined_tree.svg")
+plot(obj, pts=FALSE,fsize=c(0.15,0.15),link.type="curved",link.lty="solid",link.col=make.transparent("blue",0.25),part=0.44)
+dev.off()
 ```

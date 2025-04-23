@@ -123,7 +123,7 @@ def main():
         samples = [line.strip() for line in file]
 
     # Prune the tree to retain only the target samples
-    tree = Tree(args.tree, format=5)
+    tree = Tree(args.tree, format=1)
     tree.prune(samples, preserve_branch_length=True)
 
     # write out pruned tree to file
@@ -212,8 +212,8 @@ def main():
     #G = np.linspace(seafoam[1], deepblue[1], 101)
     #B = np.linspace(seafoam[2], deepblue[2], 101)
 
-    #cmap = get_cmap('viridis_r')
-    cmap = get_cmap('coolwarm')
+    cmap = get_cmap('viridis_r')
+    #cmap = get_cmap('coolwarm')
     # plot color scale in fourth grid
     for i in np.arange(0, 100, 1):
         rectangle = patches.Rectangle([0,( i / 100)], 1, 0.1,
