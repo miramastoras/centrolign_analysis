@@ -87,7 +87,7 @@ def main():
 
             # write to new file
             print(sample1, sample2, d, sep=",", file=file)
-
+            print(sample1,sample2)
             # add to dictionary
             mat[(sample1, sample2)] = d
             mat[(sample2, sample1)] = d
