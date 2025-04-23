@@ -218,14 +218,15 @@ done
 ```
 Combine with centrolign all pairs distances and create a new tree
 ```sh
-# Get intersection of MC vcf and chr12 all pairs
 cd /private/groups/patenlab/mira/centrolign/guide_tree_testing/MC_flank_distances/MC_hap_separated_vcfs
 
+# Get intersection of MC vcf and chr12 all pairs
 bcftools query -l chr12.HOR.10kb.p.hprc-v2.0-mc-chm13.wave.hap_separated.vcf > MC_samples.txt
 comm -23 <(sort /private/groups/patenlab/mira/centrolign/batch_submissions/extract_hors_HPRC/release2/contiguous_HORs/HPRC_release2_contiguous_HORs_chr12.txt) <(sort MC_samples.txt )
 
-# HG00272.1 only sample missing from mc vcf
-grep -v HG00272.1 /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2/all_pairs/chr12/pairwise_distance.csv > chr12_direct_pairwise_distance_excl_HG00272.1.csv
+# HG00272.1 is the only sample in the centrolign list that is missing from MC vcf
+echo "sample1,sample2,dist" > chr12_direct_pairwise_distance_excl_HG00272.1.csv
+grep -v HG00272.1 /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2/all_pairs/chr12/pairwise_distance.csv >> chr12_direct_pairwise_distance_excl_HG00272.1.csv
 
 mkdir -p /private/groups/patenlab/mira/centrolign/guide_tree_testing/MC_flank_distances/MC_hap_separated_vcfs/combine_HOR_flank_trees
 
@@ -233,6 +234,6 @@ docker run -it -u `id -u`:`id -g` -v /private/groups:/private/groups/ \
     miramastoras/centromere_scripts:v0.1.4 \
     python3 /private/groups/patenlab/mira/centrolign/github/centrolign_analysis/scripts/combine_HOR_flank_dist.py \
     -c /private/groups/patenlab/mira/centrolign/guide_tree_testing/MC_flank_distances/MC_hap_separated_vcfs/chr12_direct_pairwise_distance_excl_HG00272.1.csv \
-    -f /private/groups/patenlab/mira/centrolign/guide_tree_testing/MC_flank_distances/MC_hap_separated_vcfs/plink_dists/chr12.HOR.20kb.q.hprc-v2.0-mc-chm13.wave.hap_separated.dist.formatted.csv \
-    -o /private/groups/patenlab/mira/centrolign/guide_tree_testing/MC_flank_distances/MC_hap_separated_vcfs/combine_HOR_flank_trees/test
+    -f /private/groups/patenlab/mira/centrolign/guide_tree_testing/MC_flank_distances/MC_hap_separated_vcfs/plink_dists/chr12.HOR.10kb.pq.hprc-v2.0-mc-chm13.wave.hap_separated.dist.formatted.csv \
+    -o /private/groups/patenlab/mira/centrolign/guide_tree_testing/MC_flank_distances/MC_hap_separated_vcfs/combine_HOR_flank_trees/test_10kb
 ```

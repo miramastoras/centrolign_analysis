@@ -67,14 +67,11 @@ def main():
 
     # Read in flank distance values
     flank_df = pd.read_csv(args.flank_dists, sep=',', index_col=0)
-    print(flank_df)
+
     # scale flank distance value to be between 0 and 1
     df_min = flank_df.min().min()
     df_max = flank_df.max().max()
-    print("Global min:", df_min)
-    print("Global max:", df_max)
-    print("Any NaNs in original df?", flank_df.isna().any().any())
-    print("Any non-numeric columns?", flank_df.dtypes)
+
     scaled_flank_df=min_max_scale_df(flank_df)
 
     # compute weighted sum, write to file, store in matrix for skbio
