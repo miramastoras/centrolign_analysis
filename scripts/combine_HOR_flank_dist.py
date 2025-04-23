@@ -23,9 +23,6 @@ def arg_parser():
     parser.add_argument("-f", "--flank_dists",
                         required=True,
                         help="comma separated matrix of pairwise distance values from flanks")
-    parser.add_argument("-s", "--samples",
-                        required=False,
-                        help="txt file with samples to use.Default uses samples from centrolign HOR list.")
     parser.add_argument("-o", "--output_pre",
                         required=True,
                         help="directory path and file prefix to write output file to")
@@ -56,37 +53,15 @@ def main():
     # collect list of samples
     sample_list =[]
 
-
-    if args.samples is not None:
-        # read in arg samples
-        with open(args.samples, 'r') as file:
-            args_samples = [line.strip() for line in file]
-
-        # only read in HOR dists if both samples are in list
-        with open(args.centrolign_HOR_dists, "r") as csvfile:
-            reader = csv.reader(csvfile)
-            headers = next(reader)  # Skip the header row
-            for row in reader:
-                if row[0] in args_samples and row[1] in args_samples:
-                    sample_list.append(row[0])
-                    sample_list.append(row[1])
-                    key = "_".join(sorted([row[0], row[1]]))
-                    value = float(row[2])  # Column 3 as the value
-                    alignment_dists[key] = value
-                else:
-                    continue
-                    
-    else: # use all samples in input HOR distance list
-        with open(args.centrolign_HOR_dists, "r") as csvfile:
-            reader = csv.reader(csvfile)
-            headers = next(reader)  # Skip the header row
-            for row in reader:
-                sample_list.append(row[0])
-
-                sample_list.append(row[1])
-                key = "_".join(sorted([row[0], row[1]]))
-                value = float(row[2])  # Column 3 as the value
-                alignment_dists[key] = value
+    with open(args.centrolign_HOR_dists, "r") as csvfile:
+        reader = csv.reader(csvfile)
+        headers = next(reader)  # Skip the header row
+        for row in reader:
+            sample_list.append(row[0])
+            sample_list.append(row[1])
+            key = "_".join(sorted([row[0], row[1]]))
+            value = float(row[2])  # Column 3 as the value
+            alignment_dists[key] = value
 
     samps = sorted(set(sample_list))
 
