@@ -87,13 +87,10 @@ def main():
 
             # write to new file
             print(sample1, sample2, d, sep=",", file=file)
-            print(sample1,sample2)
+
             # add to dictionary
             mat[(sample1, sample2)] = d
             mat[(sample2, sample1)] = d
-            if (sample1=="HG01993.2" and sample2=="HG02841.1") or (sample1=="HG02841.1" and sample2=="HG01993.2"):
-                print(mat[(sample2, sample1)])
-                print(mat[(sample1, sample2)])
 
     # reorganize as an array
     D = []
