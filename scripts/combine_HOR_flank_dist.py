@@ -36,7 +36,7 @@ def min_max_scale_df(df):
 
     df_min = df.min().min()  # Global min across all values
     df_max = df.max().max()  # Global max across all values
-    print("df min, df max",df_min,df_max)
+    #print("df min, df max",df_min,df_max)
     # Apply min-max scaling
     df_scaled = (df - df_min) / (df_max - df_min)
 
@@ -69,6 +69,12 @@ def main():
     flank_df = pd.read_csv(args.flank_dists, sep=',', index_col=0)
 
     # scale flank distance value to be between 0 and 1
+    df_min = flank_df.min().min()
+    df_max = flank_df.max().max()
+    print("Global min:", df_min)
+    print("Global max:", df_max)
+    print("Any NaNs in original df?", flank_df.isna().any().any())
+    print("Any non-numeric columns?", flank_df.dtypes)
     scaled_flank_df=min_max_scale_df(flank_df)
 
     # compute weighted sum, write to file, store in matrix for skbio
