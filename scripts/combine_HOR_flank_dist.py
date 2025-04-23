@@ -91,7 +91,7 @@ def main():
             # add to dictionary
             mat[(sample1, sample2)] = d
             mat[(sample2, sample1)] = d
-
+            print(mat[(sample1, sample2)])
     # reorganize as an array
     D = []
     for samp1 in samps:
@@ -100,10 +100,7 @@ def main():
             if samp1 == samp2:
                 D[-1].append(0.0)
             else:
-                try:
-                    D[-1].append(mat[(samp1, samp2)])
-                except:
-                    D[-1].append(mat[(samp2, samp1)])
+                D[-1].append(mat[(samp1, samp2)])
 
     # make skbio type
     dist_mat = skbio.DistanceMatrix(D, samps)
