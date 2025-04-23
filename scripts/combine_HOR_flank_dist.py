@@ -91,6 +91,7 @@ def main():
             # add to dictionary
             mat[(sample1, sample2)] = d
             mat[(sample2, sample1)] = d
+    print(mat)
     print(mat[("HG01993.2", "HG02841.1")])
     # reorganize as an array
     D = []
