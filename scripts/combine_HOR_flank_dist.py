@@ -36,7 +36,7 @@ def min_max_scale_df(df):
 
     df_min = df.min().min()  # Global min across all values
     df_max = df.max().max()  # Global max across all values
-
+    print("df min, df max",df_min,df_max)
     # Apply min-max scaling
     df_scaled = (df - df_min) / (df_max - df_min)
 
@@ -84,8 +84,8 @@ def main():
             f=scaled_flank_df.loc[sample1, sample2] # flank distance
 
             d = (1 - (1 - h)**2 + f**2) / 2
-            if pd.isna(d):
-                print(sample1,sample2,h,f)
+            #if pd.isna(d):
+                #print(sample1,sample2,h,f)
             # write to new file
             print(sample1, sample2, d, sep=",", file=file)
 
