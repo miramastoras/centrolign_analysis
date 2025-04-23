@@ -234,6 +234,5 @@ docker run -it -u `id -u`:`id -g` -v /private/groups:/private/groups/ \
     python3 /private/groups/patenlab/mira/centrolign/github/centrolign_analysis/scripts/combine_HOR_flank_dist.py \
     -c /private/groups/patenlab/mira/centrolign/guide_tree_testing/MC_flank_distances/MC_hap_separated_vcfs/chr12_direct_pairwise_distance_excl_HG00272.1.csv \
     -f /private/groups/patenlab/mira/centrolign/guide_tree_testing/MC_flank_distances/MC_hap_separated_vcfs/plink_dists/chr12.HOR.20kb.q.hprc-v2.0-mc-chm13.wave.hap_separated.dist.formatted.csv \
-    -s /private/groups/patenlab/mira/centrolign/guide_tree_testing/MC_flank_distances/MC_hap_separated_vcfs/samples_in_MC_and_centrolign.txt \
     -o /private/groups/patenlab/mira/centrolign/guide_tree_testing/MC_flank_distances/MC_hap_separated_vcfs/combine_HOR_flank_trees/test
 ```
