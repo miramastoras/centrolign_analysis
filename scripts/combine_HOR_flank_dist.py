@@ -84,7 +84,8 @@ def main():
             f=scaled_flank_df.loc[sample1, sample2] # flank distance
 
             d = (1 - (1 - h)**2 + f**2) / 2
-
+            if pd.isna(d):
+                print(sample1,sample2,h,f)
             # write to new file
             print(sample1, sample2, d, sep=",", file=file)
 
@@ -104,8 +105,7 @@ def main():
                 D[-1].append(mat[(samp1, samp2)])
 
     # make skbio type
-    with open ("/private/groups/patenlab/mira/centrolign/guide_tree_testing/MC_flank_distances/MC_hap_separated_vcfs/combine_HOR_flank_trees/df.txt","a") as file:
-        print(D, file=file)
+
     dist_mat = skbio.DistanceMatrix(D, samps)
     # print(dist_mat.to_data_frame(), file = sys.stderr)
 
