@@ -454,3 +454,55 @@ python3 /Users/miramastoras/Desktop/github_repos/centrolign_analysis/scripts/pai
         -d "Tree Distances" \
         -o /Users/miramastoras/Desktop/chr12_r2_tree_comparison/chr12_centrolign_refined_tree_residuals
 ```
+Help Jordan debug slow centrolign runs
+
+```sh
+cd /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2/MSA_NJ_cenhap_tree/chr12/jobstore/
+
+ls -lh | sort -k7,7
+
+# removing the last 3 subproblems
+# subproblem took 7 hours _D2022170F4958FA9.gfa so its a good candidate to investigate
+
+-rw-r--r-- 1 mmastora patenlab  21M Apr  7 12:21 _D1ADD08DBC9ED77F.gfa
+-rw-r--r-- 1 mmastora patenlab  26M Apr  7 19:00 _F59D6477D9A2539D.gfa
+-rw-r--r-- 1 mmastora patenlab  23M Apr  7 19:35 _A1A1B3D5087E2576.gfa
+-rw-r--r-- 1 mmastora patenlab  25M Apr  7 20:14 _04BDD63BDDCE362E.gfa
+-rw-r--r-- 1 mmastora patenlab  30M Apr  7 22:07 _D0E019EE27746253.gfa
+-rw-r--r-- 1 mmastora patenlab  27M Apr  7 22:40 _B99D232518167B01.gfa
+-rw-r--r-- 1 mmastora patenlab  25M Apr  8 04:26 _042CB83EB10D13C5.gfa
+-rw-r--r-- 1 mmastora patenlab  33M Apr  8 07:29 _D2022170F4958FA9.gfa
+-rw-r--r-- 1 mmastora patenlab  38M Apr  8 14:55 _B74C16DA9929693F.gfa
+-rw-r--r-- 1 mmastora patenlab  35M Apr  8 15:47 _654F1939AF8D56C0.gfa
+-rw-r--r-- 1 mmastora patenlab  65K Apr  8 15:47 _info.txt
+
+# copy entire directory to debugging space
+/private/groups/patenlab/mira/centrolign/batch_submissions/runtime_debugging/MSA_NJ_cenhap_tree
+
+# removed those three files from jobstore directory
+-rw-r--r-- 1 mmastora patenlab  33M Apr  8 07:29 _D2022170F4958FA9.gfa
+-rw-r--r-- 1 mmastora patenlab  38M Apr  8 14:55 _B74C16DA9929693F.gfa
+-rw-r--r-- 1 mmastora patenlab  35M Apr  8 15:47 _654F1939AF8D56C0.gfa
+```
+Resubmit centrolign with `-s` for Jordan's debugging
+```
+#!/bin/bash
+#SBATCH --job-name=centrolign_debugging_release2_chr12_NJ_cenhap_tree
+#SBATCH --partition=long
+#SBATCH --mail-user=mmastora@ucsc.edu
+#SBATCH --mail-type=ALL
+#SBATCH --nodes=1
+#SBATCH --mem=700gb
+#SBATCH --ntasks=1
+#SBATCH --cpus-per-task=1
+#SBATCH --output=centrolign_%x.%j.log
+#SBATCH --time=7-00:00
+
+
+time /private/home/mmastora/progs/centrolign/build/centrolign -v 4 \
+    -S /private/groups/patenlab/mira/centrolign/batch_submissions/runtime_debugging/MSA_NJ_cenhap_tree/chr12/jobstore/ \
+    -T /private/groups/patenlab/mira/centrolign/annotations/guide_trees/HPRC_chr12_34543495_34593492_37202490_37286092_het66.7_m_mira_dgp_rnj.format5.nwk \
+    /private/groups/patenlab/mira/centrolign/batch_submissions/extract_hors_HPRC/release2/centrolign_fastas/HPRC_release2_HORs_chr12.excl_HG00741.1.fasta \
+    -R -s /private/groups/patenlab/mira/centrolign/batch_submissions/runtime_debugging/MSA_NJ_cenhap_tree/chr12/subalignments_file \
+    > /private/groups/patenlab/mira/centrolign/batch_submissions/runtime_debugging/MSA_NJ_cenhap_tree/chr12/HPRC_r2.chr12.cenhap_NJ.centrolign.gfa
+```
