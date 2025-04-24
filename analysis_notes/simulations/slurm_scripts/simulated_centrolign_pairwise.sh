@@ -6,7 +6,7 @@
 #SBATCH --mail-user=mmastora@ucsc.edu
 #SBATCH --mail-type=END
 #SBATCH --nodes=1
-#SBATCH --mem=400gb
+#SBATCH --mem=500gb
 #SBATCH --ntasks=1
 #SBATCH --cpus-per-task=1
 #SBATCH --array=1-60
@@ -64,13 +64,13 @@ TEMP_FASTA=${WORKDIR}/sim_joined_"$SLURM_ARRAY_TASK_ID".fa
 mkdir -p `dirname $TEMP_FASTA`
 cat $FASTA1 $FASTA2 > $TEMP_FASTA
 mkdir -p `dirname $CENTROLIGN_OUTFILE`
-/usr/bin/time -v ${CENTROLIGN} -v 3 $TEMP_FASTA > $CENTROLIGN_OUTFILE
+ulimit -v 471859200 && /usr/bin/time -v ${CENTROLIGN} -v 3 $TEMP_FASTA > $CENTROLIGN_OUTFILE
 #rm $TEMP_FASTA
 
 echo "aligning with unaligner"
 mkdir -p `dirname $UNIALIGNER_OUTFILE`
 UNIALIGNER_TEMP_OUTDIR=$WORKDIR/uni_tmp_out_"$SLURM_ARRAY_TASK_ID"
-time ${UNIALIGNER} --first $FASTA1 --second $FASTA2 -o $UNIALIGNER_TEMP_OUTDIR
+ulimit -v 471859200 && /usr/bin/time -v ${UNIALIGNER} --first $FASTA1 --second $FASTA2 -o $UNIALIGNER_TEMP_OUTDIR
 mv $UNIALIGNER_TEMP_OUTDIR/cigar.txt $UNIALIGNER_OUTFILE
 # delete the rest of the output
 #rm -r $UNIALIGNER_TEMP_OUTDIR
@@ -78,7 +78,8 @@ mv $UNIALIGNER_TEMP_OUTDIR/cigar.txt $UNIALIGNER_OUTFILE
 echo "aligning with RAMA"
 RAMA_TEMP_OUTDIR=$WORKDIR/rama_tmp_out_"$SLURM_ARRAY_TASK_ID"
 mkdir -p `dirname $RAMA_OUTFILE`
-time docker run -u `id -u`:`id -g` -v /private/groups:/private/groups \
+ulimit -v 471859200 && /usr/bin/time -v \
+docker run -u `id -u`:`id -g` -v /private/groups:/private/groups \
     miramastoras/rama:latest ./RaMA -t 5 \
     -r $FASTA1 \
     -q $FASTA2 \
