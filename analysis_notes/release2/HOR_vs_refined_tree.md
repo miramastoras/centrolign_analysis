@@ -186,6 +186,7 @@ plot(hist(dat$jaccard, breaks = 100), xlim = c(0, 1.1), ylim = c(0, 250))
 plot(dat$dist, dat$jaccard, pch = 19, col = alpha("black", 0.1), xlim = c(0, 1.1), ylim = c(0, 1.1),
      xlab = "Patristic distance", ylab = "Jaccard similarity", main = "All pairs (chr12 refined tree)")
 
+
 plot(hist(dat$aligned_jaccard, breaks = 100),xlim = c(0, 1.1), ylim = c(0, 250))
 
 plot(dat$dist, dat$aligned_jaccard, pch = 19, col = alpha("black", 0.1),  xlim = c(0, 1.1), ylim = c(0, 1.1),
@@ -220,6 +221,43 @@ max_diff_index <- which.max(diffs)
 max_diff_index
 dat[max_diff_index, ]
 dat2[max_diff_index, ]
+
+
+## Plot two histograms on same axis
+h1 = hist(dat$aligned_jaccard, breaks = 100, plot = FALSE)
+h2 = hist(dat2$aligned_jaccard, breaks = 100, plot = FALSE)
+
+# Calculate means
+mean1 <- mean(dat$aligned_jaccard)
+mean2 <- mean(dat2$aligned_jaccard)
+
+# Paired t-test
+dat_sorted <- dat[order(dat[[1]], dat[[2]]), ]
+dat2_sorted <- dat2[order(dat2[[1]], dat2[[2]]), ]
+
+t_test = t.test(dat$aligned_jaccard, dat2$aligned_jaccard, paired = TRUE)
+p_val <- t_test$p.value
+
+
+
+plot(h1, col = rgb(0, 0, 1, 0.25), xlim = c(0, 1.1), ylim = c(0, 250), main = "Chr 12 pairwise consistency, 79 samples", xlab = "Aligned Jaccard")
+
+plot(h2, col = rgb(1, 1, 0, 0.25), add = TRUE)
+
+# Add vertical lines for means
+abline(v = mean1, col = "orange", lwd = 2, lty = 2)
+abline(v = mean2, col = "blue", lwd = 2, lty = 2)
+
+legend("topright",
+       legend = c(
+         paste0("HOR all pairs tree (mean = ", round(mean1, 3), ")"),
+         paste0("Refined Tree (mean = ", round(mean2, 3), ")"),
+         paste0("p-value = ", format.pval(p_val, digits = 3, eps = .001))
+       ),
+       fill = c(rgb(1, 1, 0, 0.5), rgb(0, 0, 1, 0.5), NA),
+       border = NA,
+       bty = "n",
+       cex = 1.2)
 ```
 
 ## Subset samples from chr 6
@@ -377,4 +415,39 @@ max_diff_index <- which.max(diffs)
 max_diff_index
 dat[max_diff_index, ]
 dat2[max_diff_index, ]
+
+## Plot two histograms on same axis
+h1 = hist(dat$aligned_jaccard, breaks = 100, plot = FALSE)
+h2 = hist(dat2$aligned_jaccard, breaks = 100, plot = FALSE)
+
+# Calculate means
+mean1 <- mean(dat$aligned_jaccard)
+mean2 <- mean(dat2$aligned_jaccard)
+
+# Paired t-test
+dat_sorted <- dat[order(dat[[1]], dat[[2]]), ]
+dat2_sorted <- dat2[order(dat2[[1]], dat2[[2]]), ]
+
+t_test = t.test(dat$aligned_jaccard, dat2$aligned_jaccard, paired = TRUE)
+p_val <- t_test$p.value
+
+
+plot(h1, col = rgb(0, 0, 1, 0.25), xlim = c(0, 1.1), ylim = c(0, 120), main = "Chr 6 pairwise consistency, 69 samples", xlab = "Aligned Jaccard")
+
+plot(h2, col = rgb(1, 1, 0, 0.25), add = TRUE)
+
+# Add vertical lines for means
+abline(v = mean1, col = "orange", lwd = 2, lty = 2)
+abline(v = mean2, col = "blue", lwd = 2, lty = 2)
+
+legend("topright",
+       legend = c(
+         paste0("HOR all pairs tree (mean = ", round(mean1, 3), ")"),
+         paste0("Refined Tree (mean = ", round(mean2, 3), ")"),
+         paste0("p-value = ", format.pval(p_val, digits = 3, eps = .001))
+       ),
+       fill = c(rgb(1, 1, 0, 0.5), rgb(0, 0, 1, 0.5), NA),
+       border = NA,
+       bty = "n",
+       cex = 1.2)
 ```
