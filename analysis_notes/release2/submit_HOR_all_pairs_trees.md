@@ -11,5 +11,11 @@ do
         python3 /private/groups/patenlab/mira/centrolign/github/centromere-scripts/data_exploration/infer_tree.py \
         /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2/all_pairs/${chr}/pairwise_cigar/ \
         > /private/groups/patenlab/mira/centrolign/guide_tree_testing/release2_all_pairs/${chr}_r2_centrolign_all_pairs_nj_tree.nwk
-  done 
+  done
+```
+```
+docker run -u `id -u`:`id -g` -v /private/groups:/private/groups/ \
+    miramastoras/centromere_scripts:v0.1.4 \
+    python3 /private/groups/patenlab/mira/centrolign/github/centrolign_analysis/scripts/convert_tree_format.py \
+    -t /private/groups/patenlab/mira/centrolign/guide_tree_testing/release2_all_pairs/test.nwk
 ```

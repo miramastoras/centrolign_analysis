@@ -8,11 +8,11 @@ parser.add_argument("-t", "--tree",
                         help="tree in newick format")
 parser.add_argument("-a", "--input_format",
                         required=False,
-                        default=1
+                        default=1,
                         help="input format")
 parser.add_argument("-b", "--output_format",
                         required=False,
-                        default=5
+                        default=5,
                         help="output format")
 
 args = parser.parse_args()
