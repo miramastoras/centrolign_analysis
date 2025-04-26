@@ -19,4 +19,4 @@ args = parser.parse_args()
 
 stripped, _ = os.path.splitext(args.tree)
 tree = Tree(args.tree, format=args.input_format)
-tree.write(outfile=stripped + "." + str(args.output_format) +".nwk", format=args.output_format)
+tree.write(outfile=stripped + ".format" + str(args.output_format) +".nwk", format=args.output_format)
