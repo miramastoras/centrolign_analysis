@@ -17,6 +17,6 @@ parser.add_argument("-b", "--output_format",
 
 args = parser.parse_args()
 
-stripped, _ = os.path.splitext(filename)
+stripped, _ = os.path.splitext(args.tree)
 tree = Tree(args.tree, format=args.input_format)
 tree.write(outfile=stripped + "." + args.output_format +".nwk", format=args.output_format)
