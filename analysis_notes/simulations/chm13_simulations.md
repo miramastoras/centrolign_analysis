@@ -145,6 +145,13 @@ sbatch /private/groups/patenlab/mira/centrolign/github/centrolign_analysis/analy
 ```
 /private/groups/patenlab/mira/centrolign/simulations/pairwise_simulations/pair_chr7_sim_cases_20250421/gen200/case_52
 
+```
+# manually resubmitted # 52 for chr14
+sbatch /private/groups/patenlab/mira/centrolign/github/centrolign_analysis/analysis_notes/simulations/slurm_scripts/simulated_centrolign_pairwise.sh chr14
+
+# 52 in array
+pair_chr14_sim_cases_20250421/gen25/case_24/
+```
 #### 3. Plot results for pairwise simulations
 
 ```sh

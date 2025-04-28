@@ -2,16 +2,16 @@
 # Slurm script to align simulated sequences pairwise with centrolign, Unialigner, and RaMa
 # and to analyze the accuracy, storing the results in a table
 #SBATCH --job-name=simulated-centrolign_pairwise
-#SBATCH --partition=medium
+#SBATCH --partition=long
 #SBATCH --mail-user=mmastora@ucsc.edu
 #SBATCH --mail-type=END
 #SBATCH --nodes=1
 #SBATCH --mem=500gb
 #SBATCH --ntasks=1
 #SBATCH --cpus-per-task=1
-#SBATCH --array=60
+#SBATCH --array=52
 #SBATCH --output=simulated_centrolign_slurm_logs/analysis_array_job_%A_task_%a.log
-#SBATCH --time=12:00:00
+#SBATCH --time=24:00:00
 
 date
 hostname
