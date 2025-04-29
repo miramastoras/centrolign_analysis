@@ -17,6 +17,7 @@ Generate NJ trees for all samples (except chr6 and 12 since those have been crea
 ```sh
 chromosomes=("chr1" "chr2" "chr3" "chr4" "chr5" "chr7" "chr8" "chr9" "chr10" "chr11" "chr13" "chr14" "chr15" "chr16" "chr17" "chr18" "chr19" "chr20" "chr21" "chr22" "chrX" "chrY")
 
+chromosomes=("chr15" "chr13")
 for chr in "${chromosomes[@]}"
 do
     docker run -u `id -u`:`id -g` -v /private/groups:/private/groups/ \
@@ -136,4 +137,15 @@ time /private/home/mmastora/progs/centrolign/build/centrolign -v 4 \
     -T /private/groups/patenlab/mira/centrolign/guide_tree_testing/release2_all_pairs/chr4_r2_centrolign_all_pairs_nj_tree.format5.nwk \
     /private/groups/patenlab/mira/centrolign/batch_submissions/extract_hors_HPRC/release2/centrolign_fastas/HPRC_release2_HORs_chr4.fasta \
     > /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2/MSA_HOR_all_pairs_NJ_tree/chr4/HPRC_r2.chr4.allpairs_HOR_NJ.centrolign.gfa
+```
+
+### Generate pairwise distances from the branch lengths of the tree
+
+```sh
+chromosomes=("chr1" "chr2" "chr3" "chr4" "chr5" "chr6" "chr7" "chr8" "chr9" "chr10" "chr11" "chr12" "chr13" "chr14" "chr15" "chr16" "chr17" "chr18" "chr19" "chr20" "chr21" "chr22" "chrX" "chrY")
+
+for chr in "${chromosomes[@]}"
+do
+    ~/progs/centrolign/build/tree_pair_dist /private/groups/patenlab/mira/centrolign/guide_tree_testing/release2_all_pairs/${chr}_r2_centrolign_all_pairs_nj_tree.format5.nwk >/private/groups/patenlab/mira/centrolign/guide_tree_testing/release2_all_pairs/${chr}_r2_centrolign_all_pairs_nj_tree.nwk.pair_dists.tsv
+  done
 ```

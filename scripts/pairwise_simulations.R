@@ -87,23 +87,38 @@ png(outPrecisionPNG)
 print(precision)
 dev.off()
 
-# Filter and calculate means
-subset_dat <- dat[dat$aligner %in% c("centrolign", "unialigner", "rama"), ]
-mean_f1 <- aggregate(f1 ~ aligner, data = subset_dat, FUN = mean, na.rm = TRUE)
+### F1 plot
+mean_f1s <- aggregate(f1 ~ aligner, 
+                             data = dat[dat$aligner %in% c("centrolign", "unialigner", "rama"), ],
+                             FUN = mean, na.rm = TRUE)
+colnames(mean_f1s)[2] <- "mean_f1"
 
-# Apply same labeling as in the main plot
-mean_f1$aligner_labeled <- label_map[mean_f1$aligner]
+# Step 2: Create a named vector to relabel aligners with mean recall in legend
+label_map <- setNames(
+  paste0(mean_f1s$aligner, " (", round(mean_f1s$mean_f1, 2), ")"),
+  mean_f1s$aligner
+)
 
-f1_plot <- ggplot(data = dat) +
+# Step 3: Update aligner labels in the dataset
+dat$aligner_labeled <- ifelse(dat$aligner %in% names(label_map),
+                              label_map[dat$aligner],
+                              dat$aligner)
+
+# Step 4: Update mean_recalls to match new labels
+mean_f1s$aligner_labeled <- label_map[mean_f1s$aligner]
+
+# Step 5: Plot
+f1 <- ggplot(data = dat) +
   aes(x = truth_match_rate, y = f1, color = aligner_labeled) +
   geom_point() +
-  labs(x = "True match rate", y = "F1 Score", color = "Aligner") +
-  ggtitle(paste("F1 Score by Aligner", chr, sep = " ")) +
+  labs(x = "True match rate", y = "F1", color = "Aligner (mean F1)") +
+  ggtitle(paste("Direct pairwise alignment", chr, sep = " ")) +
   ylim(c(0, 1)) +
-  theme_bw(base_size = 16) +
-  geom_hline(data = mean_f1, aes(yintercept = f1, color = aligner_labeled),
-             linetype = "dashed", show.legend = FALSE)
+  geom_hline(data = mean_f1s, 
+             aes(yintercept = mean_f1, color = aligner_labeled),
+             linetype = "dashed", show.legend = FALSE) +
+  theme(text = element_text(size = 16))
 
 png(outF1PNG)
-print(f1_plot)
+print(f1)
 dev.off()

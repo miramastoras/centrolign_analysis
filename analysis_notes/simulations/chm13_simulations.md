@@ -179,9 +179,25 @@ ls | while read line ; do
   done
 ```
 
+Combine for all chromosomes
+```sh
+chromosomes=("chr2" "chr3" "chr4" "chr6" "chr7" "chr10" "chr11" "chr12" "chr14" "chr15" "chr16" "chr17" "chr20" "chr21" "chr22" "chrX" "chrY")
+
+cd /private/groups/patenlab/mira/centrolign/simulations/pairwise_simulations/summary_tables
+
+for chr in "${chromosomes[@]}"
+do
+    echo "Processing $chr"
+    awk -v chr="$chr" '{print $0, chr}' pair_${chr}_sim_cases_20250421_aln_summary_tables.txt >> pair_all_chroms_sim_cases_20250421_aln_summary_tables.txt
+done
+
+
+```
 Investigating low chr11 performance
 ```
 Rscript /Users/miramastoras/Desktop/github_repos/centrolign_analysis/scripts/pairwise_simulations.R /Users/miramastoras/Desktop/pair_chr11_sim_cases_20250421_aln_summary_tables.txt chr11 /Users/miramastoras/Desktop/chr11_test
+
+Rscript /Users/miramastoras/Desktop/github_repos/centrolign_analysis/scripts/pairwise_simulations_all_chroms.R /Users/miramastoras/Desktop/pair_all_chroms_sim_cases_20250421_aln_summary_tables.txt /Users/miramastoras/Desktop/chr11_test_all_chroms
 
 sort -k1,1 -k10,10 -k11,11 /Users/miramastoras/Desktop/pair_chr11_sim_cases_20250421_aln_summary_tables.txt > /Users/miramastoras/Desktop/pair_chr11_sim_cases_20250421_aln_summary_tables.sorted.txt
 ```
