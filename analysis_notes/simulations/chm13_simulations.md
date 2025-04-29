@@ -178,3 +178,13 @@ ls | while read line ; do
     Rscript /private/groups/patenlab/mira/centrolign/github/centrolign_analysis/scripts/pairwise_simulations.R $line $chr /private/groups/patenlab/mira/centrolign/simulations/pairwise_simulations/png_plots/${chr}_pairwise_simulations
   done
 ```
+
+Investigating low chr11 performance
+```
+Rscript /Users/miramastoras/Desktop/github_repos/centrolign_analysis/scripts/pairwise_simulations.R /Users/miramastoras/Desktop/pair_chr11_sim_cases_20250421_aln_summary_tables.txt chr11 /Users/miramastoras/Desktop/chr11_test
+
+sort -k1,1 -k10,10 -k11,11 /Users/miramastoras/Desktop/pair_chr11_sim_cases_20250421_aln_summary_tables.txt > /Users/miramastoras/Desktop/pair_chr11_sim_cases_20250421_aln_summary_tables.sorted.txt
+```
+```
+./plot_dotplot_alignment.py fasta1 fasta2 cigar[,cigar2,cigar3,...] svg_out_name
+```

@@ -1,5 +1,18 @@
 ### Using centrolign all pairs to create HOR trees as inputs
 
+Get distance matrices for all pairs
+```sh
+chromosomes=("chr1" "chr2" "chr3" "chr4" "chr5" "chr6" "chr7" "chr8" "chr9" "chr10" "chr11" "chr12" "chr13" "chr14" "chr15" "chr16" "chr17" "chr18" "chr19" "chr20" "chr21" "chr22" "chrX" "chrY")
+
+mkdir -p /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2/all_pairs/distance_matrices
+
+for chr in "${chromosomes[@]}"
+do
+    python3 /private/groups/patenlab/mira/centrolign/github/centrolign_analysis/scripts/cigar_to_distance.py /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2/all_pairs/${chr}/pairwise_cigar/
+    mv /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2/all_pairs/${chr}/pairwise_cigar/pairwise_distance.csv /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2/all_pairs/distance_matrices/${chr}_r2_centrolign_pairwise_distance.csv
+  done
+```
+
 Generate NJ trees for all samples (except chr6 and 12 since those have been created)
 ```sh
 chromosomes=("chr1" "chr2" "chr3" "chr4" "chr5" "chr7" "chr8" "chr9" "chr10" "chr11" "chr13" "chr14" "chr15" "chr16" "chr17" "chr18" "chr19" "chr20" "chr21" "chr22" "chrX" "chrY")
