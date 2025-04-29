@@ -17,16 +17,32 @@ mean_recalls <- aggregate(recall ~ aligner,
                           FUN = mean, na.rm = TRUE)
 colnames(mean_recalls)[2] <- "mean_recall"
 
-recall = (ggplot(data = dat) + aes(x = truth_match_rate, y = recall, color = aligner) 
-     + geom_point()
-     + labs(x = "True match rate", y = "Recall", color = "Aligner")
-     + ggtitle(paste("Direct pairwise alignment", chr, sep=" "))
-     + ylim(c(0,1)) 
-     + geom_hline(data = mean_recalls, aes(yintercept = mean_recall, color = aligner),
-                  linetype = "dashed", show.legend = FALSE) 
-     + geom_text(data = mean_recalls, aes(x = Inf, y = mean_recall, label = round(mean_recall, 2)),
-                 hjust = 1.1, vjust = -0.5, color = "black", inherit.aes = FALSE)
+# Step 2: Create a named vector to relabel aligners with mean recall in legend
+label_map <- setNames(
+  paste0(mean_recalls$aligner, " (", round(mean_recalls$mean_recall, 2), ")"),
+  mean_recalls$aligner
 )
+
+# Step 3: Update aligner labels in the dataset
+dat$aligner_labeled <- ifelse(dat$aligner %in% names(label_map),
+                              label_map[dat$aligner],
+                              dat$aligner)
+
+# Step 4: Update mean_recalls to match new labels
+mean_recalls$aligner_labeled <- label_map[mean_recalls$aligner]
+
+# Step 5: Plot
+recall <- ggplot(data = dat) +
+  aes(x = truth_match_rate, y = recall, color = aligner_labeled) +
+  geom_point() +
+  labs(x = "True match rate", y = "Recall", color = "Aligner (mean recall)") +
+  ggtitle(paste("Direct pairwise alignment", chr, sep = " ")) +
+  ylim(c(0, 1)) +
+  geom_hline(data = mean_recalls, 
+             aes(yintercept = mean_recall, color = aligner_labeled),
+             linetype = "dashed", show.legend = FALSE) +
+  theme(text = element_text(size = 16))
+
 png(outRecallPNG)
 print(recall)
 dev.off()
@@ -36,16 +52,31 @@ mean_precisions <- aggregate(precision ~ aligner,
                           FUN = mean, na.rm = TRUE)
 colnames(mean_precisions)[2] <- "mean_precision"
 
-precision = (ggplot(data = dat) + aes(x = truth_match_rate, y = precision, color = aligner) 
-          + geom_point()
-          + labs(x = "True match rate", y = "Precision", color = "Aligner")
-          + ggtitle(paste("Direct pairwise alignment", chr, sep=" "))
-          + ylim(c(0,1))
-          + geom_hline(data = mean_precisions, aes(yintercept = mean_precision, color = aligner),
-                       linetype = "dashed", show.legend = FALSE) 
-          + geom_text(data = mean_precisions, aes(x = Inf, y = mean_precision, label = round(mean_precision, 2)),
-                      hjust = 1.1, vjust = -0.5, color = "black", inherit.aes = FALSE)
+# Step 2: Create a named vector to relabel aligners with mean recall in legend
+label_map <- setNames(
+  paste0(mean_precisions$aligner, " (", round(mean_precisions$mean_precision, 2), ")"),
+  mean_precisions$aligner
 )
+
+# Step 3: Update aligner labels in the dataset
+dat$aligner_labeled <- ifelse(dat$aligner %in% names(label_map),
+                              label_map[dat$aligner],
+                              dat$aligner)
+
+# Step 4: Update mean_recalls to match new labels
+mean_precisions$aligner_labeled <- label_map[mean_precisions$aligner]
+
+# Step 5: Plot
+precision <- ggplot(data = dat) +
+  aes(x = truth_match_rate, y = precision, color = aligner_labeled) +
+  geom_point() +
+  labs(x = "True match rate", y = "Precision", color = "Aligner (mean precision)") +
+  ggtitle(paste("Direct pairwise alignment", chr, sep = " ")) +
+  ylim(c(0, 1)) +
+  geom_hline(data = mean_precisions, 
+             aes(yintercept = mean_precision, color = aligner_labeled),
+             linetype = "dashed", show.legend = FALSE) +
+  theme(text = element_text(size = 16))
 
 png(outPrecisionPNG)
 print(precision)
