@@ -13,7 +13,7 @@ def arg_parser():
     '''
     parser = argparse.ArgumentParser(
         prog='regression_tree_eval.py',
-        description="""Linear regression to determine tree goodness of fit for pairwise distances""")
+        description="""Linear regression to determine tree goodness of fit for pairwise distances. Uses Jordan's proposal of 0 1 encoding of pairs in subtree for each branch""")
 
     parser.add_argument("-t", "--tree",
                         required=True,

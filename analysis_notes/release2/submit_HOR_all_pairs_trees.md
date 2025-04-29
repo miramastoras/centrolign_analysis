@@ -65,7 +65,7 @@ Run centrolign on chrY
 #SBATCH --nodes=1
 #SBATCH --mem=700gb
 #SBATCH --ntasks=1
-#SBATCH --cpus-per-task=1
+#SBATCH --cpus-per-task=32
 #SBATCH --output=centrolign_%x.%j.log
 #SBATCH --time=7-00:00
 
@@ -73,9 +73,14 @@ Run centrolign on chrY
 time /private/home/mmastora/progs/centrolign/build/centrolign -v 4 \
     -S /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2/MSA_HOR_all_pairs_NJ_tree/chrY/jobstore/ \
     -T /private/groups/patenlab/mira/centrolign/guide_tree_testing/release2_all_pairs/chrY_r2_centrolign_all_pairs_nj_tree.format5.nwk \
+    -A /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2/MSA_HOR_all_pairs_NJ_tree/chrY/induced_pairwise_cigars/pairwise_cigar \
+    -R \
+    --threads 32 \
     /private/groups/patenlab/mira/centrolign/batch_submissions/extract_hors_HPRC/release2/centrolign_fastas/HPRC_release2_HORs_chrY.fasta \
     > /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2/MSA_HOR_all_pairs_NJ_tree/chrY/HPRC_r2.chrY.allpairs_HOR_NJ.centrolign.gfa
 ```
+
+
 Run centrolign on chr17
 ```sh
 #!/bin/bash

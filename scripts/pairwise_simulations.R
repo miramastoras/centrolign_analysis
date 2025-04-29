@@ -1,7 +1,13 @@
 library(ggplot2)
 
+args = commandArgs(trailingOnly=TRUE) # Rscript pairwise_simulations.R input_file chr output_prefix
 
-dat = read.table("/Users/miramastoras/Desktop/pair_chr12_sim_cases_20250331_aln_summary_table.txt")
+dat = read.table(args[1])
+chr=args[2]
+
+outRecallPNG = paste(args[3], "recall.png", sep="_")
+outPrecisionPNG = paste(args[3], "precision.png", sep="_")
+
 colnames(dat) = c("case", "aligner", "distance", "truth_matches", "truth_match_rate", "matches", "match_rate", 
                   "mismatches", "mismatch_rate", "recall", "precision")
 
@@ -13,7 +19,9 @@ recall = (ggplot(data = dat) + aes(x = truth_match_rate, y = recall, color = ali
      + ggtitle("Direct pairwise alignment")
      + ylim(c(0,1))
 )
-recall
+png(outRecallPNG)
+print(recall)
+dev.off()
 
 precision = (ggplot(data = dat) + aes(x = truth_match_rate, y = precision, color = aligner) 
           + geom_point()
@@ -21,4 +29,8 @@ precision = (ggplot(data = dat) + aes(x = truth_match_rate, y = precision, color
           + ggtitle("Direct pairwise alignment")
           + ylim(c(0,1))
 )
-precision
+
+png(outPrecisionPNG)
+print(precision)
+dev.off()
+

@@ -155,24 +155,26 @@ pair_chr14_sim_cases_20250421/gen25/case_24/
 #### 3. Plot results for pairwise simulations
 
 ```sh
-cd /private/groups/patenlab/mira/centrolign/simulations/MSA_simulations
+cd /private/groups/patenlab/mira/centrolign/simulations/pairwise_simulations
 
 chromosomes=("chr2" "chr3" "chr4" "chr6" "chr7" "chr10" "chr11" "chr12" "chr14" "chr15" "chr16" "chr17" "chr20" "chr21" "chr22" "chrX" "chrY")
 
-mkdir -p /private/groups/patenlab/mira/centrolign/simulations/MSA_simulations/summary_tables
+mkdir -p /private/groups/patenlab/mira/centrolign/simulations/pairwise_simulations/summary_tables
 
 for chr in "${chromosomes[@]}"
 do
     echo "Processing $chr"
-    cat pair_${chr}_sim_cases_20250415/*/aln_summary_table.txt > summary_tables/pair_${chr}_sim_cases_20250415_aln_summary_tables.txt
+    cat pair_${chr}_sim_cases_20250421/*/*/aln_summary_table.txt > summary_tables/pair_${chr}_sim_cases_20250421_aln_summary_tables.txt
 done
 ```
 Plot results
 ```sh
-cd /private/groups/patenlab/mira/centrolign/simulations/MSA_simulations/summary_tables
+mkdir -p /private/groups/patenlab/mira/centrolign/simulations/pairwise_simulations/png_plots/
+
+cd /private/groups/patenlab/mira/centrolign/simulations/pairwise_simulations/summary_tables
 
 ls | while read line ; do
     chr=`echo $line | cut -f2 -d"_"`
-    Rscript /private/groups/patenlab/mira/centrolign/github/centrolign_analysis/scripts/msa_simulations.R $line $chr /private/groups/patenlab/mira/centrolign/simulations/MSA_simulations/png_plots/${chr}_MSA_simulations
+    Rscript /private/groups/patenlab/mira/centrolign/github/centrolign_analysis/scripts/pairwise_simulations.R $line $chr /private/groups/patenlab/mira/centrolign/simulations/pairwise_simulations/png_plots/${chr}_pairwise_simulations
   done
 ```
