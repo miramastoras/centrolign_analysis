@@ -7,9 +7,14 @@ chr=args[2]
 
 outRecallPNG = paste(args[3], "recall.png", sep="_")
 outPrecisionPNG = paste(args[3], "precision.png", sep="_")
+outF1PNG = paste(args[3], "f1.png", sep="_")
 
 colnames(dat) = c("case", "aligner", "distance", "truth_matches", "truth_match_rate", "matches", "match_rate", 
                   "mismatches", "mismatch_rate", "recall", "precision")
+
+# add f1 score columns
+dat$f1 <- with(dat, ifelse((precision + recall) == 0, NA, 
+                           2 * precision * recall / (precision + recall)))
 
 # Calculate mean recall for selected aligners
 mean_recalls <- aggregate(recall ~ aligner, 
@@ -82,3 +87,23 @@ png(outPrecisionPNG)
 print(precision)
 dev.off()
 
+# Filter and calculate means
+subset_dat <- dat[dat$aligner %in% c("centrolign", "unialigner", "rama"), ]
+mean_f1 <- aggregate(f1 ~ aligner, data = subset_dat, FUN = mean, na.rm = TRUE)
+
+# Apply same labeling as in the main plot
+mean_f1$aligner_labeled <- label_map[mean_f1$aligner]
+
+f1_plot <- ggplot(data = dat) +
+  aes(x = truth_match_rate, y = f1, color = aligner_labeled) +
+  geom_point() +
+  labs(x = "True match rate", y = "F1 Score", color = "Aligner") +
+  ggtitle(paste("F1 Score by Aligner", chr, sep = " ")) +
+  ylim(c(0, 1)) +
+  theme_bw(base_size = 16) +
+  geom_hline(data = mean_f1, aes(yintercept = f1, color = aligner_labeled),
+             linetype = "dashed", show.legend = FALSE)
+
+png(outF1PNG)
+print(f1_plot)
+dev.off()
