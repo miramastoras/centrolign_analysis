@@ -212,8 +212,8 @@ def main():
     #G = np.linspace(seafoam[1], deepblue[1], 101)
     #B = np.linspace(seafoam[2], deepblue[2], 101)
 
-    cmap = get_cmap('viridis_r')
-    #cmap = get_cmap('coolwarm')
+    #cmap = get_cmap('viridis_r')
+    cmap = get_cmap('coolwarm')
     # plot color scale in fourth grid
     for i in np.arange(0, 100, 1):
         rectangle = patches.Rectangle([0,( i / 100)], 1, 0.1,

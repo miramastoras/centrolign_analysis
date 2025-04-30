@@ -250,67 +250,23 @@ dev.off()
 ```
 
 #### Pairwise consistency
-
-###### chr6
-
 Run pairwise consistency script between induced pairwise cigars and direct pairwise cigars
 ```sh
 python3 /private/groups/patenlab/mira/centrolign/github/centromere-scripts/benchmarking/pairwise_consistency.py \
-    /private/groups/patenlab/mira/centrolign/benchmarking/HOR_vs_refined_tree/top_subtree/centrolign_refined_tree/pairwise_cigars/pairwise_cigar_ \
+    /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2/MSA_HOR_all_pairs_NJ_tree/chr6/induced_pairwise_cigars/pairwise_cigar_ \
     /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2/all_pairs/chr6/pairwise_cigar/pairwise_cigar_ \
-    > /private/groups/patenlab/mira/centrolign/benchmarking/HOR_vs_refined_tree/top_subtree/centrolign_refined_tree/chr12_79_refined_tree_pairwise_consistency.txt
+    > /private/groups/patenlab/mira/centrolign/benchmarking/release2/pairwise_consistency/chr6_HOR_all_pairs_tree_pairwise_consistency.txt
 ```
 Tree distance:
 ```
-
+/private/groups/patenlab/mira/centrolign/guide_tree_testing/release2_all_pairs/chr6_r2_centrolign_all_pairs_nj_tree.nwk.pair_dists.tsv
 ```
-```
+```R
 library(ggplot2)
 
 # read in data for refined tree
 dat = read.table("/Users/miramastoras/Desktop/chr6_tree_consistency_69/chr6_69_refined_tree_pairwise_consistency.txt", header = T)
 dists = read.tsv("/private/groups/patenlab/mira/centrolign/guide_tree_testing/release2_all_pairs/chr6_r2_centrolign_all_pairs_nj_tree.nwk.pair_dists.tsv", header = T)
-
-key1 = paste(dists$sample1, dists$sample2, sep = "_")
-key2 = paste(dists$sample2, dists$sample1, sep = "_")
-
-dists = rbind(dists, dists)
-row.names(dists) = c(key1, key2)
-
-sample_dists = dists[paste(dat$sample1, dat$sample2, sep = "_"), "distance"]
-
-dat[["dist"]] = sample_dists
-
-#plot(density(dat$jaccard))
-
-plot(hist(dat$jaccard, breaks = 100), xlim = c(0, 1.1), ylim = c(0, 250))
-
-plot(dat$dist, dat$jaccard, pch = 19, col = alpha("black", 0.1), xlim = c(0, 1.1), ylim = c(0, 1.1),
-     xlab = "Patristic distance", ylab = "Jaccard similarity", main = "All pairs (chr12 refined tree)")
-
-plot(hist(dat$aligned_jaccard, breaks = 100),xlim = c(0, 1.1), ylim = c(0, 250))
-
-plot(dat$dist, dat$aligned_jaccard, pch = 19, col = alpha("black", 0.1),  xlim = c(0, 1.1), ylim = c(0, 1.1),
-     xlab = "Patristic distance", ylab = "Jaccard similarity", main = "Only aligned pairs (chr12 refined tree)")
-
-```
-
-###### chrY
-
-```sh
-python3 /private/groups/patenlab/mira/centrolign/github/centromere-scripts/benchmarking/pairwise_consistency.py \
-    /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2/MSA_HOR_all_pairs_NJ_tree/chrY/induced_pairwise_cigars/pairwise_cigar_ \
-    /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2/all_pairs/chrY/pairwise_cigar/pairwise_cigar_ \
-    > /private/groups/patenlab/mira/centrolign/benchmarking/release2/pairwise_consistency/chrY_HOR_all_pairs_tree_pairwise_consistency.txt
-```
-Self consistency
-
-```R
-library(ggplot2)
-
-# read in data for refined tree
-dat = read.table("/Users/miramastoras/Desktop/chrY_HOR_all_pairs_tree_pairwise_consistency.txt", header = T)
-dists = read.tsv("/Users/miramastoras/Desktop/chrY_r2_centrolign_all_pairs_nj_tree.nwk.pair_dists.tsv", header = T)
 
 key1 = paste(dists$sample1, dists$sample2, sep = "_")
 key2 = paste(dists$sample2, dists$sample1, sep = "_")

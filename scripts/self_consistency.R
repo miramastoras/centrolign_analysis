@@ -1,8 +1,8 @@
 library(ggplot2)
 
 # read in data for refined tree
-dat = read.table("/Users/miramastoras/Desktop/chr6_tree_consistency_69/chr6_69_refined_tree_pairwise_consistency.txt", header = T)
-dists = read.csv("/Users/miramastoras/Desktop/chr6_tree_consistency_69/chr6_all_pairs_pairwise_distance.csv", header = T)
+dat = read.table("/Users/miramastoras/Desktop/chrY_HOR_all_pairs_tree_pairwise_consistency.txt", header = T)
+dists = read.csv("/Users/miramastoras/Desktop/chrY_r2_centrolign_all_pairs_nj_tree.nwk.pair_dists.tsv", header = T, sep = "\t")
 
 key1 = paste(dists$sample1, dists$sample2, sep = "_")
 key2 = paste(dists$sample2, dists$sample1, sep = "_")
@@ -16,15 +16,16 @@ dat[["dist"]] = sample_dists
 
 #plot(density(dat$jaccard))
 
-plot(hist(dat$jaccard, breaks = 100), xlim = c(0, 1.1), ylim = c(0, 250))
+plot(hist(dat$jaccard, breaks = 100), xlim = c(0, 1.1), ylim = c(0, 250),xlab = "Jaccard",main = "All pairs (chr12 refined tree)")
 
 plot(dat$dist, dat$jaccard, pch = 19, col = alpha("black", 0.1), xlim = c(0, 1.1), ylim = c(0, 1.1),
      xlab = "Patristic distance", ylab = "Jaccard similarity", main = "All pairs (chr12 refined tree)")
 
-plot(hist(dat$aligned_jaccard, breaks = 100),xlim = c(0, 1.1), ylim = c(0, 250))
+plot(hist(dat$aligned_jaccard, breaks = 100),xlim = c(0, 1.1), ylim = c(0, 120),xlab = "Aligned Jaccard",cex.axis = 1.5,cex.lab = 1.5,cex.main = 1.8)
 
 plot(dat$dist, dat$aligned_jaccard, pch = 19, col = alpha("black", 0.1),  xlim = c(0, 1.1), ylim = c(0, 1.1),
-     xlab = "Patristic distance", ylab = "Jaccard similarity", main = "Only aligned pairs (chr12 refined tree)")
+     xlab = "Patristic distance", ylab = "Jaccard similarity", main = "Only aligned pairs (chrY refined tree)",cex.axis = 1.5,cex.lab = 1.5,cex.main = 1.8)
+
 
 # read in data for all pairs tree
 dat2 = read.table("/Users/miramastoras/Desktop/chr6_tree_consistency_69/chr6_69_all_pairs_tree_pairwise_consistency.txt", header = T)
