@@ -559,10 +559,79 @@ do
 done < /private/groups/patenlab/mira/centrolign/batch_submissions/extract_hors_HPRC/release2/contiguous_HORs/HPRC_release2_contiguous_HORs_${chr}.txt > /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2/all_pairs/${chr}/HPRC_release2_contiguous_HOR_CHM13_combinations_${chr}.txt
 done
 ```
+
+Get number of combinations for each chrom
+```sh
+for chr in "${chromosomes[@]}"
+do
+  wc -l /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2/all_pairs/${chr}/HPRC_release2_contiguous_HOR_CHM13_combinations_${chr}.txt
+done
+
+398 /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2/all_pairs/chr1/HPRC_release2_contiguous_HOR_CHM13_combinations_chr1.txt
+433 /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2/all_pairs/chr2/HPRC_release2_contiguous_HOR_CHM13_combinations_chr2.txt
+160 /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2/all_pairs/chr3/HPRC_release2_contiguous_HOR_CHM13_combinations_chr3.txt
+196 /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2/all_pairs/chr4/HPRC_release2_contiguous_HOR_CHM13_combinations_chr4.txt
+375 /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2/all_pairs/chr5/HPRC_release2_contiguous_HOR_CHM13_combinations_chr5.txt
+191 /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2/all_pairs/chr6/HPRC_release2_contiguous_HOR_CHM13_combinations_chr6.txt
+337 /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2/all_pairs/chr7/HPRC_release2_contiguous_HOR_CHM13_combinations_chr7.txt
+358 /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2/all_pairs/chr8/HPRC_release2_contiguous_HOR_CHM13_combinations_chr8.txt
+407 /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2/all_pairs/chr9/HPRC_release2_contiguous_HOR_CHM13_combinations_chr9.txt
+356 /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2/all_pairs/chr10/HPRC_release2_contiguous_HOR_CHM13_combinations_chr10.txt
+422 /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2/all_pairs/chr11/HPRC_release2_contiguous_HOR_CHM13_combinations_chr11.txt
+385 /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2/all_pairs/chr12/HPRC_release2_contiguous_HOR_CHM13_combinations_chr12.txt
+303 /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2/all_pairs/chr13/HPRC_release2_contiguous_HOR_CHM13_combinations_chr13.txt
+348 /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2/all_pairs/chr14/HPRC_release2_contiguous_HOR_CHM13_combinations_chr14.txt
+331 /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2/all_pairs/chr15/HPRC_release2_contiguous_HOR_CHM13_combinations_chr15.txt
+402 /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2/all_pairs/chr16/HPRC_release2_contiguous_HOR_CHM13_combinations_chr16.txt
+139 /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2/all_pairs/chr17/HPRC_release2_contiguous_HOR_CHM13_combinations_chr17.txt
+130 /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2/all_pairs/chr18/HPRC_release2_contiguous_HOR_CHM13_combinations_chr18.txt
+392 /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2/all_pairs/chr19/HPRC_release2_contiguous_HOR_CHM13_combinations_chr19.txt
+343 /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2/all_pairs/chr20/HPRC_release2_contiguous_HOR_CHM13_combinations_chr20.txt
+275 /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2/all_pairs/chr21/HPRC_release2_contiguous_HOR_CHM13_combinations_chr21.txt
+333 /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2/all_pairs/chr22/HPRC_release2_contiguous_HOR_CHM13_combinations_chr22.txt
+315 /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2/all_pairs/chrX/HPRC_release2_contiguous_HOR_CHM13_combinations_chrX.txt
+49 /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2/all_pairs/chrY/HPRC_release2_contiguous_HOR_CHM13_combinations_chrY.txt
+```
+
 Run CHM13 all pairs - adding to pairwise dirs
 ```sh
-sbatch centrolign_all_pairs_CHM13.sh \
-  --chr chrY \
-  --job-name=chrY_all_pairs_CHM13 \
-  --array=[1]%1
+git -C /private/groups/patenlab/mira/centrolign/github/centrolign_analysis pull
+
+sbatch \
+    --job-name=chr1_all_pairs_CHM13 \
+    --array=[1-398]%128 \
+    /private/groups/patenlab/mira/centrolign/github/centrolign_analysis/analysis_notes/release2/scripts/centrolign_all_pairs_CHM13.sh \
+    --chr chr1
+
+cd /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2/all_pairs/chr2
+
+sbatch \
+    --job-name=chr2_all_pairs_CHM13 \
+    --array=[1-433]%128 \
+    /private/groups/patenlab/mira/centrolign/github/centrolign_analysis/analysis_notes/release2/scripts/centrolign_all_pairs_CHM13.sh \
+    --chr chr2
+
+cd /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2/all_pairs/chr3
+
+sbatch \
+    --job-name=chr3_all_pairs_CHM13 \
+    --array=[1-160]%128 \
+    /private/groups/patenlab/mira/centrolign/github/centrolign_analysis/analysis_notes/release2/scripts/centrolign_all_pairs_CHM13.sh \
+    --chr chr3
+
+cd /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2/all_pairs/chr4
+
+sbatch \
+    --job-name=chr4_all_pairs_CHM13 \
+    --array=[1-196]%32 \
+    /private/groups/patenlab/mira/centrolign/github/centrolign_analysis/analysis_notes/release2/scripts/centrolign_all_pairs_CHM13.sh \
+    --chr chr4
+
+cd /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2/all_pairs/chr5
+
+sbatch \
+    --job-name=chr5_all_pairs_CHM13 \
+    --array=[1-375]%32 \
+    /private/groups/patenlab/mira/centrolign/github/centrolign_analysis/analysis_notes/release2/scripts/centrolign_all_pairs_CHM13.sh \
+    --chr chr5
 ```
