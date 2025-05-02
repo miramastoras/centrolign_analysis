@@ -508,3 +508,61 @@ done > /private/groups/patenlab/mira/contigs_disagreement_reasons.log
 
 grep "filtering" /private/groups/patenlab/mira/contigs_disagreement_reasons.log | sort | uniq -c
 ```
+
+### Add CHM13 to release 2 all pairs list
+
+> Adding a .1 to CHM13 label even though it is haploid, for compatibility with downstream scripts
+
+Extract CHM13 alpha arrays
+```sh
+chromosomes=("chr1" "chr2" "chr3" "chr4" "chr5" "chr6" "chr7" "chr8" "chr9" "chr10" "chr11" "chr12" "chr13" "chr14" "chr15" "chr16" "chr17" "chr18" "chr19" "chr20" "chr21" "chr22" "chrX" "chrY")
+
+cd /private/groups/patenlab/mira/centrolign/annotations/chm13
+
+mkdir -p per_chrom_for_centrolign/work
+
+for chr in "${chromosomes[@]}"
+do
+  # bedtools intersect alpha annotation with censat annotation to just get active hors
+  echo "processing ${chr} "
+  grep -w $chr /private/groups/patenlab/mira/centrolign/annotations/chm13/chm13v2.0_censat_v2.1.bed | grep "hor" | grep -v "dhor" > /private/groups/patenlab/mira/centrolign/annotations/chm13/per_chrom_for_centrolign/work/chm13v2.0_censat_v2.1.${chr}.hor.bed
+
+  docker run -it -u `id -u`:`id -g` -v /private/groups:/private/groups \
+  pegi3s/bedtools bedtools intersect -wa \
+      -a /private/groups/patenlab/mira/centrolign/annotations/chm13/chm13v2.0.labels.as_hor.bed \
+      -b /private/groups/patenlab/mira/centrolign/annotations/chm13/per_chrom_for_centrolign/work/chm13v2.0_censat_v2.1.${chr}.hor.bed \
+      > /private/groups/patenlab/mira/centrolign/annotations/chm13/per_chrom_for_centrolign/work/chm13v2.0.labels.as_hor.${chr}.active.bed
+
+  # get start and end of active array from as_hor bed
+  awk 'NR==1{start=$2; chrom=$1} END{print chrom"\t"start"\t"$3}' \
+  /private/groups/patenlab/mira/centrolign/annotations/chm13/per_chrom_for_centrolign/work/chm13v2.0.labels.as_hor.${chr}.active.bed \
+  > /private/groups/patenlab/mira/centrolign/annotations/chm13/per_chrom_for_centrolign/work/chm13v2.0.labels.as_hor.${chr}.active.mrg.bed
+
+  # extract fasta sequence for active hor array
+  docker run -it -u `id -u`:`id -g` -v /private/groups:/private/groups \
+  pegi3s/bedtools bedtools getfasta \
+    -fi /private/groups/patenlab/mira/data/chm13v2.0.fa \
+    -bed /private/groups/patenlab/mira/centrolign/annotations/chm13/per_chrom_for_centrolign/work/chm13v2.0.labels.as_hor.${chr}.active.mrg.bed | sed '/^>/b; s/[a-z]/\U&/g' | sed '/^>/s/:.*//' | sed "s/>/>CHM13.1 /g" \
+    > /private/groups/patenlab/mira/centrolign/annotations/chm13/per_chrom_for_centrolign/chm13v2.0.${chr}.active_hor.upper.fa
+
+done
+```
+Generate lists of CHM13 and every other sample in release 2
+```sh
+chromosomes=("chr1" "chr2" "chr3" "chr4" "chr5" "chr6" "chr7" "chr8" "chr9" "chr10" "chr11" "chr12" "chr13" "chr14" "chr15" "chr16" "chr17" "chr18" "chr19" "chr20" "chr21" "chr22" "chrX" "chrY")
+
+
+for chr in "${chromosomes[@]}"
+do
+  while read -r s1; do
+      echo -e "CHM13.1\t$s1"
+done < /private/groups/patenlab/mira/centrolign/batch_submissions/extract_hors_HPRC/release2/contiguous_HORs/HPRC_release2_contiguous_HORs_${chr}.txt > /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2/all_pairs/${chr}/HPRC_release2_contiguous_HOR_CHM13_combinations_${chr}.txt
+done
+```
+Run CHM13 all pairs - adding to pairwise dirs
+```sh
+sbatch centrolign_all_pairs_CHM13.sh \
+  --chr chrY \
+  --job-name=chrY_all_pairs_CHM13 \
+  --array=[1]%1
+```

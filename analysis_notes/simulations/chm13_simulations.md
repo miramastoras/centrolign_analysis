@@ -204,3 +204,20 @@ sort -k1,1 -k10,10 -k11,11 /Users/miramastoras/Desktop/pair_chr11_sim_cases_2025
 ```
 ./plot_dotplot_alignment.py fasta1 fasta2 cigar[,cigar2,cigar3,...] svg_out_name
 ```
+Plot dotplot for chr6
+```
+time docker run \
+  -u `id -u`:`id -g` \
+  -v "/private/groups/patenlab/mira":"/private/groups/patenlab/mira" \
+  miramastoras/centromere_scripts:v0.1.2 \
+  python3 /private/groups/patenlab/mira/centrolign/github/centromere-scripts/visualization/plot_dotplot_alignment.py \
+  /private/groups/patenlab/mira/centrolign/simulations/pairwise_simulations/pair_chr6_sim_cases_20250421/gen100/case_14/sim_seq1.fasta \
+  /private/groups/patenlab/mira/centrolign/simulations/pairwise_simulations/pair_chr6_sim_cases_20250421/gen100/case_14/sim_seq2.fasta \
+  /private/groups/patenlab/mira/centrolign/simulations/pairwise_simulations/pair_chr6_sim_cases_20250421/gen100/case_14/aln_centrolign.txt,/private/groups/patenlab/mira/centrolign/simulations/pairwise_simulations/pair_chr6_sim_cases_20250421/gen100/case_14/sim_seq1_seq2_cigar.txt,/private/groups/patenlab/mira/centrolign/simulations/pairwise_simulations/pair_chr6_sim_cases_20250421/gen100/case_14/aln_unialigner.txt,/private/groups/patenlab/mira/centrolign/simulations/pairwise_simulations/pair_chr6_sim_cases_20250421/gen100/case_14/aln_rama.txt \
+  /private/groups/patenlab/mira/centrolign/simulations/pairwise_simulations/pair_chr6_sim_cases_20250421/gen100/case_14/dotplot.svg
+
+gen100/case_14
+,/Users/miramastoras/Desktop/case_14/aln_centrolign.txt,/Users/miramastoras/Desktop/case_14/aln_unialigner.txt,/Users/miramastoras/Desktop/case_14/aln_rama.txt
+
+/Users/miramastoras/Desktop/github_repos/centromere-scripts/visualization/plot_dotplot_alignment.py   /Users/miramastoras/Desktop/case_14/dotplot.svg
+```

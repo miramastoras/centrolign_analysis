@@ -24,7 +24,7 @@ plot(dat$dist, dat$jaccard, pch = 19, col = alpha("black", 0.1), xlim = c(0, 1.1
 plot(hist(dat$aligned_jaccard, breaks = 100),xlim = c(0, 1.1), ylim = c(0, 120),xlab = "Aligned Jaccard",cex.axis = 1.5,cex.lab = 1.5,cex.main = 1.8)
 
 plot(dat$dist, dat$aligned_jaccard, pch = 19, col = alpha("black", 0.1),  xlim = c(0, 1.1), ylim = c(0, 1.1),
-     xlab = "Patristic distance", ylab = "Jaccard similarity", main = "Only aligned pairs (chrY refined tree)",cex.axis = 1.5,cex.lab = 1.5,cex.main = 1.8)
+     xlab = "Patristic distance", ylab = "Jaccard similarity", main = "Only aligned pairs (chrY)",cex.axis = 1.5,cex.lab = 1.5,cex.main = 1.8)
 
 
 # read in data for all pairs tree
