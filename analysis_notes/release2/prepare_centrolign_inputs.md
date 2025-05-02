@@ -593,7 +593,7 @@ done
 49 /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2/all_pairs/chrY/HPRC_release2_contiguous_HOR_CHM13_combinations_chrY.txt
 ```
 
-Run CHM13 all pairs - adding to pairwise dirs
+Run centrolign all pairs for CHM13 against all of release 2 
 ```sh
 git -C /private/groups/patenlab/mira/centrolign/github/centrolign_analysis pull
 
