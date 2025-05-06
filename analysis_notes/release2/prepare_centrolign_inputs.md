@@ -593,7 +593,7 @@ done
 49 /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2/all_pairs/chrY/HPRC_release2_contiguous_HOR_CHM13_combinations_chrY.txt
 ```
 
-Run centrolign all pairs for CHM13 against all of release 2 
+Run centrolign all pairs for CHM13 against all of release 2
 ```sh
 git -C /private/groups/patenlab/mira/centrolign/github/centrolign_analysis pull
 
@@ -634,4 +634,156 @@ sbatch \
     --array=[1-375]%32 \
     /private/groups/patenlab/mira/centrolign/github/centrolign_analysis/analysis_notes/release2/scripts/centrolign_all_pairs_CHM13.sh \
     --chr chr5
+
+cd /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2/all_pairs/chr6
+
+sbatch \
+    --job-name=chr6_all_pairs_CHM13 \
+    --array=[1-191]%32 \
+    /private/groups/patenlab/mira/centrolign/github/centrolign_analysis/analysis_notes/release2/scripts/centrolign_all_pairs_CHM13.sh \
+    --chr chr6
+
+cd /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2/all_pairs/chr7
+
+sbatch \
+    --job-name=chr7_all_pairs_CHM13 \
+    --array=[1-337]%32 \
+    /private/groups/patenlab/mira/centrolign/github/centrolign_analysis/analysis_notes/release2/scripts/centrolign_all_pairs_CHM13.sh \
+    --chr chr7
+
+cd /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2/all_pairs/chr8
+
+sbatch \
+    --job-name=chr8_all_pairs_CHM13 \
+    --array=[1-358]%32 \
+    /private/groups/patenlab/mira/centrolign/github/centrolign_analysis/analysis_notes/release2/scripts/centrolign_all_pairs_CHM13.sh \
+    --chr chr8
+
+cd /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2/all_pairs/chr9
+
+sbatch \
+    --job-name=chr9_all_pairs_CHM13 \
+    --array=[1-407]%32 \
+    /private/groups/patenlab/mira/centrolign/github/centrolign_analysis/analysis_notes/release2/scripts/centrolign_all_pairs_CHM13.sh \
+    --chr chr9
+
+cd /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2/all_pairs/chr10
+
+sbatch \
+    --job-name=chr10_all_pairs_CHM13 \
+    --array=[1-356]%32 \
+    /private/groups/patenlab/mira/centrolign/github/centrolign_analysis/analysis_notes/release2/scripts/centrolign_all_pairs_CHM13.sh \
+    --chr chr10
+
+cd /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2/all_pairs/chr11
+
+sbatch \
+    --job-name=chr11_all_pairs_CHM13 \
+    --array=[1-422]%32 \
+    /private/groups/patenlab/mira/centrolign/github/centrolign_analysis/analysis_notes/release2/scripts/centrolign_all_pairs_CHM13.sh \
+    --chr chr11
+
+cd /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2/all_pairs/chr12
+
+sbatch \
+    --job-name=chr12_all_pairs_CHM13 \
+    --array=[1-385]%32 \
+    /private/groups/patenlab/mira/centrolign/github/centrolign_analysis/analysis_notes/release2/scripts/centrolign_all_pairs_CHM13.sh \
+    --chr chr12
+
+
+cd /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2/all_pairs/chr13
+
+sbatch \
+    --job-name=chr13_all_pairs_CHM13 \
+    --array=[1-303]%32 \
+    /private/groups/patenlab/mira/centrolign/github/centrolign_analysis/analysis_notes/release2/scripts/centrolign_all_pairs_CHM13.sh \
+    --chr chr13
+
+cd /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2/all_pairs/chr14
+sbatch \
+    --job-name=chr14_all_pairs_CHM13 \
+    --array=[1-348]%32 \
+    /private/groups/patenlab/mira/centrolign/github/centrolign_analysis/analysis_notes/release2/scripts/centrolign_all_pairs_CHM13.sh \
+    --chr chr14
+
+cd /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2/all_pairs/chr15
+sbatch \
+    --job-name=chr15_all_pairs_CHM13 \
+    --array=[1-331]%32 \
+    /private/groups/patenlab/mira/centrolign/github/centrolign_analysis/analysis_notes/release2/scripts/centrolign_all_pairs_CHM13.sh \
+    --chr chr15
+
+cd /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2/all_pairs/chr16
+sbatch \
+    --job-name=chr16_all_pairs_CHM13 \
+    --array=[1-402]%32 \
+    /private/groups/patenlab/mira/centrolign/github/centrolign_analysis/analysis_notes/release2/scripts/centrolign_all_pairs_CHM13.sh \
+    --chr chr16
+
+#!/bin/sh
+cd /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2/all_pairs/chr17
+sbatch \
+    --job-name=chr17_all_pairs_CHM13 \
+    --array=[1-139]%32 \
+    /private/groups/patenlab/mira/centrolign/github/centrolign_analysis/analysis_notes/release2/scripts/centrolign_all_pairs_CHM13.sh \
+    --chr chr17
+
+cd /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2/all_pairs/chr18
+sbatch \
+    --job-name=chr18_all_pairs_CHM13 \
+    --array=[1-130]%32 \
+    /private/groups/patenlab/mira/centrolign/github/centrolign_analysis/analysis_notes/release2/scripts/centrolign_all_pairs_CHM13.sh \
+    --chr chr18
+
+#!/bin/sh
+cd /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2/all_pairs/chr19
+
+sbatch \
+    --job-name=chr19_all_pairs_CHM13 \
+    --array=[1-392]%32 \
+    /private/groups/patenlab/mira/centrolign/github/centrolign_analysis/analysis_notes/release2/scripts/centrolign_all_pairs_CHM13.sh \
+    --chr chr19
+
+cd /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2/all_pairs/chr20
+
+sbatch \
+    --job-name=chr20_all_pairs_CHM13 \
+    --array=[1-343]%32 \
+    /private/groups/patenlab/mira/centrolign/github/centrolign_analysis/analysis_notes/release2/scripts/centrolign_all_pairs_CHM13.sh \
+    --chr chr20
+
+
+cd /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2/all_pairs/chr21
+
+sbatch \
+    --job-name=chr21_all_pairs_CHM13 \
+    --array=[1-275]%32 \
+    /private/groups/patenlab/mira/centrolign/github/centrolign_analysis/analysis_notes/release2/scripts/centrolign_all_pairs_CHM13.sh \
+    --chr chr21
+
+cd /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2/all_pairs/chr22
+
+sbatch \
+    --job-name=chr22_all_pairs_CHM13 \
+    --array=[1-333]%32 \
+    /private/groups/patenlab/mira/centrolign/github/centrolign_analysis/analysis_notes/release2/scripts/centrolign_all_pairs_CHM13.sh \
+    --chr chr22
+
+#!/bin/sh
+cd /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2/all_pairs/chrX
+
+sbatch \
+    --job-name=chrX_all_pairs_CHM13 \
+    --array=[1-315]%32 \
+    /private/groups/patenlab/mira/centrolign/github/centrolign_analysis/analysis_notes/release2/scripts/centrolign_all_pairs_CHM13.sh \
+    --chr chrX
+
+cd /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2/all_pairs/chrY
+
+sbatch \
+    --job-name=chrY_all_pairs_CHM13 \
+    --array=[1-49]%32 \
+    /private/groups/patenlab/mira/centrolign/github/centrolign_analysis/analysis_notes/release2/scripts/centrolign_all_pairs_CHM13.sh \
+    --chr chrY
 ```

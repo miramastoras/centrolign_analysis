@@ -32,13 +32,6 @@ do
         -t /private/groups/patenlab/mira/centrolign/guide_tree_testing/release2_all_pairs/${chr}_r2_centrolign_all_pairs_nj_tree.nwk
   done
 ```
-```sh
-docker run -u `id -u`:`id -g` -v /private/groups:/private/groups/ \
-    miramastoras/centromere_scripts:v0.1.4 \
-    python3 /private/groups/patenlab/mira/centrolign/github/centrolign_analysis/scripts/convert_tree_format.py \
-    -t /private/groups/patenlab/mira/centrolign/guide_tree_testing/release2_all_pairs/test.nwk \
-    -a 1 -b 5
-```
 
 #### April 28, 2025 - Submit chromosomes with lowest sample size
 
@@ -189,4 +182,39 @@ plot(hist(dat$aligned_jaccard, breaks = 100),xlim = c(0, 1.1), ylim = c(0, 250))
 plot(dat$dist, dat$aligned_jaccard, pch = 19, col = alpha("black", 0.1),  xlim = c(0, 1.1), ylim = c(0, 1.1),
      xlab = "Patristic distance", ylab = "Jaccard similarity", main = "Only aligned pairs (chr12 refined tree)")
 
+```
+#### Rerun HOR neighbor-joining trees with CHM13
+
+Get distance matrices for all pairs
+```sh
+chromosomes=("chr1" "chr2" "chr3" "chr4" "chr5" "chr6" "chr7" "chr8" "chr9" "chr10" "chr11" "chr12" "chr13" "chr14" "chr15" "chr16" "chr17" "chr18" "chr19" "chr20" "chr21" "chr22" "chrX" "chrY")
+
+mkdir -p /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2/all_pairs/distance_matrices_CHM13
+
+for chr in "${chromosomes[@]}"
+do
+    python3 /private/groups/patenlab/mira/centrolign/github/centrolign_analysis/scripts/cigar_to_distance.py /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2/all_pairs/${chr}/pairwise_cigar/
+    mv /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2/all_pairs/${chr}/pairwise_cigar/pairwise_distance.csv /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2/all_pairs/distance_matrices_CHM13/${chr}_r2_CHM13_centrolign_pairwise_distance.csv
+  done
+```
+
+Generate NJ trees for all samples
+```sh
+chromosomes=("chr1" "chr2" "chr3" "chr4" "chr5" "chr6" "chr7" "chr8" "chr9" "chr10" "chr11" "chr12" "chr13" "chr14" "chr15" "chr16" "chr17" "chr18" "chr19" "chr20" "chr21" "chr22" "chrX" "chrY")
+
+mkdir -p /private/groups/patenlab/mira/centrolign/guide_tree_testing/release2_CHM13_all_pairs
+
+for chr in "${chromosomes[@]}"
+do
+    docker run -u `id -u`:`id -g` -v /private/groups:/private/groups/ \
+        miramastoras/centromere_scripts:v0.1.4 \
+        python3 /private/groups/patenlab/mira/centrolign/github/centromere-scripts/data_exploration/infer_tree.py \
+        /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2/all_pairs/${chr}/pairwise_cigar/ \
+        > /private/groups/patenlab/mira/centrolign/guide_tree_testing/release2_CHM13_all_pairs/${chr}_r2_CHM13_centrolign_all_pairs_nj_tree.nwk
+
+    docker run -u `id -u`:`id -g` -v /private/groups:/private/groups/ \
+        miramastoras/centromere_scripts:v0.1.4 \
+        python3 /private/groups/patenlab/mira/centrolign/github/centrolign_analysis/scripts/convert_tree_format.py \
+        -t /private/groups/patenlab/mira/centrolign/guide_tree_testing/release2_CHM13_all_pairs/${chr}_r2_CHM13_centrolign_all_pairs_nj_tree.nwk
+  done
 ```
