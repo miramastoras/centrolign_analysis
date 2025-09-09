@@ -1,0 +1,8 @@
+{
+  "extract_hors.AsHorSFBedFile": "/private/groups/migalab/mcechova/pedigree_assemblies/verkko2.0/assembly_release/after_polishing_20250524/outputs/PAN027_mat_HiFi_element_final_mat.polished.as_hor_sf.bed",
+  "extract_hors.assemblyFasta": "/private/groups/patenlab/mira/phoenix_batch_executions/workflows/applyPolish/PAN027_mat_HiFi_element_final/analysis/applyPolish_outputs/PAN027_mat_HiFi_element_final_mat.polished.fasta",
+  "extract_hors.sampleName": "PAN027_mat",
+  "extract_hors.CenSatBedFile": "/private/groups/migalab/mcechova/pedigree_assemblies/verkko2.0/assembly_release/after_polishing_20250524/outputs/PAN027_mat_HiFi_element_final_mat.polished.cenSat.bed",
+  "extract_hors.asmToRefPaf": "/private/groups/patenlab/mira/centrolign/batch_submissions/Asm2AsmAlignerPaf/washu_pedigree/PAN027_mat/analysis/Asm2AsmAlignerPaf_outputs/PAN027_mat_HiFi_element_final_mat.paf",
+  "extract_hors.dockerImage": "miramastoras/centromere_scripts:v0.1.1"
+}

@@ -1,0 +1,7 @@
+input,type,value
+extract_hors.AsHorSFBedFile,scalar,$input.as_hor_sf_bed
+extract_hors.assemblyFasta,scalar,$input.assembly
+extract_hors.sampleName,scalar,$input.sample_id
+extract_hors.CenSatBedFile,scalar,$input.cenSat_bed
+extract_hors.asmToRefPaf,scalar,$input.asm2CHM13Paf
+extract_hors.dockerImage,scalar,$input.dockerImage
