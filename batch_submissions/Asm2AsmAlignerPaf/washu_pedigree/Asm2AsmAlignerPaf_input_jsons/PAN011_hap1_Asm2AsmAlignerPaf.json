@@ -1,0 +1,8 @@
+{
+  "asm2asmAlignerPaf.aligner": "minimap2",
+  "asm2asmAlignerPaf.preset": "asm5",
+  "asm2asmAlignerPaf.queryAssembly": "/private/groups/patenlab/mira/phoenix_batch_executions/workflows/applyPolish/PAN011_hap1_HiFi_element_final_XY/analysis/applyPolish_outputs/PAN011_hap1_HiFi_element_final_XY_hap1.polished.fasta",
+  "asm2asmAlignerPaf.refAssembly": "/private/groups/patenlab/mira/data/chm13v2.0.fa",
+  "asm2asmAlignerPaf.dockerImage": "mobinasri/long_read_aligner:v0.4.0",
+  "asm2asmAlignerPaf.kmerSize": 19
+}
