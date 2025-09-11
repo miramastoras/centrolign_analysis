@@ -34,7 +34,7 @@ Selecting two test cigar strings to operate on:
 ```
 python3 /Users/miramastoras/Desktop/github_repos/centrolign_analysis/scripts/cigar_to_distance.py \
   -a /Users/miramastoras/Desktop/github_repos/centrolign_analysis/analysis_notes/cigar_to_dist/pairwise_cigar1/ \
-  -d 1
+  -d 2
 ```
 
 ```

@@ -38,15 +38,40 @@ def cigar_to_dist_method3(cigar):
     print(mismatches, matches)
     return mismatches / (matches + mismatches)
 
-# def cigar_to_dist_method2(cigar):
-#     '''
-#     (proportion aligned) * (matches / (matches + mismatches))
-#     '''
-#     query_len = 0
-#     ref_len = 0
-#     matches = 0
-#
-#     for op, op_len in cigar:
+def cigar_to_dist_method2(cigar):
+    '''
+    Does not accept cigar strings that use M instead of X or =
+    Calculates distance as follows:
+    Distance = 1 - (proportion aligned) * (matches / (matches + mismatches))
+    Proportion aligned = (ref aligned + query aligned / ref total + query total)
+    Proportion aligned = ((matches+mismatches)*2) / ((matches+mismatches)*2) + insertions + deletions
+    '''
+
+    matches = 0
+    mismatches=0
+    deletions=0
+    insertions=0
+
+    for op, op_len in cigar:
+        if op == "X":
+            mismatches += op_len
+        elif op == "=":
+            matches += op_len
+        elif op == "D":
+            deletions+= op_len
+        elif op in "I":
+            insertions += op_len
+        else:
+            assert (False)
+
+    # if there are no matches, and only mismatches or indels, distance is 1
+    if matches == 0:
+        return 1
+
+    # Proportion aligned = (ref aligned + query aligned / ref total + query total)
+    prop_aligned = ((matches+mismatches)*2) / (((matches+mismatches)*2) + insertions + deletions)
+
+    return 1 - (prop_aligned * (matches / (matches + mismatches)))
 
 def cigar_to_dist_method1(cigar, min_scale):
     '''
