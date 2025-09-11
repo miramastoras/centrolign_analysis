@@ -66,7 +66,7 @@ def cigar_to_dist_method2(cigar):
 
     # if there are no matches, distance is 1 (avoid div by zero error)
     if matches == 0:
-        return 1
+        return 1.0
 
     # Proportion aligned = (ref aligned + query aligned / ref total + query total)
     prop_aligned = ((matches+mismatches)*2) / (((matches+mismatches)*2) + insertions + deletions)
@@ -157,5 +157,6 @@ if __name__ == "__main__":
         else:
             print("Invalid entry for --dist_method. Options are 1, 2 or 3.", file=sys.stderr)
             exit(1)
+        dist = "{:.20f}".format(dist)
         with open(aln_dir+"pairwise_distance.csv", 'a') as f:
             print(samp1,samp2,dist,sep=",",file=f)
