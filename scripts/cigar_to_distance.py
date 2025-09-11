@@ -64,7 +64,7 @@ def cigar_to_dist_method2(cigar):
         else:
             assert (False)
 
-    # if there are no matches, and only mismatches or indels, distance is 1
+    # if there are no matches, distance is 1 (avoid div by zero error)
     if matches == 0:
         return 1
 
