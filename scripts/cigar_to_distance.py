@@ -44,7 +44,7 @@ def cigar_to_dist_method2(cigar):
     Calculates distance as follows:
     Distance = 1 - (proportion aligned) * (matches / (matches + mismatches))
     Proportion aligned = (ref aligned + query aligned / ref total + query total)
-    Proportion aligned = ((matches+mismatches)*2) / ((matches+mismatches)*2) + insertions + deletions
+    Proportion aligned = ((matches+mismatches)*2) / (((matches+mismatches)*2) + insertions + deletions)
     '''
 
     matches = 0
