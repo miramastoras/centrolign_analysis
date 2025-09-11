@@ -48,7 +48,7 @@ sbatch \
      --mem=60gb \
      --mail-type=FAIL,END \
      --mail-user=mmastora@ucsc.edu \
-     ~/progs/hprc_intermediate_assembly/hpc/toil_sbatch_single_machine_debug.sh \
+     /private/groups/hprc/hprc_intermediate_assembly/hpc/toil_sbatch_single_machine.sh \
      --wdl /private/groups/patenlab/mira/centrolign/github/centrolign_analysis/wdl/tasks/extract_hors_HPRC.wdl \
      --sample_csv extract_hors_HPRC_washu_pedigree.csv \
      --input_json_path '../extract_hors_HPRC_input_jsons/${SAMPLE_ID}_extract_hors_HPRC.json'

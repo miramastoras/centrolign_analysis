@@ -1,0 +1,2 @@
+pairwise_cigar_smp7_smp8.txt
+915874=6X100=

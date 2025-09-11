@@ -4,7 +4,7 @@ workflow extract_hors {
     meta {
         author: "Mira Mastoras"
         email: "mmastora@ucsc.edu"
-        description: "extracts HOR arrays for each chromosome in input assembly. Assumes guide tree and assemblies both have same labelling convention"
+        description: "extracts HOR arrays for each chromosome in input assembly. Doesn't swap haplotype labels when extracting"
     }
 
     input {

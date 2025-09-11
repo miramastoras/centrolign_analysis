@@ -218,3 +218,16 @@ do
         -t /private/groups/patenlab/mira/centrolign/guide_tree_testing/release2_CHM13_all_pairs/${chr}_r2_CHM13_centrolign_all_pairs_nj_tree.nwk
   done
 ```
+
+
+chromosomes=("chr1" "chr2" "chr3" "chr4" "chr5" "chr6" "chr7" "chr8" "chr9" "chr10" "chr11" "chr12" "chr13" "chr14" "chr15" "chr16" "chr17" "chr18" "chr19" "chr20" "chr21" "chr22" "chrX" "chrY")
+
+```sh
+for chr in "${chromosomes[@]}"
+do
+  wc -l /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2/all_pairs/distance_matrices/${chr}_r2_centrolign_pairwise_distance.csv
+  wc -l /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2/all_pairs/${chr}/HPRC_release2_contiguous_HOR_all_pairs_combinations_${chr}.txt
+done 
+
+
+```

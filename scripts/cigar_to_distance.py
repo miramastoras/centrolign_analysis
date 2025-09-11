@@ -11,6 +11,7 @@ Process pairwise alignments into a distance matrix
 import sys
 import os
 import re
+import argparse
 
 def parse_cigar(cigar):
     parsed = []
@@ -18,8 +19,41 @@ def parse_cigar(cigar):
         parsed.append((m.group(2), int(m.group(1))))
     return parsed
 
-def cigar_to_dist(cigar, min_scale):
+def cigar_to_dist_method3(cigar):
+    '''
+    dist = mismatches / (matches+mismatches)
+    # this formula doesn't work for arrays with a low # of aligned bases ie 210=2359579D3069392I168=
+    '''
+    matches=0
+    mismatches=0
 
+    for op, op_len in cigar:
+        print(op,op_len)
+        if op == "X":
+            mismatches += op_len
+        elif op in "M=" :
+            matches+= op_len
+        else:
+            mismatches += 1
+    print(mismatches, matches)
+    return mismatches / (matches + mismatches)
+
+# def cigar_to_dist_method2(cigar):
+#     '''
+#     (proportion aligned) * (matches / (matches + mismatches))
+#     '''
+#     query_len = 0
+#     ref_len = 0
+#     matches = 0
+#
+#     for op, op_len in cigar:
+
+def cigar_to_dist_method1(cigar, min_scale):
+    '''
+    1.0 - (2.0 * matches)
+       ---------------
+     (ref_len + query_len)
+    '''
     query_len = 0
     ref_len = 0
     matches = 0
@@ -41,17 +75,37 @@ def cigar_to_dist(cigar, min_scale):
     else:
         return 1.0 - (2.0 * matches) / (ref_len + query_len)
 
+def arg_parser():
+    '''
+    Parses command line arguments with argparse
+    '''
+    parser = argparse.ArgumentParser(
+        prog='cigar_to_distance.py',
+        description="""converts cigars to distances""")
+
+    parser.add_argument("-a", "--aln_dir",
+                        required=True,
+                        help="Directory containing pairwise cigar strings. They must be named as pairwise_cigar_smp1_smp2.txt")
+    parser.add_argument("-d", "--dist_metric",
+                        required=True,
+                        help="Calculate distance using formula 1, 2 or 3.")
+    parser.add_argument("--use_min_scale",
+                        action='store_true',
+                        help="Use min scaling with formula 1")
+
+    return parser.parse_args()
+
 if __name__ == "__main__":
 
-    if len(sys.argv) not in [2, 3]:
-        print("usage: ./cigar_to_distance.py aln_dir [use_min_scale]", file = sys.stderr)
-        exit(1)
+    # parse command line arguments
+    args = arg_parser()
 
-    aln_dir = sys.argv[1]
+    aln_dir = args.aln_dir
 
     use_min_scale = False
-    if len(sys.argv) == 3:
-        use_min_scale = bool(int(sys.argv[2]))
+
+    if args.use_min_scale:
+        use_min_scale=True
 
     mat = {}
 
@@ -68,6 +122,15 @@ if __name__ == "__main__":
         assert(m is not None)
         samp1 = m.group(1)
         samp2 = m.group(2)
-        dist = cigar_to_dist(cigar, use_min_scale)
+
+        if int(args.dist_metric) == 1:
+            dist = cigar_to_dist_method1(cigar, use_min_scale)
+        elif int(args.dist_metric) == 2:
+            dist = cigar_to_dist_method2(cigar)
+        elif int(args.dist_metric) == 3:
+            dist = cigar_to_dist_method3(cigar)
+        else:
+            print("Invalid entry for --dist_method. Options are 1, 2 or 3.", file=sys.stderr)
+            exit(1)
         with open(aln_dir+"pairwise_distance.csv", 'a') as f:
             print(samp1,samp2,dist,sep=",",file=f)
