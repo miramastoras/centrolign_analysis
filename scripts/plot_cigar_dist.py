@@ -52,7 +52,12 @@ def calc_mismatch_prop_aligned(cigar):
     # Proportion aligned = (ref aligned + query aligned / ref total + query total)
     prop_aligned = ((matches + mismatches) * 2) / (((matches + mismatches) * 2) + insertions + deletions)
 
-    return mismatches , prop_aligned
+    if mismatches==0:
+        mm_rate=0
+    else:
+        mm_rate = mismatches / (matches + mismatches)
+
+    return mismatches , prop_aligned, mm_rate
 
 def parse_cigar(cigar):
     parsed = []
@@ -73,6 +78,7 @@ if __name__ == "__main__":
     fps = os.listdir(aln_dir)
 
     mismatches=[]
+    mismatch_rate=[]
     prop_aln=[]
 
     for i in range(len(fps)):
@@ -82,14 +88,22 @@ if __name__ == "__main__":
         with open(os.path.join(aln_dir, fp)) as f:
             cigar = parse_cigar(f.read().strip())
 
-        m , p = calc_mismatch_prop_aligned(cigar)
+        m , p , mr = calc_mismatch_prop_aligned(cigar)
 
         mismatches.append(m)
         prop_aln.append(p)
+        mismatch_rate.append(mr)
 
     plt.scatter(prop_aln, mismatches, s=10,c='blue', alpha=0.5,edgecolors='none')
     plt.title(args.label)
     plt.xlabel('Proportion aligned')
     plt.ylabel('# of mismatches')
 
-    plt.savefig(args.output_prefix + '.png', dpi=300, bbox_inches='tight')
+    plt.savefig(args.output_prefix + 'num_mismatches.png', dpi=300, bbox_inches='tight')
+
+    plt.scatter(prop_aln, mismatch_rate, s=10, c='blue', alpha=0.5, edgecolors='none')
+    plt.title(args.label)
+    plt.xlabel('Proportion aligned')
+    plt.ylabel('Mismatch rate \n (Mismatches/(Mismatches+Matches))')
+
+    plt.savefig(args.output_prefix + 'mm_rate.png', dpi=300, bbox_inches='tight')
