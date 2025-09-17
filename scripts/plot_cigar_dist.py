@@ -99,11 +99,11 @@ if __name__ == "__main__":
     plt.xlabel('Proportion aligned')
     plt.ylabel('# of mismatches')
 
-    plt.savefig(args.output_prefix + 'num_mismatches.png', dpi=300, bbox_inches='tight')
+    plt.savefig(args.output_prefix + '_mismatches.png', dpi=300, bbox_inches='tight')
 
     plt.scatter(prop_aln, mismatch_rate, s=10, c='blue', alpha=0.5, edgecolors='none')
     plt.title(args.label)
     plt.xlabel('Proportion aligned')
     plt.ylabel('Mismatch rate \n (Mismatches/(Mismatches+Matches))')
 
-    plt.savefig(args.output_prefix + 'mm_rate.png', dpi=300, bbox_inches='tight')
+    plt.savefig(args.output_prefix + '_mismatch_rate.png', dpi=300, bbox_inches='tight')
