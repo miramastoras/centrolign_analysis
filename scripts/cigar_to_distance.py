@@ -19,6 +19,19 @@ def parse_cigar(cigar):
         parsed.append((m.group(2), int(m.group(1))))
     return parsed
 
+def cigar_to_dist_method4(cigar):
+    '''
+    Does not accept cigar strings that use M instead of X or =
+    Calculates distance as follows:
+    Distance = 1 - (proportion aligned) * (matches / (matches + mismatches))
+    Proportion aligned = (ref aligned + query aligned / ref total + query total)
+    Proportion aligned = ((matches+mismatches)*2) + isolated I&Ds / (((matches+mismatches)*2) + adjacent I&D ops)
+    '''
+    for i in len(cigar):
+        op=
+
+    return 1
+
 def cigar_to_dist_method3(cigar):
     '''
     dist = mismatches / (matches+mismatches)
@@ -44,9 +57,9 @@ def cigar_to_dist_method2(cigar):
     Calculates distance as follows:
     Distance = 1 - (proportion aligned) * (matches / (matches + mismatches))
     Proportion aligned = (ref aligned + query aligned / ref total + query total)
-    Proportion aligned = ((matches+mismatches)*2) / (((matches+mismatches)*2) + insertions + deletions)
+    Proportion aligned = ((matches+mismatches)*2)  / (((matches+mismatches)*2) + insertions + deletions)
     '''
-
+    print("calculating distance 2")
     matches = 0
     mismatches=0
     deletions=0
@@ -70,7 +83,7 @@ def cigar_to_dist_method2(cigar):
 
     # Proportion aligned = (ref aligned + query aligned / ref total + query total)
     prop_aligned = ((matches+mismatches)*2) / (((matches+mismatches)*2) + insertions + deletions)
-
+    print(matches,mismatches,insertions,deletions)
     return 1 - (prop_aligned * (matches / (matches + mismatches)))
 
 def cigar_to_dist_method1(cigar, min_scale):
@@ -79,6 +92,7 @@ def cigar_to_dist_method1(cigar, min_scale):
        ---------------
      (ref_len + query_len)
     '''
+    print("calculating distance 1")
     query_len = 0
     ref_len = 0
     matches = 0
@@ -94,7 +108,7 @@ def cigar_to_dist_method1(cigar, min_scale):
             query_len += op_len
         else:
             assert(False)
-
+    print(matches, ref_len,query_len)
     if min_scale:
         return 1.0 - matches / min(ref_len, query_len)
     else:
@@ -114,6 +128,9 @@ def arg_parser():
     parser.add_argument("-d", "--dist_metric",
                         required=True,
                         help="Calculate distance using formula 1, 2 or 3.")
+    parser.add_argument("-o", "--output_prefix",
+                        required=True,
+                        help="Prefix to write csv output file")
     parser.add_argument("--use_min_scale",
                         action='store_true',
                         help="Use min scaling with formula 1")
@@ -148,15 +165,22 @@ if __name__ == "__main__":
         samp1 = m.group(1)
         samp2 = m.group(2)
 
+        print(int(args.dist_metric))
         if int(args.dist_metric) == 1:
             dist = cigar_to_dist_method1(cigar, use_min_scale)
         elif int(args.dist_metric) == 2:
             dist = cigar_to_dist_method2(cigar)
         elif int(args.dist_metric) == 3:
             dist = cigar_to_dist_method3(cigar)
+        elif int(args.dist_metric) == 4:
+            dist = cigar_to_dist_method4(cigar)
         else:
-            print("Invalid entry for --dist_method. Options are 1, 2 or 3.", file=sys.stderr)
+            print("Invalid entry for --dist_method. Options are 1, 2, 3, 4.", file=sys.stderr)
             exit(1)
         dist = "{:.20f}".format(dist)
-        with open(aln_dir+"pairwise_distance.csv", 'a') as f:
+        with open(args.output_prefix+"pairwise_distance.csv", 'a') as f:
             print(samp1,samp2,dist,sep=",",file=f)
+
+#(( 2 x matches) / ( (2 x (matches + mismatches)) + insertions + deletions))
+
+#2: 1 - ((( 2 x (matches+ mismatches)) / ( (2 x (matches + mismatches)) + insertions + deletions)) x (matches/(mismatches x matches)))

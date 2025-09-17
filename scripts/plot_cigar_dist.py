@@ -93,7 +93,8 @@ if __name__ == "__main__":
         mismatches.append(m)
         prop_aln.append(p)
         mismatch_rate.append(mr)
-
+    print(mismatches, prop_aln, mismatch_rate)
+    plt.figure()
     plt.scatter(prop_aln, mismatches, s=10,c='blue', alpha=0.5,edgecolors='none')
     plt.title(args.label)
     plt.xlabel('Proportion aligned')
@@ -101,6 +102,7 @@ if __name__ == "__main__":
 
     plt.savefig(args.output_prefix + '_mismatches.png', dpi=300, bbox_inches='tight')
 
+    plt.figure()
     plt.scatter(prop_aln, mismatch_rate, s=10, c='blue', alpha=0.5, edgecolors='none')
     plt.title(args.label)
     plt.xlabel('Proportion aligned')
