@@ -1,8 +1,5 @@
 ### Spot checking some alignments for chr3 and chr4, which have an embedded HSAT array
 
-/private/groups/patenlab/mira/centrolign/guide_tree_testing/release2_all_pairs
-
-
 Select some samples to check
 ```
 # distance matrix files
