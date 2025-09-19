@@ -5,6 +5,7 @@
 
 Select some samples to check
 ```
+# distance matrix files
 cd /private/groups/patenlab/mira/centrolign/guide_tree_testing/release2_all_pairs
 cd /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2/all_pairs/distance_matrices
 
@@ -78,7 +79,7 @@ time docker run \
 
 ```
 
-Run Julian's alignment visualization
+Run Julian's alignment visualization - chr3
 ```
 cd /private/groups/patenlab/mira/centrolign/analysis/chr3_chr4_interspersed_hsat_r2
 
@@ -86,13 +87,7 @@ conda activate aws
 
 sed -i 's/\r$//' bed_files_synteny.csv
 
-
-while IFS=',' read -r smp col2 col3 censatBed centrolignBed; do
-
-    grep chr3 "${centrolignBed}"
-
-  done < bed_files_synteny.csv
-
+# intersect censat bed file with centrolign bed file, reset to 0
 while IFS=',' read -r smp col2 col3 censatBed centrolignBed; do
     echo $smp
     aws s3 cp $censatBed censat_beds/
@@ -124,13 +119,12 @@ python /private/groups/migalab/juklucas/centrolign/chr12_test125/synteny_plot_bo
     --web
 ```
 
-Chr 4:
+Run synteny plots for Chr 4:
 
+Selecting samples:
 ```
 cd /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2/all_pairs/distance_matrices
-```
 
-```
 HG00099.2,HG00128.1,0.5692303284950344
 HG00128.1,HG00146.2,0.38878271263813824
 HG00146.2,HG01530.2,0.710622275131364
