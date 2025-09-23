@@ -228,3 +228,17 @@ gen100/case_14
 
 /Users/miramastoras/Desktop/github_repos/centromere-scripts/visualization/plot_dotplot_alignment.py   /Users/miramastoras/Desktop/case_14/dotplot.svg
 ```
+
+### Summary plots for all chromosomes:
+
+```
+# MSA simulations
+python3 centrolign_analysis/scripts/msa_simulations_boxplot.py
+
+# pairwise
+python3 centrolign_analysis/scripts/pairwise_simulations_boxplot.py
+```
+
+![pairwise](figures/pairwise_simulations_boxplots.png)
+
+![MSA](figures/msa_simulations_boxplots.png)

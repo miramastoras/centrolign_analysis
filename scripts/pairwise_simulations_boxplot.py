@@ -121,7 +121,7 @@ ax.set_xticks(x_group_positions)
 ax.set_xticklabels(chromosomes)
 ax.set_xlim(-1, len(chromosomes))
 ax.set_ylabel('F1 Score')
-ax.set_title('Centrolign pairwise simulations')
+ax.set_title('Pairwise simulations')
 
 # ---- Legend ----
 legend_handles = [
