@@ -5,7 +5,7 @@ import re
 
 def find_case_dirs(base_path):
     """
-    Return sorted list of subdirectories that match the pattern case_{num}
+    Find all subdirectories matching case_{num}
     """
     case_dirs = []
     for entry in os.listdir(base_path):
@@ -14,28 +14,27 @@ def find_case_dirs(base_path):
             case_dirs.append(full_path)
     return sorted(case_dirs, key=lambda x: int(re.search(r'case_(\d+)', x).group(1)))
 
-def extract_chr_name(path):
+def extract_chr_from_path(path):
     """
-    Extract chromosome name like 'chr7' from the basename of the input path
+    Extract chr identifier (e.g., chr7) from directory like msa_chr7_sim_cases_20250402
     """
     basename = os.path.basename(os.path.normpath(path))
-    match = re.search(r'(chr\d+)', basename)
+    match = re.search(r'(chr[\w\d]+)', basename)
     return match.group(1) if match else 'unknown_chr'
 
 def read_tree_comparisons(base_path):
     """
-    Find and read all tree_comparison.tsv files in case_* subdirectories
+    For each case directory, read tree_comparison.tsv and annotate with case and chr
     """
+    chr_name = extract_chr_from_path(base_path)
     case_dirs = find_case_dirs(base_path)
     all_dfs = []
-
-    chr_name = extract_chr_name(base_path)
 
     for case_dir in case_dirs:
         file_path = os.path.join(case_dir, 'tree_comparison.tsv')
         if os.path.isfile(file_path):
             df = pd.read_csv(file_path, sep='\t', header=None)
-            df.columns = ['height', 'size', 'match']  # Adjust if needed
+            df.columns = ['height', 'size', 'match']
             df['case'] = os.path.basename(case_dir)
             df['chr'] = chr_name
             all_dfs.append(df)
@@ -45,19 +44,21 @@ def read_tree_comparisons(base_path):
     return all_dfs
 
 def main():
-    parser = argparse.ArgumentParser(description='Read tree_comparison.tsv files from case_* subdirectories.')
-    parser.add_argument('path', help='Base path containing case_* subdirectories')
+    parser = argparse.ArgumentParser(description='Parse tree_comparison.tsv files from case_* directories.')
+    parser.add_argument('path', help='Path to msa_{chr}_sim_cases_*/ directory containing case_* subdirectories.')
     args = parser.parse_args()
 
     all_dfs = read_tree_comparisons(args.path)
 
-    print(f"Found {len(all_dfs)} cases with valid tree_comparison.tsv files.")
+    if not all_dfs:
+        print("No valid tree_comparison.tsv files found.")
+        return
 
-    if all_dfs:
-        combined_df = pd.concat(all_dfs, ignore_index=True)
-        print(combined_df.head())
-    else:
-        print("No data found.")
+    combined_df = pd.concat(all_dfs, ignore_index=True)
+    print(combined_df.head())
+
+    # Optional: Save to file
+    # combined_df.to_csv("combined_tree_comparisons.tsv", sep='\t', index=False)
 
 if __name__ == '__main__':
     main()
