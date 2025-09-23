@@ -1,7 +1,9 @@
 import argparse
 import os
-import pandas as pd
 import re
+import pandas as pd
+import seaborn as sns
+import matplotlib.pyplot as plt
 
 def extract_chr_from_dirname(dirname):
     """
@@ -51,7 +53,7 @@ def read_all_tree_comparisons(base_dir):
             file_path = os.path.join(case_dir, 'tree_comparison.tsv')
             if os.path.isfile(file_path):
                 df = pd.read_csv(file_path, sep='\t', header=None)
-                df.columns = ['height', 'size', 'match']
+                df.columns = ['height', 'num_leaves', 'correct']
                 df['case'] = os.path.basename(case_dir)
                 df['chr'] = chr_name
                 all_dfs.append(df)
@@ -74,6 +76,37 @@ def main():
     combined_df = pd.concat(all_dfs, ignore_index=True)
     print(combined_df.head())
 
+    # --- Step 1: Aggregate ---
+    summary_df = (
+        df.groupby(['chr', 'case'])
+            .agg(total_nodes=('match', 'count'), correct_matches=('match', 'sum'))
+            .reset_index()
+    )
+    summary_df['percent_correct'] = 100 * summary_df['correct_matches'] / summary_df['total_nodes']
+
+    # --- Step 2: Plot ---
+    plt.figure(figsize=(12, 6))
+    sns.set(style="whitegrid")
+
+    sns.swarmplot(
+        data=summary_df,
+        x='chr',
+        y='percent_correct',
+        size=5,
+        color='#56B4E9',
+    )
+
+    plt.ylabel('Percent of Correct Nodes')
+    plt.xlabel('Chromosome')
+    plt.title('Percentage of Correct Internal Nodes per Simulation Case')
+    plt.xticks(rotation=45)
+    plt.tight_layout()
+
+    # Optional save
+    plt.savefig('/private/groups/patenlab/mira/centrolign/simulations/tree_building/percent_correct_nodes_swarmplot.png', dpi=300)
+    #plt.savefig('percent_correct_nodes_swarmplot.svg')
+
+    #plt.show()
     # Optional: save to file
     # combined_df.to_csv("all_tree_comparisons.tsv", sep='\t', index=False)
 
