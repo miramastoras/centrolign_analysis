@@ -84,21 +84,6 @@ def main():
     )
     summary_df['percent_correct'] = 100 * summary_df['correct_matches'] / summary_df['total_nodes']
 
-    import pandas as pd
-    import seaborn as sns
-    import matplotlib.pyplot as plt
-
-    # --- Assume `df` is your combined DataFrame ---
-    # Columns: height, size, match, case, chr
-
-    # --- Step 1: Aggregate per (chr, case) ---
-    summary_df = (
-        df.groupby(['chr', 'case'])
-            .agg(total_nodes=('match', 'count'), correct_matches=('match', 'sum'))
-            .reset_index()
-    )
-    summary_df['percent_correct'] = 100 * summary_df['correct_matches'] / summary_df['total_nodes']
-
     # --- Step 2: Violin plot ---
     plt.figure(figsize=(12, 6))
     sns.set(style="whitegrid")
