@@ -113,8 +113,8 @@ def main():
 
     for i, y_vals in enumerate(violin_data):
         if len(y_vals) > 0:
-            median = np.median(y_vals)
-            ax.plot(i + 1, median, marker='o', color='black', markersize=5, zorder=3)
+            mean = np.mean(y_vals)
+            ax.plot(i + 1, mean, marker='o', color='black', markersize=5, zorder=3)
 
     # --- Step 5: Format axes ---
     ax.set_xticks(np.arange(1, len(chromosomes) + 1))
@@ -129,9 +129,42 @@ def main():
     plt.savefig('/private/groups/patenlab/mira/centrolign/simulations/tree_building/percent_correct_nodes_swarmplot.png', dpi=300)
     #plt.savefig('percent_correct_nodes_swarmplot.svg')
 
-    #plt.show()
-    # Optional: save to file
-    # combined_df.to_csv("all_tree_comparisons.tsv", sep='\t', index=False)
+    # Aggregate counts of correct and incorrect nodes by chromosome
+    summary = combined_df.groupby(['chr', 'correct']).size().unstack(fill_value=0)
+
+    # Ensure columns 0 and 1 exist (incorrect and correct)
+    if 0 not in summary.columns:
+        summary[0] = 0
+    if 1 not in summary.columns:
+        summary[1] = 0
+
+    # Sort chromosomes (optional, customize if needed)
+    def chr_sort_key(chr_name):
+        import re
+        match = re.match(r'chr(\d+)', chr_name)
+        return int(match.group(1)) if match else float('inf')
+
+    summary = summary.reindex(sorted(summary.index, key=chr_sort_key))
+
+    # Plot
+    fig, ax = plt.subplots(figsize=(12, 6))
+
+    # Bottom is incorrect counts (match == 0)
+    ax.bar(summary.index, summary[0], label='Incorrect nodes', color='tomato')
+
+    # Stack correct counts (match == 1) on top
+    ax.bar(summary.index, summary[1], bottom=summary[0], label='Correct nodes', color='seagreen')
+
+    # Formatting
+    ax.set_xlabel('Chromosome')
+    ax.set_ylabel('Number of Nodes')
+    ax.set_title('Correct vs Incorrect Nodes per Chromosome (All Cases)')
+    ax.legend()
+
+    plt.xticks(rotation=45, ha='right')
+    plt.tight_layout()
+    plt.show()
+    plt.savefig('/private/groups/patenlab/mira/centrolign/simulations/tree_building/percent_correct_nodes_barplot.png', dpi=300)
 
 if __name__ == '__main__':
     main()
