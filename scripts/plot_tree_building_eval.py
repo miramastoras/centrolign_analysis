@@ -84,22 +84,6 @@ def main():
     )
     summary_df['percent_correct'] = 100 * summary_df['correct_matches'] / summary_df['total_nodes']
 
-    import pandas as pd
-    import matplotlib.pyplot as plt
-    import numpy as np
-    import re
-
-    # --- Assume `df` is your combined DataFrame ---
-    # Columns: height, size, match, case, chr
-
-    # --- Step 1: Aggregate per (chr, case) ---
-    summary_df = (
-        df.groupby(['chr', 'case'])
-            .agg(total_nodes=('match', 'count'), correct_matches=('match', 'sum'))
-            .reset_index()
-    )
-    summary_df['percent_correct'] = 100 * summary_df['correct_matches'] / summary_df['total_nodes']
-
     # --- Step 2: Sort chromosomes naturally ---
     def chr_sort_key(chr_name):
         match = re.match(r'chr(\d+)', chr_name)
