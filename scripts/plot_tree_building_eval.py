@@ -111,6 +111,10 @@ def main():
         vp.set_alpha(0.7)
         vp.set_linewidth(1)
 
+    if 'cmedians' in violin_parts:
+        violin_parts['cmedians'].set_color('black')
+        violin_parts['cmedians'].set_linewidth(1.2)
+
     # --- Step 5: Format axes ---
     ax.set_xticks(np.arange(1, len(chromosomes) + 1))
     ax.set_xticklabels(chromosomes)
