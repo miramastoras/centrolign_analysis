@@ -2,7 +2,7 @@ import argparse
 import os
 import re
 import pandas as pd
-import seaborn as sns
+import numpy as np
 import matplotlib.pyplot as plt
 
 def extract_chr_from_dirname(dirname):
@@ -111,15 +111,9 @@ def main():
         vp.set_alpha(0.7)
         vp.set_linewidth(1)
 
-    # Customize median line
-    if 'cmedians' in violin_parts:
-        for line in violin_parts['cmedians']:
-            line.set_color('black')
-            line.set_linewidth(1.2)
-
     # --- Step 5: Format axes ---
     ax.set_xticks(np.arange(1, len(chromosomes) + 1))
-    ax.set_xticklabels(chromosomes, rotation=45)
+    ax.set_xticklabels(chromosomes)
     ax.set_ylabel('Percent of Correct Nodes')
     ax.set_xlabel('Chromosome')
     ax.set_title('Distribution of Correct Internal Node Percentage per Case')
