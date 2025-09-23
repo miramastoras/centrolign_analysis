@@ -79,7 +79,7 @@ def main():
     # --- Step 1: Aggregate ---
     summary_df = (
         combined_df.groupby(['chr', 'case'])
-            .agg(total_nodes=('match', 'count'), correct_matches=('match', 'sum'))
+            .agg(total_nodes=('correct', 'count'), correct_matches=('match', 'sum'))
             .reset_index()
     )
     summary_df['percent_correct'] = 100 * summary_df['correct_matches'] / summary_df['total_nodes']
