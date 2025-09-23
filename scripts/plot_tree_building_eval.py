@@ -84,21 +84,39 @@ def main():
     )
     summary_df['percent_correct'] = 100 * summary_df['correct_matches'] / summary_df['total_nodes']
 
-    # --- Step 2: Plot ---
+    import pandas as pd
+    import seaborn as sns
+    import matplotlib.pyplot as plt
+
+    # --- Assume `df` is your combined DataFrame ---
+    # Columns: height, size, match, case, chr
+
+    # --- Step 1: Aggregate per (chr, case) ---
+    summary_df = (
+        df.groupby(['chr', 'case'])
+            .agg(total_nodes=('match', 'count'), correct_matches=('match', 'sum'))
+            .reset_index()
+    )
+    summary_df['percent_correct'] = 100 * summary_df['correct_matches'] / summary_df['total_nodes']
+
+    # --- Step 2: Violin plot ---
     plt.figure(figsize=(12, 6))
     sns.set(style="whitegrid")
 
-    sns.swarmplot(
+    sns.violinplot(
         data=summary_df,
         x='chr',
         y='percent_correct',
-        size=5,
-        color='#56B4E9',
+        inner='box',  # show median and IQR inside violin
+        scale='width',  # make violins same width regardless of n
+        cut=0,  # don't extend past actual data range
+        linewidth=1.2,
+        palette='pastel'  # or use custom palette if you like
     )
 
     plt.ylabel('Percent of Correct Nodes')
     plt.xlabel('Chromosome')
-    plt.title('Percentage of Correct Internal Nodes per Simulation Case')
+    plt.title('Distribution of Correct Internal Node Percentage per Case')
     plt.xticks(rotation=45)
     plt.tight_layout()
 
