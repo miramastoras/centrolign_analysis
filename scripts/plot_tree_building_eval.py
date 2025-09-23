@@ -92,7 +92,7 @@ def main():
         data=summary_df,
         x='chr',
         y='percent_correct',
-        inner='box',  # show median and IQR inside violin
+        inner='point',  # show median and IQR inside violin
         scale='width',  # make violins same width regardless of n
         cut=0,  # don't extend past actual data range
         linewidth=1.2,
@@ -102,6 +102,7 @@ def main():
     plt.ylabel('Percent of Correct Nodes')
     plt.xlabel('Chromosome')
     plt.title('Distribution of Correct Internal Node Percentage per Case')
+    plt.ylim(0, 102)
     plt.xticks(rotation=45)
     plt.tight_layout()
 
