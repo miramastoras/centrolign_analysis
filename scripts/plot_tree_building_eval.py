@@ -84,28 +84,64 @@ def main():
     )
     summary_df['percent_correct'] = 100 * summary_df['correct_matches'] / summary_df['total_nodes']
 
-    # --- Step 2: Violin plot ---
-    plt.figure(figsize=(12, 6))
-    sns.set(style="whitegrid")
+    import pandas as pd
+    import matplotlib.pyplot as plt
+    import numpy as np
+    import re
 
-    sns.violinplot(
-        data=summary_df,
-        x='chr',
-        y='percent_correct',
-        inner='point',  # show median and IQR inside violin
-        scale='width',  # make violins same width regardless of n
-        cut=0,  # don't extend past actual data range
-        linewidth=1.2,
-        palette='pastel'  # or use custom palette if you like
+    # --- Assume `df` is your combined DataFrame ---
+    # Columns: height, size, match, case, chr
+
+    # --- Step 1: Aggregate per (chr, case) ---
+    summary_df = (
+        df.groupby(['chr', 'case'])
+            .agg(total_nodes=('match', 'count'), correct_matches=('match', 'sum'))
+            .reset_index()
+    )
+    summary_df['percent_correct'] = 100 * summary_df['correct_matches'] / summary_df['total_nodes']
+
+    # --- Step 2: Sort chromosomes naturally ---
+    def chr_sort_key(chr_name):
+        match = re.match(r'chr(\d+)', chr_name)
+        return int(match.group(1)) if match else float('inf')
+
+    chromosomes = sorted(summary_df['chr'].unique(), key=chr_sort_key)
+
+    # --- Step 3: Prepare data for violin plot ---
+    violin_data = [summary_df[summary_df['chr'] == chr_]['percent_correct'].values for chr_ in chromosomes]
+
+    # --- Step 4: Plot using Matplotlib ---
+    fig, ax = plt.subplots(figsize=(12, 6))
+
+    violin_parts = ax.violinplot(
+        dataset=violin_data,
+        showmeans=False,
+        showmedians=True,  # Only show medians
+        showextrema=False  # Hide min/max
     )
 
-    plt.ylabel('Percent of Correct Nodes')
-    plt.xlabel('Chromosome')
-    plt.title('Distribution of Correct Internal Node Percentage per Case')
-    plt.ylim(0, 102)
-    plt.xticks(rotation=45)
-    plt.tight_layout()
+    # --- Optional: Custom styling for violins ---
+    for vp in violin_parts['bodies']:
+        vp.set_facecolor('#56B4E9')
+        vp.set_edgecolor('black')
+        vp.set_alpha(0.7)
+        vp.set_linewidth(1)
 
+    # Customize median line
+    if 'cmedians' in violin_parts:
+        for line in violin_parts['cmedians']:
+            line.set_color('black')
+            line.set_linewidth(1.2)
+
+    # --- Step 5: Format axes ---
+    ax.set_xticks(np.arange(1, len(chromosomes) + 1))
+    ax.set_xticklabels(chromosomes, rotation=45)
+    ax.set_ylabel('Percent of Correct Nodes')
+    ax.set_xlabel('Chromosome')
+    ax.set_title('Distribution of Correct Internal Node Percentage per Case')
+    ax.set_ylim(0, 100)
+
+    plt.tight_layout()
     # Optional save
     plt.savefig('/private/groups/patenlab/mira/centrolign/simulations/tree_building/percent_correct_nodes_swarmplot.png', dpi=300)
     #plt.savefig('percent_correct_nodes_swarmplot.svg')
