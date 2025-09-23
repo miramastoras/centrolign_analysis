@@ -191,6 +191,13 @@ do
     awk -v chr="$chr" '{print $0, chr}' pair_${chr}_sim_cases_20250421_aln_summary_tables.txt >> pair_all_chroms_sim_cases_20250421_aln_summary_tables.txt
 done
 
+cd /private/groups/patenlab/mira/centrolign/simulations/MSA_simulations/summary_tables
+
+for chr in "${chromosomes[@]}"
+do
+    echo "Processing $chr"
+    awk -v chr="$chr" '{print $0, chr}' msa_${chr}_sim_cases_20250402_aln_summary_tables.txt >> msa_all_chroms_sim_cases_20250402_aln_summary_tables.txt
+done
 
 ```
 Investigating low chr11 performance
