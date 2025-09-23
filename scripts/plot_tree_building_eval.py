@@ -111,9 +111,10 @@ def main():
         vp.set_alpha(0.7)
         vp.set_linewidth(1)
 
-    if 'cmedians' in violin_parts:
-        violin_parts['cmedians'].set_color('black')
-        violin_parts['cmedians'].set_linewidth(1.2)
+    for i, y_vals in enumerate(violin_data):
+        if len(y_vals) > 0:
+            median = np.median(y_vals)
+            ax.plot(i + 1, median, marker='o', color='black', markersize=5, zorder=3)
 
     # --- Step 5: Format axes ---
     ax.set_xticks(np.arange(1, len(chromosomes) + 1))
