@@ -78,7 +78,7 @@ def main():
 
     # --- Step 1: Aggregate ---
     summary_df = (
-        df.groupby(['chr', 'case'])
+        combined_df.groupby(['chr', 'case'])
             .agg(total_nodes=('match', 'count'), correct_matches=('match', 'sum'))
             .reset_index()
     )
