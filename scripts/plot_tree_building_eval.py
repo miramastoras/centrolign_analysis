@@ -128,14 +128,14 @@ def main():
     # --- Step 5: Format axes ---
     ax.set_xticks(np.arange(1, len(chromosomes) + 1))
     ax.set_xticklabels(chromosomes)
-    ax.set_ylabel('Percent of Correct Nodes')
+    ax.set_ylabel('Percentage of correct bipartitions per tree')
     ax.set_xlabel('Chromosome')
-    ax.set_title('Distribution of Correct Internal Node Percentage per Case')
+    ax.set_title('Percentage of correct bipartitions per tree')
     ax.set_ylim(0, 100)
 
     plt.tight_layout()
     # Optional save
-    plt.savefig('/private/groups/patenlab/mira/centrolign/simulations/tree_building/percent_correct_nodes_swarmplot.png', dpi=300)
+    plt.savefig('/private/groups/patenlab/mira/centrolign/simulations/tree_building/percent_correct_nodes_violin.png', dpi=300)
     #plt.savefig('percent_correct_nodes_swarmplot.svg')
 
     # Aggregate counts of correct and incorrect nodes by chromosome
@@ -166,8 +166,8 @@ def main():
 
     # Formatting
     ax.set_xlabel('Chromosome')
-    ax.set_ylabel('Number of Nodes')
-    ax.set_title('Correct vs Incorrect Nodes per Chromosome (All Cases)')
+    ax.set_ylabel('Number of bipartitions')
+    ax.set_title('Total number correct vs incorrect bipartitions per chromosome')
     ax.legend()
 
     plt.xticks(rotation=45, ha='right')
