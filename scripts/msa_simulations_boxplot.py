@@ -71,3 +71,48 @@ plt.tight_layout()
 
 plt.savefig('/Users/miramastoras/Desktop/github_repos/centrolign_analysis/analysis_notes/simulations/figures/msa_simulations_boxplots.png', dpi=600, bbox_inches='tight')
 plt.savefig('/Users/miramastoras/Desktop/github_repos/centrolign_analysis/analysis_notes/simulations/figures/msa_simulations_boxplots.svg', dpi=600, bbox_inches='tight')
+
+# ===================== VIOLIN PLOT VERSION ==========================
+fig_violin, ax_violin = plt.subplots(figsize=(12, 6))
+
+# ---- STEP 6: Plot violin for each chromosome ----
+for i, chr_ in enumerate(chromosomes):
+    chr_data = df[df['chr'] == chr_]['F1'].values
+
+    parts = ax_violin.violinplot(
+        dataset=[chr_data],  # still wrapped in a list for consistency
+        positions=[x_positions[i]],
+        widths=box_width * 0.9,
+        showmeans=False,
+        showmedians=True,
+        showextrema=False
+    )
+
+    # Set color for violin
+    for pc in parts['bodies']:
+        pc.set_facecolor('#56B4E9')  # same blue as boxplot
+        pc.set_alpha(0.8)
+        pc.set_edgecolor('black')
+        pc.set_linewidth(0.5)
+
+    # Manual median line (optional, cleaner than showmedians)
+    median_val = np.median(chr_data)
+    ax_violin.plot(
+        [x_positions[i] - box_width * 0.3, x_positions[i] + box_width * 0.3],
+        [median_val, median_val],
+        color='black',
+        linewidth=1.0
+    )
+
+# ---- STEP 8: Format violin plot ----
+ax_violin.set_xticks(x_positions)
+ax_violin.set_xticklabels(chromosomes)
+ax_violin.set_xlim(-1, len(chromosomes))
+ax_violin.set_ylabel('F1 Score')
+ax_violin.set_title('Centrolign MSA simulations')
+
+plt.tight_layout()
+
+# ---- STEP 9: Save violin plots ----
+plt.savefig('/Users/miramastoras/Desktop/github_repos/centrolign_analysis/analysis_notes/simulations/figures/msa_simulations_violins.png', dpi=600, bbox_inches='tight')
+plt.savefig('/Users/miramastoras/Desktop/github_repos/centrolign_analysis/analysis_notes/simulations/figures/msa_simulations_violins.svg', dpi=600, bbox_inches='tight')

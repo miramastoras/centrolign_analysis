@@ -147,3 +147,92 @@ ax.legend(
 plt.tight_layout()
 plt.savefig('/Users/miramastoras/Desktop/github_repos/centrolign_analysis/analysis_notes/simulations/figures/pairwise_simulations_boxplots.png', dpi=600, bbox_inches='tight')
 plt.savefig('/Users/miramastoras/Desktop/github_repos/centrolign_analysis/analysis_notes/simulations/figures/pairwise_simulations_boxplots.svg', dpi=600, bbox_inches='tight')
+
+
+# ===================== VIOLIN PLOT VERSION ==========================
+fig_violin, ax_violin = plt.subplots(figsize=(12, 6))
+
+# Recalculate centers for violin positions
+violin_centers = {}
+
+for i, chr_ in enumerate(chromosomes):
+    chr_data = df[df['chr'] == chr_]
+
+    data_to_plot = [chr_data[chr_data['aligner'] == aln]['F1'].values for aln in aligners]
+    positions = x_group_positions[i] + aligner_offsets
+
+    for j, (y_vals, aln) in enumerate(zip(data_to_plot, aligners)):
+        parts = ax_violin.violinplot(
+            dataset=y_vals,
+            positions=[positions[j]],
+            widths=box_width * 0.9,
+            showmeans=False,
+            showmedians=True,
+            showextrema=False
+        )
+        # Set color for violin
+        for pc in parts['bodies']:
+            pc.set_facecolor(aligner_colors.get(aln, 'gray'))
+            pc.set_alpha(0.8)
+            pc.set_edgecolor('black')
+            pc.set_linewidth(0.5)
+
+        # Add manual median line
+        median_val = np.median(y_vals)
+        ax_violin.plot([positions[j] - box_width * 0.3, positions[j] + box_width * 0.3],
+                       [median_val, median_val],
+                       color='black', linewidth=1)
+
+        # Save center for star
+        violin_centers[(chr_, aln)] = positions[j]
+
+# Add stars to highlight highest mean F1 per chromosome
+for chr_ in chromosomes:
+    means_chr = group_means[group_means['chr'] == chr_]
+    if means_chr.empty:
+        continue
+
+    best_row = means_chr.loc[means_chr['F1'].idxmax()]
+    best_aligner = best_row['aligner']
+
+    x_star = violin_centers[(chr_, best_aligner)]
+    max_f1 = df[(df['chr'] == chr_) & (df['aligner'] == best_aligner)]['F1'].max()
+    y_star = max_f1 + 0.01
+
+    ax_violin.text(
+        x_star, y_star, '★',
+        fontsize=10,
+        ha='center',
+        va='bottom',
+        color='black'
+    )
+
+# Formatting
+ax_violin.set_xticks(x_group_positions)
+ax_violin.set_xticklabels(chromosomes)
+ax_violin.set_xlim(-1, len(chromosomes))
+ax_violin.set_ylabel('F1 Score')
+ax_violin.set_title('Pairwise simulations')
+
+# Legend (same as before)
+legend_handles_violin = [
+    plt.Line2D([0], [0], color=aligner_colors.get(aln, 'gray'), lw=8)
+    for aln in aligners
+]
+star_handle_violin = mlines.Line2D([], [], color='black', marker='*', linestyle='None', markersize=10, label='* = highest mean F1')
+legend_handles_violin.append(star_handle_violin)
+
+ax_violin.legend(
+    handles=legend_handles_violin,
+    labels=aligners + ['= highest mean F1'],
+    loc='lower center',
+    bbox_to_anchor=(0.5, -0.25),
+    ncol=len(aligners) + 1,
+    frameon=False
+)
+
+plt.tight_layout()
+
+# Save violin plot
+plt.savefig('/Users/miramastoras/Desktop/github_repos/centrolign_analysis/analysis_notes/simulations/figures/pairwise_simulations_violins.png', dpi=600, bbox_inches='tight')
+plt.savefig('/Users/miramastoras/Desktop/github_repos/centrolign_analysis/analysis_notes/simulations/figures/pairwise_simulations_violins.svg', dpi=600, bbox_inches='tight')
