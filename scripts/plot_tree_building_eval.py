@@ -248,6 +248,11 @@ def main():
         alpha=0.7,
         inner="box"
     )
+    # Extract handles and labels
+    handles, labels = ax.get_legend_handles_labels()
+
+    # Now relabel them as desired
+    ax.legend(handles=handles, labels=['Incorrect', 'Correct'], title='Match', loc='upper right')
 
     # Labels and formatting
     plt.xlabel("Chromosome")
@@ -255,7 +260,7 @@ def main():
     plt.title("Bipartition correctness by number of leaves in subtree")
     plt.xticks(rotation=45)
     plt.ylim(bottom=0)
-    plt.legend(title='Match', labels=['Incorrect', 'Correct'], loc='upper right')
+
     plt.tight_layout()
 
 
