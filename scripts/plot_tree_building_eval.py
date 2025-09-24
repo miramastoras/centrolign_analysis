@@ -186,7 +186,7 @@ def main():
         data=combined_df,
         x='chr',
         y='height',
-        hue='match',
+        hue='correct',
         palette={0: 'tomato', 1: 'seagreen'},
         dodge=True,  # separates hue values side by side
         size=3,  # dot size
