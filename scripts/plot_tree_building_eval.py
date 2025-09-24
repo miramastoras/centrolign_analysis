@@ -97,25 +97,33 @@ def main():
 
     # --- Step 4: Plot using Matplotlib ---
     fig, ax = plt.subplots(figsize=(12, 6))
+    #
+    # violin_parts = ax.violinplot(
+    #     dataset=violin_data,
+    #     showmeans=False,
+    #     showmedians=True,  # Only show medians
+    #     showextrema=False  # Hide min/max
+    # )
+    #
+    # # --- Optional: Custom styling for violins ---
+    # for vp in violin_parts['bodies']:
+    #     vp.set_facecolor('#56B4E9')
+    #     vp.set_edgecolor('black')
+    #     vp.set_alpha(0.7)
+    #     vp.set_linewidth(1)
+    #
+    # for i, y_vals in enumerate(violin_data):
+    #     if len(y_vals) > 0:
+    #         mean = np.mean(y_vals)
+    #         ax.plot(i + 1, mean, marker='o', color='black', markersize=5, zorder=3)
 
-    violin_parts = ax.violinplot(
-        dataset=violin_data,
-        showmeans=False,
-        showmedians=True,  # Only show medians
-        showextrema=False  # Hide min/max
+    sns.swarmplot(
+        data=summary_df,
+        x='chr',
+        y='percent_correct',
+        size=3,  # dot size
+        alpha=0.7
     )
-
-    # --- Optional: Custom styling for violins ---
-    for vp in violin_parts['bodies']:
-        vp.set_facecolor('#56B4E9')
-        vp.set_edgecolor('black')
-        vp.set_alpha(0.7)
-        vp.set_linewidth(1)
-
-    for i, y_vals in enumerate(violin_data):
-        if len(y_vals) > 0:
-            mean = np.mean(y_vals)
-            ax.plot(i + 1, mean, marker='o', color='black', markersize=5, zorder=3)
 
     # --- Step 5: Format axes ---
     ax.set_xticks(np.arange(1, len(chromosomes) + 1))
