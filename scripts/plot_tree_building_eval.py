@@ -226,28 +226,26 @@ def main():
     plt.savefig('/private/groups/patenlab/mira/centrolign/simulations/tree_building/node_height_swarm.png', dpi=300)
 
     plt.figure(figsize=(14, 6))
-    sns.swarmplot(
-        data=combined_df,
-        x='chr',
-        y='num_leaves',
-        hue='correct',
-        palette={0: 'tomato', 1: 'seagreen'},
-        dodge=True,  # separates hue values side by side
-        size=2,  # dot size
-        alpha=0.7
-    )
-
-    # sns.violinplot(
+    # sns.swarmplot(
     #     data=combined_df,
     #     x='chr',
-    #     y='height',
+    #     y='num_leaves',
     #     hue='correct',
     #     palette={0: 'tomato', 1: 'seagreen'},
     #     dodge=True,  # separates hue values side by side
-    #     size=3,  # dot size
-    #     alpha=0.7,
-    #     inner="box"
+    #     size=2,  # dot size
+    #     alpha=0.7
     # )
+
+    sns.violinplot(
+        data=combined_df,
+        x='chr',
+        y='num_leaves',
+        dodge=True,  # separates hue values side by side
+        size=3,  # dot size
+        alpha=0.7,
+        inner="box"
+    )
 
     # Labels and formatting
     plt.xlabel("Chromosome")
