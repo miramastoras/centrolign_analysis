@@ -248,12 +248,25 @@ def main():
         alpha=0.7,
         inner="box"
     )
-    # Extract handles and labels
+    # Get handles and original labels
     handles, labels = ax.get_legend_handles_labels()
 
-    # Now relabel them as desired
-    ax.legend(handles=handles, labels=['Incorrect', 'Correct'], title='Match', loc='upper right')
+    # Print to debug
+    print("Original legend labels from Seaborn:", labels)
 
+    # Map the original labels to custom ones
+    label_map = {
+        '0': 'Incorrect',
+        '1': 'Correct',
+        'False': 'Incorrect',
+        'True': 'Correct'
+    }
+
+    # Apply mapping safely
+    new_labels = [label_map.get(lbl, lbl) for lbl in labels]
+
+    # Set legend with mapped labels
+    ax.legend(handles=handles, labels=new_labels, title='Match', loc='upper right')
     # Labels and formatting
     plt.xlabel("Chromosome")
     plt.ylabel("Number of leaves in subtree")
