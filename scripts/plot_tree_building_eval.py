@@ -4,6 +4,7 @@ import re
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
+import seaborn as sns
 
 def extract_chr_from_dirname(dirname):
     """
@@ -168,46 +169,38 @@ def main():
 
     # ---- Assumes your DataFrame is called `df` with columns: 'chr', 'match', 'height' ----
 
-    # Sort chromosomes numerically if needed
+    # ---- Assumes df has columns: 'chr', 'match', 'height' ----
+
+    # Sort chromosomes numerically
     def chr_sort_key(chr_name):
         match = re.match(r'chr(\d+)', chr_name)
         return int(match.group(1)) if match else float('inf')
 
     combined_df['chr'] = combined_df['chr'].astype(str)
     chromosomes = sorted(combined_df['chr'].unique(), key=chr_sort_key)
+    combined_df['chr'] = pd.Categorical(combined_df['chr'], categories=chromosomes, ordered=True)
 
-    # Map chromosomes to numeric positions for plotting
-    chr_to_x = {chr_: i for i, chr_ in enumerate(chromosomes)}
-    combined_df['x_base'] = combined_df['chr'].map(chr_to_x)
-
-    # Add slight x-axis offset for correct / incorrect
-    offset = 0.15
-    combined_df['x_jittered'] = combined_df['x_base'] + combined_df['correct'].map({0: -offset, 1: offset})
-
-    # Set colors for match values
-    color_map = {0: 'tomato', 1: 'seagreen'}
-
-    # --- Plot ---
+    # Create plot
     plt.figure(figsize=(14, 6))
-    for match_value in [0, 1]:
-        subset = combined_df[combined_df['correct'] == match_value]
-        plt.scatter(
-            subset['x_jittered'],
-            subset['height'],
-            color=color_map[match_value],
-            alpha=0.6,
-            label='Correct' if match_value == 1 else 'Incorrect',
-            s=10  # adjust point size
-        )
+    sns.swarmplot(
+        data=combined_df,
+        x='chr',
+        y='height',
+        hue='match',
+        palette={0: 'tomato', 1: 'seagreen'},
+        dodge=True,  # separates hue values side by side
+        size=3,  # dot size
+        alpha=0.7
+    )
 
-    # Formatting
-    plt.xticks(ticks=list(chr_to_x.values()), labels=list(chr_to_x.keys()), rotation=45)
-    plt.xlabel('Chromosome')
-    plt.ylabel('Node Height')
-    plt.title('Node Height by Chromosome and Match Status (Swarm Plot)')
-    plt.legend(title='Node Correctness')
-    plt.tight_layout()
+    # Labels and formatting
+    plt.xlabel("Chromosome")
+    plt.ylabel("Node Height")
+    plt.title("Node Height by Chromosome and Correctness (Seaborn Swarm Plot)")
+    plt.xticks(rotation=45)
     plt.ylim(bottom=0)
+    plt.legend(title='Match', labels=['Incorrect', 'Correct'], loc='upper right')
+    plt.tight_layout()
 
     plt.savefig('/private/groups/patenlab/mira/centrolign/simulations/tree_building/swarm.png', dpi=300)
 
