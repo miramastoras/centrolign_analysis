@@ -98,32 +98,32 @@ def main():
     # --- Step 4: Plot using Matplotlib ---
     fig, ax = plt.subplots(figsize=(12, 6))
     #
-    # violin_parts = ax.violinplot(
-    #     dataset=violin_data,
-    #     showmeans=False,
-    #     showmedians=True,  # Only show medians
-    #     showextrema=False  # Hide min/max
-    # )
-    #
-    # # --- Optional: Custom styling for violins ---
-    # for vp in violin_parts['bodies']:
-    #     vp.set_facecolor('#56B4E9')
-    #     vp.set_edgecolor('black')
-    #     vp.set_alpha(0.7)
-    #     vp.set_linewidth(1)
-    #
-    # for i, y_vals in enumerate(violin_data):
-    #     if len(y_vals) > 0:
-    #         mean = np.mean(y_vals)
-    #         ax.plot(i + 1, mean, marker='o', color='black', markersize=5, zorder=3)
-
-    sns.swarmplot(
-        data=summary_df,
-        x='chr',
-        y='percent_correct',
-        size=3,  # dot size
-        alpha=0.7
+    violin_parts = ax.violinplot(
+        dataset=violin_data,
+        showmeans=False,
+        showmedians=True,  # Only show medians
+        showextrema=False  # Hide min/max
     )
+
+    # --- Optional: Custom styling for violins ---
+    for vp in violin_parts['bodies']:
+        vp.set_facecolor('#56B4E9')
+        vp.set_edgecolor('black')
+        vp.set_alpha(0.7)
+        vp.set_linewidth(1)
+
+    for i, y_vals in enumerate(violin_data):
+        if len(y_vals) > 0:
+            mean = np.mean(y_vals)
+            ax.plot(i + 1, mean, marker='o', color='black', markersize=5, zorder=3)
+
+    # sns.swarmplot(
+    #     data=summary_df,
+    #     x='chr',
+    #     y='percent_correct',
+    #     size=3,  # dot size
+    #     alpha=0.7
+    # )
 
     # --- Step 5: Format axes ---
     ax.set_xticks(np.arange(1, len(chromosomes) + 1))
@@ -197,7 +197,7 @@ def main():
         hue='correct',
         palette={0: 'tomato', 1: 'seagreen'},
         dodge=True,  # separates hue values side by side
-        size=1.5,  # dot size
+        size=2,  # dot size
         alpha=0.7
     )
 
@@ -217,13 +217,48 @@ def main():
     # Labels and formatting
     plt.xlabel("Chromosome")
     plt.ylabel("Node Height")
-    plt.title("Node Height by Chromosome and Correctness (Seaborn Swarm Plot)")
+    plt.title("Bipartition correctness by internal node height")
     plt.xticks(rotation=45)
     plt.ylim(bottom=0)
     plt.legend(title='Match', labels=['Incorrect', 'Correct'], loc='upper right')
     plt.tight_layout()
 
-    plt.savefig('/private/groups/patenlab/mira/centrolign/simulations/tree_building/swarm.png', dpi=300)
+    plt.savefig('/private/groups/patenlab/mira/centrolign/simulations/tree_building/node_height_swarm.png', dpi=300)
+
+    plt.figure(figsize=(14, 6))
+    sns.swarmplot(
+        data=combined_df,
+        x='chr',
+        y='num_leaves',
+        hue='correct',
+        palette={0: 'tomato', 1: 'seagreen'},
+        dodge=True,  # separates hue values side by side
+        size=2,  # dot size
+        alpha=0.7
+    )
+
+    # sns.violinplot(
+    #     data=combined_df,
+    #     x='chr',
+    #     y='height',
+    #     hue='correct',
+    #     palette={0: 'tomato', 1: 'seagreen'},
+    #     dodge=True,  # separates hue values side by side
+    #     size=3,  # dot size
+    #     alpha=0.7,
+    #     inner="box"
+    # )
+
+    # Labels and formatting
+    plt.xlabel("Chromosome")
+    plt.ylabel("Number of leaves in subtree")
+    plt.title("Bipartition correctness by number of leaves in subtree")
+    plt.xticks(rotation=45)
+    plt.ylim(bottom=0)
+    plt.legend(title='Match', labels=['Incorrect', 'Correct'], loc='upper right')
+    plt.tight_layout()
+
+    plt.savefig('/private/groups/patenlab/mira/centrolign/simulations/tree_building/num_leaves_swarm.png', dpi=300)
 
 
 if __name__ == '__main__':
