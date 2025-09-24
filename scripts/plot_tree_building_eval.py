@@ -237,36 +237,21 @@ def main():
     #     alpha=0.7
     # )
 
+    combined_df['correct_label'] = combined_df['correct'].map({0: 'Incorrect', 1: 'Correct'})
+
     sns.violinplot(
         data=combined_df,
         x='chr',
         y='num_leaves',
-        hue='correct',
-        palette={0: 'tomato', 1: 'seagreen'},
+        hue='correct_label',  # Use label names here
+        palette={'Incorrect': 'tomato', 'Correct': 'seagreen'},
         dodge=True,  # separates hue values side by side
         size=3,  # dot size
         alpha=0.7,
         inner="box"
     )
-    # Get handles and original labels
-    handles, labels = ax.get_legend_handles_labels()
+    plt.legend(title='Match', loc='upper right')
 
-    # Print to debug
-    print("Original legend labels from Seaborn:", labels)
-
-    # Map the original labels to custom ones
-    label_map = {
-        '0': 'Incorrect',
-        '1': 'Correct',
-        'False': 'Incorrect',
-        'True': 'Correct'
-    }
-
-    # Apply mapping safely
-    new_labels = [label_map.get(lbl, lbl) for lbl in labels]
-
-    # Set legend with mapped labels
-    ax.legend(handles=handles, labels=new_labels, title='Match', loc='upper right')
     # Labels and formatting
     plt.xlabel("Chromosome")
     plt.ylabel("Number of leaves in subtree")
