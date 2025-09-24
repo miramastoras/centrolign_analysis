@@ -253,7 +253,6 @@ def main():
     plt.title("Bipartition correctness by number of leaves in subtree")
     plt.xticks(rotation=45)
     plt.ylim(bottom=0)
-    plt.legend(title='Match', labels=['Incorrect', 'Correct'], loc='upper right')
     plt.tight_layout()
 
     plt.savefig('/private/groups/patenlab/mira/centrolign/simulations/tree_building/num_leaves_swarm.png', dpi=300)
