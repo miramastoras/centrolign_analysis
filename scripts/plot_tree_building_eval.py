@@ -190,7 +190,18 @@ def main():
 
     # Create plot
     plt.figure(figsize=(14, 6))
-    # sns.swarmplot(
+    sns.swarmplot(
+        data=combined_df,
+        x='chr',
+        y='height',
+        hue='correct',
+        palette={0: 'tomato', 1: 'seagreen'},
+        dodge=True,  # separates hue values side by side
+        size=1.5,  # dot size
+        alpha=0.7
+    )
+
+    # sns.violinplot(
     #     data=combined_df,
     #     x='chr',
     #     y='height',
@@ -198,20 +209,9 @@ def main():
     #     palette={0: 'tomato', 1: 'seagreen'},
     #     dodge=True,  # separates hue values side by side
     #     size=3,  # dot size
-    #     alpha=0.7
+    #     alpha=0.7,
+    #     inner="box"
     # )
-
-    sns.violinplot(
-        data=combined_df,
-        x='chr',
-        y='height',
-        hue='correct',
-        palette={0: 'tomato', 1: 'seagreen'},
-        dodge=True,  # separates hue values side by side
-        size=3,  # dot size
-        alpha=0.7,
-        inner="box"
-    )
 
 
     # Labels and formatting
