@@ -55,6 +55,16 @@ if __name__ == "__main__":
     induced_aln_dir = sys.argv[4]
     outdir=sys.argv[5]
 
+    match = re.search(r'msa_(chr[0-9]{1,2}|chrX|chrY)_sim_cases_\d+/case_(\d+)', case_dir)
+
+    if match:
+        chr = match.group(1)  # e.g., 'chrX'
+        case = f"case_{match.group(2)}"  # e.g., 'case_24'
+        print("Chromosome:", chr)
+        print("Case ID:", case)
+    else:
+        print("No match found.")
+
     samples = []
     for fp in os.listdir(case_dir):
         m = re.match("sim_(.*)_identity.txt", fp)
@@ -110,7 +120,7 @@ if __name__ == "__main__":
 
         row = [None for i in range(len(header))]
 
-        row[header.index("case")] = case_dir
+        row[header.index("case")] = case
         row[header.index("distance")] = tree_dists[(s1, s2)]
 
         # parse the output of the comparison binary
@@ -142,15 +152,7 @@ if __name__ == "__main__":
 
         output_table.append(row)
 
-    match = re.search(r'msa_(chr[0-9]{1,2}|chrX|chrY)_sim_cases_\d+/case_(\d+)', case_dir)
 
-    if match:
-        chr = match.group(1)  # e.g., 'chrX'
-        case = f"case_{match.group(2)}"  # e.g., 'case_24'
-        print("Chromosome:", chr)
-        print("Case ID:", case)
-    else:
-        print("No match found.")
 
     with open(os.path.join(outdir, chr+"_" + case +"_aln_summary_table.txt"), "w") as out:
         for row in output_table:
