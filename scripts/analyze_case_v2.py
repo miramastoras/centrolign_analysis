@@ -142,8 +142,7 @@ if __name__ == "__main__":
 
         output_table.append(row)
 
-    case = os.path.basename(case_dir)
-    match = re.search(r'msa_(chr[0-9]{1,2}|chrX|chrY)_sim_cases_\d+/case_(\d+)', filepath)
+    match = re.search(r'msa_(chr[0-9]{1,2}|chrX|chrY)_sim_cases_\d+/case_(\d+)', case_dir)
 
     if match:
         chr = match.group(1)  # e.g., 'chrX'
