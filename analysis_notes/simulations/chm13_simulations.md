@@ -242,3 +242,49 @@ python3 centrolign_analysis/scripts/pairwise_simulations_boxplot.py
 ![pairwise](figures/pairwise_simulations_boxplots.png)
 
 ![MSA](figures/msa_simulations_boxplots.png)
+
+### Comparing the performance of pairwise simulations and MSA simulations for centrolign
+
+Run direct pairwise alignments for the simulated sequences created for the MSA benchmarking
+```sh
+# for each case, get list of fasta files
+chromosomes=("chr2" "chr3" "chr4" "chr6" "chr7" "chr10" "chr11" "chr12" "chr14" "chr15" "chr16" "chr17" "chr20" "chr21" "chr22" "chrX" "chrY")
+
+for chr in "${chromosomes[@]}"
+do
+  for case in {1..30}; do
+    mkdir -p /private/groups/patenlab/mira/centrolign/simulations/centrolign_pairwise_vs_MSA/combination_lists/msa_${chr}_sim_cases_20250402/case_${case}
+    for seq in {0..7}; do
+      echo /private/groups/patenlab/mira/centrolign/simulations/MSA_simulations/msa_${chr}_sim_cases_20250402/case_${case}/sim_n${seq}.fasta >> /private/groups/patenlab/mira/centrolign/simulations/centrolign_pairwise_vs_MSA/combination_lists/msa_${chr}_sim_cases_20250402/case_${case}/fastas.txt
+    done
+  done
+done
+
+# Create pairwise combinations of all fastas within each case
+for chr in "${chromosomes[@]}" ; do
+  for case in {1..30}; do
+  while read -r s1; do
+      while read -r s2; do
+          [[ "$s1" < "$s2" ]] && echo -e "$s1\t$s2\t$chr\tcase_$case"
+      done < /private/groups/patenlab/mira/centrolign/simulations/centrolign_pairwise_vs_MSA/combination_lists/msa_${chr}_sim_cases_20250402/case_${case}/fastas.txt
+  done < /private/groups/patenlab/mira/centrolign/simulations/centrolign_pairwise_vs_MSA/combination_lists/msa_${chr}_sim_cases_20250402/case_${case}/fastas.txt > /private/groups/patenlab/mira/centrolign/simulations/centrolign_pairwise_vs_MSA/combination_lists/msa_${chr}_sim_cases_20250402/case_${case}/all_pairs.txt
+done
+done
+
+# concatenate the all pairs lists together
+for chr in "${chromosomes[@]}" ; do
+  for case in {1..30}; do
+    cat /private/groups/patenlab/mira/centrolign/simulations/centrolign_pairwise_vs_MSA/combination_lists/msa_${chr}_sim_cases_20250402/case_${case}/all_pairs.txt >> /private/groups/patenlab/mira/centrolign/simulations/centrolign_pairwise_vs_MSA/combination_lists/all_combinations.txt
+  done
+done
+```
+Run all pairs via slurm script
+```sh
+
+
+```
+analyze case
+```
+source /private/groups/patenlab/jeizenga/centromere/venv/bin/activate
+python3 /private/groups/patenlab/mira/centrolign/github/centrolign_analysis/scripts/analyze_case_v2.py /private/groups/patenlab/mira/centrolign/simulations/test/msa_chrX_sim_cases_20250402/case_24 /private/home/mmastora/progs/centrolign/build/tree_pair_dist /private/home/mmastora/progs/centrolign/build/compare_truth_aln /private/groups/patenlab/mira/centrolign/simulations/test/msa_chrX_sim_cases_20250402/case_24/induced/ /private/groups/patenlab/mira/centrolign/simulations/test/msa_chrX_sim_cases_20250402/case_24/
+```

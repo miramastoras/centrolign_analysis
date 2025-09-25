@@ -121,7 +121,7 @@ ax.set_xticks(x_group_positions)
 ax.set_xticklabels(chromosomes)
 ax.set_xlim(-1, len(chromosomes))
 ax.set_ylabel('F1 Score')
-ax.set_title('Pairwise simulations')
+ax.set_title('Performance of simulated pairwise alignments')
 
 # ---- Legend ----
 legend_handles = [
@@ -212,7 +212,7 @@ ax_violin.set_xticks(x_group_positions)
 ax_violin.set_xticklabels(chromosomes)
 ax_violin.set_xlim(-1, len(chromosomes))
 ax_violin.set_ylabel('F1 Score')
-ax_violin.set_title('Pairwise simulations')
+ax_violin.set_title('Performance of simulated pairwise alignments')
 
 # Legend (same as before)
 legend_handles_violin = [

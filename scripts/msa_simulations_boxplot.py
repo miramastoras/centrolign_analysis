@@ -64,7 +64,7 @@ ax.set_xticks(x_positions)
 ax.set_xticklabels(chromosomes)
 ax.set_xlim(-1, len(chromosomes))
 ax.set_ylabel('F1 Score')
-ax.set_title('Centrolign MSA simulations')
+ax.set_title('Performance of centrolign alignments induced from MSA (simulated sequences)')
 
 # ---- STEP 9: Save to file ----
 plt.tight_layout()
@@ -109,7 +109,7 @@ ax_violin.set_xticks(x_positions)
 ax_violin.set_xticklabels(chromosomes)
 ax_violin.set_xlim(-1, len(chromosomes))
 ax_violin.set_ylabel('F1 Score')
-ax_violin.set_title('Centrolign MSA simulations')
+ax_violin.set_title('Performance of centrolign alignments induced from MSA (simulated sequences)')
 
 plt.tight_layout()
 
