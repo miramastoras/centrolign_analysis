@@ -45,7 +45,7 @@ def to_cigar_string(cigar):
 
 if __name__ == "__main__":
 
-    if len(sys.argv) != 4:
+    if len(sys.argv) != 5:
         print("usage: ./analyze_case.py case_dir tree_dist_exec compare_truth_exec induced_aln_dir outdir", file = sys.stderr)
         sys.exit(1)
 
