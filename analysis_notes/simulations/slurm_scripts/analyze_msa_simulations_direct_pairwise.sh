@@ -7,7 +7,7 @@
 #SBATCH --mem=56gb
 #SBATCH --ntasks=1
 #SBATCH --cpus-per-task=1
-#SBATCH --array=[1-2]%128
+#SBATCH --array=[1-10]%128
 #SBATCH --output=logs/array_job_%A_task_%a.log
 #SBATCH --time=1:00:00
 
