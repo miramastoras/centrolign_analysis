@@ -16,8 +16,8 @@ source /private/groups/patenlab/jeizenga/centromere/venv/bin/activate
 
 COMBINATIONS_FILE=/private/groups/patenlab/mira/centrolign/simulations/centrolign_pairwise_vs_MSA/combination_lists/all_chroms_all_cases.txt
 
-CHR=$(awk "NR==$SLURM_ARRAY_TASK_ID" "$COMBINATIONS_FILE" | cut -f3 -d",")
-CASE=$(awk "NR==$SLURM_ARRAY_TASK_ID" "$COMBINATIONS_FILE" | cut -f4 -d",")
+CHR=$(awk -F"," "NR==$SLURM_ARRAY_TASK_ID" "$COMBINATIONS_FILE" | cut -f1 -d",")
+CASE=$(awk -F"," "NR==$SLURM_ARRAY_TASK_ID" "$COMBINATIONS_FILE" | cut -f2 -d",")
 
 echo $CHR, $CASE
 python3 /private/groups/patenlab/mira/centrolign/github/centrolign_analysis/scripts/analyze_case_v2.py \

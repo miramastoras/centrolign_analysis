@@ -302,6 +302,8 @@ Run as an sbatch script
 ```sh
 cd /private/groups/patenlab/mira/centrolign/simulations/centrolign_pairwise_vs_MSA/analyze_case_results
 
+git -C /private/groups/patenlab/mira/centrolign/github/centrolign_analysis/ pull
+
 mkdir -p logs
 sbatch /private/groups/patenlab/mira/centrolign/github/centrolign_analysis/analysis_notes/simulations/slurm_scripts/analyze_msa_simulations_direct_pairwise.sh
 ```
