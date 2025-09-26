@@ -24,5 +24,8 @@ python3 /private/groups/patenlab/mira/centrolign/github/centrolign_analysis/scri
   /private/groups/patenlab/mira/centrolign/simulations/MSA_simulations/msa_${CHR}_sim_cases_20250402/${CASE}/ \
   /private/home/mmastora/progs/centrolign/build/tree_pair_dist \
   /private/home/mmastora/progs/centrolign/build/compare_truth_aln \
-  /private/groups/patenlab/mira/centrolign/simulations/centrolign_pairwise_vs_MSA/pairwise_cigars/${CHR}/${CASE}/pairwise_cigar/ \
+  /private/groups/patenlab/mira/centrolign/simulations/MSA_simulations/msa_${CHR}_sim_cases_20250402/${CASE}/induced/ \
   /private/groups/patenlab/mira/centrolign/simulations/centrolign_pairwise_vs_MSA/analyze_case_results/
+
+
+# /private/groups/patenlab/mira/centrolign/simulations/centrolign_pairwise_vs_MSA/pairwise_cigars/${CHR}/${CASE}/pairwise_cigar/ \
