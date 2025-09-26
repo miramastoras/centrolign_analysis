@@ -19,8 +19,9 @@ COMBINATIONS_FILE=/private/groups/patenlab/mira/centrolign/simulations/centrolig
 CHR=$(awk "NR==$SLURM_ARRAY_TASK_ID" "$COMBINATIONS_FILE" | cut -f3 -d",")
 CASE=$(awk "NR==$SLURM_ARRAY_TASK_ID" "$COMBINATIONS_FILE" | cut -f4 -d",")
 
+echo $CHR, $CASE
 python3 /private/groups/patenlab/mira/centrolign/github/centrolign_analysis/scripts/analyze_case_v2.py \
-  /private/groups/patenlab/mira/centrolign/simulations/MSA_simulations/msa_${chr}_sim_cases_20250402/${CASE}/ \
+  /private/groups/patenlab/mira/centrolign/simulations/MSA_simulations/msa_${CHR}_sim_cases_20250402/${CASE}/ \
   /private/home/mmastora/progs/centrolign/build/tree_pair_dist \
   /private/home/mmastora/progs/centrolign/build/compare_truth_aln \
   /private/groups/patenlab/mira/centrolign/simulations/centrolign_pairwise_vs_MSA/pairwise_cigars/${CHR}/${CASE}/pairwise_cigar/ \
