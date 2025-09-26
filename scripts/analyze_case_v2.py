@@ -108,7 +108,7 @@ if __name__ == "__main__":
                 cigar = parse_cigar(aln_in.read().strip())
                 reverse_cigar(cigar)
                 with open(tmp_aln_fp, "w") as aln_out:
-                    print(to_cigar_string(cigar), file = tmp_aln_fp)
+                    print(to_cigar_string(cigar), file = aln_out)
 
             truth_aln_fp = tmp_aln_fp
 
