@@ -280,11 +280,49 @@ done
 ```
 Run all pairs via slurm script
 ```sh
+cd /private/groups/patenlab/mira/centrolign/simulations/centrolign_pairwise_vs_MSA/pairwise_cigars
 
+mkdir -p logs
 
+sbatch /private/groups/patenlab/mira/centrolign/github/centrolign_analysis/analysis_notes/simulations/slurm_scripts/msa_simulations_direct_pairwise.sh
 ```
-analyze case
+
+Analyze the performance with modified analyze_case script:
+```sh
+# First make list of all chroms x all cases
+chromosomes=("chr2" "chr3" "chr4" "chr6" "chr7" "chr10" "chr11" "chr12" "chr14" "chr15" "chr16" "chr17" "chr20" "chr21" "chr22" "chrX" "chrY")
+
+for chr in "${chromosomes[@]}" ; do
+  for case in {1..30}; do
+    echo $chr",case_"${case} >> /private/groups/patenlab/mira/centrolign/simulations/centrolign_pairwise_vs_MSA/combination_lists/all_chroms_all_cases.txt
+  done
+done
 ```
+Run as an sbatch script
+```sh
+#SBATCH --job-name=msa_simulations_direct_pairwise
+#SBATCH --partition=short
+#SBATCH --mail-user=mmastora@ucsc.edu
+#SBATCH --mail-type=ALL
+#SBATCH --nodes=1
+#SBATCH --mem=56gb
+#SBATCH --ntasks=1
+#SBATCH --cpus-per-task=1
+#SBATCH --array=[1-510]%128
+#SBATCH --output=logs/array_job_%A_task_%a.log
+#SBATCH --time=1:00:00
+
 source /private/groups/patenlab/jeizenga/centromere/venv/bin/activate
-python3 /private/groups/patenlab/mira/centrolign/github/centrolign_analysis/scripts/analyze_case_v2.py /private/groups/patenlab/mira/centrolign/simulations/test/msa_chrX_sim_cases_20250402/case_24 /private/home/mmastora/progs/centrolign/build/tree_pair_dist /private/home/mmastora/progs/centrolign/build/compare_truth_aln /private/groups/patenlab/mira/centrolign/simulations/test/msa_chrX_sim_cases_20250402/case_24/induced/ /private/groups/patenlab/mira/centrolign/simulations/test/msa_chrX_sim_cases_20250402/case_24/
+
+COMBINATIONS_FILE=/private/groups/patenlab/mira/centrolign/simulations/centrolign_pairwise_vs_MSA/combination_lists/all_chroms_all_cases.txt
+
+CHR=$(awk "NR==$SLURM_ARRAY_TASK_ID" "$COMBINATIONS_FILE" | cut -f3 -d",")
+CASE=$(awk "NR==$SLURM_ARRAY_TASK_ID" "$COMBINATIONS_FILE" | cut -f4 -d",")
+
+python3 /private/groups/patenlab/mira/centrolign/github/centrolign_analysis/scripts/analyze_case_v2.py \
+  /private/groups/patenlab/mira/centrolign/simulations/MSA_simulations/msa_${chr}_sim_cases_20250402/${CASE}/ \
+  /private/home/mmastora/progs/centrolign/build/tree_pair_dist \
+  /private/home/mmastora/progs/centrolign/build/compare_truth_aln \
+  /private/groups/patenlab/mira/centrolign/simulations/centrolign_pairwise_vs_MSA/pairwise_cigars/${CHR}/${CASE}/pairwise_cigar/ \
+  /private/groups/patenlab/mira/centrolign/simulations/centrolign_pairwise_vs_MSA/analyze_case_results/
 ```

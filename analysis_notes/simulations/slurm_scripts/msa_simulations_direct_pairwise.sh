@@ -38,8 +38,8 @@ mkdir -p $WORKDIR
 
 cd $WORKDIR
 
-SAMPLE1=$(awk "NR==$SLURM_ARRAY_TASK_ID" "$COMBINATIONS_FILE" | cut -f1 | xargs basename | cut -f2 -d"_")
-SAMPLE2=$(awk "NR==$SLURM_ARRAY_TASK_ID" "$COMBINATIONS_FILE" | cut -f2 | xargs basename | cut -f2 -d"_")
+SAMPLE1=$(awk "NR==$SLURM_ARRAY_TASK_ID" "$COMBINATIONS_FILE" | cut -f1 | xargs basename | cut -f2 -d"_" | cut -f1 -d".")
+SAMPLE2=$(awk "NR==$SLURM_ARRAY_TASK_ID" "$COMBINATIONS_FILE" | cut -f2 | xargs basename | cut -f2 -d"_" | cut -f1 -d".")
 echo "sample 1:" $SAMPLE1
 echo "sample 2:" $SAMPLE2
 echo "out:" $OUTDIR
