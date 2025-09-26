@@ -1,3 +1,4 @@
+#!/bin/bash
 #SBATCH --job-name=msa_simulations_direct_pairwise
 #SBATCH --partition=short
 #SBATCH --mail-user=mmastora@ucsc.edu
