@@ -36,3 +36,9 @@ done
 # extract fasta files
 samtools faidx -r $REGIONFILE ~{assemblyFasta} | sed "s/>/>$SAMPLE.$PARNUM /g" > $HORFASTA
 ```
+
+```sh
+git -C /private/groups/patenlab/mira/centrolign/github/centrolign_analysis pull
+
+python3 /private/groups/patenlab/mira/centrolign/github/centrolign_analysis/analysis_notes/release2_QC_v2/parse_QC_csv.py /private/groups/migalab/juklucas/censat_regions/active_arrays/asat_arrays_chr1.csv /private/groups/patenlab/mira/centrolign/annotations/assemblies_pre_release_v0.6.1.index.csv
+```

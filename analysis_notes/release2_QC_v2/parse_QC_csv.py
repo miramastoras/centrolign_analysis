@@ -9,7 +9,7 @@ def main():
     args = parser.parse_args()
 
     qc = pd.read_csv(args.qc_csv_file)
-    r2 = pd.read_csv(args.qc_csv_file)
+    r2 = pd.read_csv(args.r2_csv)
 
     print(qc.head())
 
