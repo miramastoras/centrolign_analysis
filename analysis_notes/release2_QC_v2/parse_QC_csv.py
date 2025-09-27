@@ -11,9 +11,15 @@ def main():
     qc = pd.read_csv(args.qc_csv_file)
     r2 = pd.read_csv(args.r2_csv)
 
-    print(qc.head())
+    print(f"Rows: {qc.shape[0]}")
+    print(f"Columns: {qc.shape[1]}")
 
-    print(r2.head())
+    # Merge in s3 links
+    qc_merged = qc.merge(r2[['sample_id', 'assembly', 'assembly_fai']], on='sample_id', how='left')
+
+    print(f"Rows: {qc_merged.shape[0]}")
+    print(f"Columns: {qc_merged.shape[1]}")
+
 
 if __name__ == "__main__":
     main()
