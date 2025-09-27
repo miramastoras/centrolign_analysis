@@ -6,7 +6,8 @@ import matplotlib.lines as mlines
 
 # ---- STEP 1: Read in the file ----
 # Update the file path if needed
-file_path = '/Users/miramastoras/Desktop/github_repos/centrolign_analysis/analysis_notes/simulations/summary_tables/pair_all_chroms_sim_cases_20250421_aln_summary_tables.txt'
+#file_path = '/Users/miramastoras/Desktop/github_repos/centrolign_analysis/analysis_notes/simulations/summary_tables/pair_all_chroms_sim_cases_20250421_aln_summary_tables.txt'
+file_path = '/Users/miramastoras/Desktop/github_repos/centrolign_analysis/analysis_notes/simulations/summary_tables/all_chroms_all_cases_both_aln_summary_tables.txt'
 
 # ---- STEP 1: Define column names ----
 column_names = [
@@ -57,6 +58,8 @@ aligner_colors = {
     'centrolign': '#56B4E9',  # blue
     'rama': '#E69F00',  # orange
     'unialigner': '#009E73',  # green
+    'MSA':'#CC79A7',
+    'pairwise':'#0072B2'
     # Add more if needed
 }
 # Even spacing around the center for each aligner
@@ -145,8 +148,11 @@ ax.legend(
 )
 
 plt.tight_layout()
-plt.savefig('/Users/miramastoras/Desktop/github_repos/centrolign_analysis/analysis_notes/simulations/figures/pairwise_simulations_boxplots.png', dpi=600, bbox_inches='tight')
-plt.savefig('/Users/miramastoras/Desktop/github_repos/centrolign_analysis/analysis_notes/simulations/figures/pairwise_simulations_boxplots.svg', dpi=600, bbox_inches='tight')
+#plt.savefig('/Users/miramastoras/Desktop/github_repos/centrolign_analysis/analysis_notes/simulations/figures/pairwise_simulations_boxplots.png', dpi=600, bbox_inches='tight')
+#plt.savefig('/Users/miramastoras/Desktop/github_repos/centrolign_analysis/analysis_notes/simulations/figures/pairwise_simulations_boxplots.svg', dpi=600, bbox_inches='tight')
+
+plt.savefig('/Users/miramastoras/Desktop/github_repos/centrolign_analysis/analysis_notes/simulations/figures/MSA_vs_pairwise_simulations_boxplots.png', dpi=600, bbox_inches='tight')
+plt.savefig('/Users/miramastoras/Desktop/github_repos/centrolign_analysis/analysis_notes/simulations/figures/MSA_vs_pairwise_simulations_boxplots.svg', dpi=600, bbox_inches='tight')
 
 
 # ===================== VIOLIN PLOT VERSION ==========================
@@ -234,5 +240,8 @@ ax_violin.legend(
 plt.tight_layout()
 
 # Save violin plot
-plt.savefig('/Users/miramastoras/Desktop/github_repos/centrolign_analysis/analysis_notes/simulations/figures/pairwise_simulations_violins.png', dpi=600, bbox_inches='tight')
-plt.savefig('/Users/miramastoras/Desktop/github_repos/centrolign_analysis/analysis_notes/simulations/figures/pairwise_simulations_violins.svg', dpi=600, bbox_inches='tight')
+# plt.savefig('/Users/miramastoras/Desktop/github_repos/centrolign_analysis/analysis_notes/simulations/figures/pairwise_simulations_violins.png', dpi=600, bbox_inches='tight')
+# plt.savefig('/Users/miramastoras/Desktop/github_repos/centrolign_analysis/analysis_notes/simulations/figures/pairwise_simulations_violins.svg', dpi=600, bbox_inches='tight')
+
+plt.savefig('/Users/miramastoras/Desktop/github_repos/centrolign_analysis/analysis_notes/simulations/figures/msa_vs_pairwise_simulations_violins.png', dpi=600, bbox_inches='tight')
+plt.savefig('/Users/miramastoras/Desktop/github_repos/centrolign_analysis/analysis_notes/simulations/figures/msa_vs_pairwise_simulations_violins.svg', dpi=600, bbox_inches='tight')

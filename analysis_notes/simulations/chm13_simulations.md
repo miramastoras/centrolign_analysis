@@ -201,7 +201,7 @@ done
 
 ```
 Investigating low chr11 performance
-```
+```sh
 Rscript /Users/miramastoras/Desktop/github_repos/centrolign_analysis/scripts/pairwise_simulations.R /Users/miramastoras/Desktop/pair_chr11_sim_cases_20250421_aln_summary_tables.txt chr11 /Users/miramastoras/Desktop/chr11_test
 
 Rscript /Users/miramastoras/Desktop/github_repos/centrolign_analysis/scripts/pairwise_simulations_all_chroms.R /Users/miramastoras/Desktop/pair_all_chroms_sim_cases_20250421_aln_summary_tables.txt /Users/miramastoras/Desktop/chr11_test_all_chroms
@@ -212,7 +212,7 @@ sort -k1,1 -k10,10 -k11,11 /Users/miramastoras/Desktop/pair_chr11_sim_cases_2025
 ./plot_dotplot_alignment.py fasta1 fasta2 cigar[,cigar2,cigar3,...] svg_out_name
 ```
 Plot dotplot for chr6
-```
+```sh
 time docker run \
   -u `id -u`:`id -g` \
   -v "/private/groups/patenlab/mira":"/private/groups/patenlab/mira" \
@@ -231,7 +231,7 @@ gen100/case_14
 
 ### Summary plots for all chromosomes:
 
-```
+```sh
 # MSA simulations
 python3 centrolign_analysis/scripts/msa_simulations_boxplot.py
 
@@ -306,4 +306,31 @@ git -C /private/groups/patenlab/mira/centrolign/github/centrolign_analysis/ pull
 
 mkdir -p logs
 sbatch /private/groups/patenlab/mira/centrolign/github/centrolign_analysis/analysis_notes/simulations/slurm_scripts/analyze_msa_simulations_direct_pairwise.sh
+```
+Combine the csv files for plotting:
+```sh
+### Direct Pairwise
+cd /private/groups/patenlab/mira/centrolign/simulations/centrolign_pairwise_vs_MSA/analyze_case_results
+
+chromosomes=("chr2" "chr3" "chr4" "chr6" "chr7" "chr10" "chr11" "chr12" "chr14" "chr15" "chr16" "chr17" "chr20" "chr21" "chr22" "chrX" "chrY")
+
+for chr in "${chromosomes[@]}"
+do
+  for case in {1..30}; do
+    echo "Processing $chr, case $case"
+    awk -v chr="$chr" '{print $1, "pairwise", $2,$3,$4,$5,$6,$7,$8,$9,$10,chr}' ${chr}_case_${case}_aln_summary_table.txt >> /private/groups/patenlab/mira/centrolign/simulations/centrolign_pairwise_vs_MSA/all_chroms_all_cases_pairwise_aln_summary_tables.txt
+  done
+done
+
+#### MSA induced pairwise
+awk -F" " '{print $1, "MSA", $2,$3,$4,$5,$6,$7,$8,$9,$10,$11}' /private/groups/patenlab/mira/centrolign/simulations/MSA_simulations/summary_tables/msa_all_chroms_sim_cases_20250402_aln_summary_tables.txt > /private/groups/patenlab/mira/centrolign/simulations/centrolign_pairwise_vs_MSA/all_chroms_all_cases_MSA_aln_summary_tables.txt
+
+
+cat /private/groups/patenlab/mira/centrolign/simulations/centrolign_pairwise_vs_MSA/all_chroms_all_cases_MSA_aln_summary_tables.txt /private/groups/patenlab/mira/centrolign/simulations/centrolign_pairwise_vs_MSA/all_chroms_all_cases_pairwise_aln_summary_tables.txt > /private/groups/patenlab/mira/centrolign/simulations/centrolign_pairwise_vs_MSA/all_chroms_all_cases_both_aln_summary_tables.txt
+```
+
+Plot in pairwise boxplot scripts:
+
+```sh
+python3 centrolign_analysis/scripts/pairwise_simulations_boxplot.py
 ```
