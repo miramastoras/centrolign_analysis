@@ -23,10 +23,12 @@ def main():
     print(f"Rows: {qc_merged.shape[0]}")
     print(f"Columns: {qc_merged.shape[1]}")
 
+    print(qc_merged.columns)
+
     columns_to_write = ['sample_id', 'haplotype', 'assembly_id', 'sequence_id', 'asat_start',
        'asat_end', 'assembly', 'assembly_fai','chrom_assignment']
 
-    qc.to_csv(args.new_csv_name, columns=columns_to_write, index=False)
+    qc_merged.to_csv(args.new_csv_name, columns=columns_to_write, index=False)
 
 
 if __name__ == "__main__":
