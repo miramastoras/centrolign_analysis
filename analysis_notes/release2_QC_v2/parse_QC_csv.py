@@ -6,6 +6,7 @@ def main():
     parser = argparse.ArgumentParser(description="Read a CSV file and process a specific column.")
     parser.add_argument("qc_csv_file", help="Path to the QC CSV file")
     parser.add_argument("r2_csv", help="path to release 2 assembly CSV file")
+    parser.add_argument("new_csv_name", help="path to new csv file name")
     args = parser.parse_args()
 
     qc = pd.read_csv(args.qc_csv_file)
@@ -21,6 +22,11 @@ def main():
 
     print(f"Rows: {qc_merged.shape[0]}")
     print(f"Columns: {qc_merged.shape[1]}")
+
+    columns_to_write = ['sample_id', 'haplotype', 'assembly_id', 'sequence_id', 'asat_start',
+       'asat_end', 'assembly', 'assembly_fai','chrom_assignment']
+
+    qc.to_csv(args.new_csv_name, columns=columns_to_write, index=False)
 
 
 if __name__ == "__main__":
