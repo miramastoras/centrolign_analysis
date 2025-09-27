@@ -9,22 +9,14 @@ def main():
     parser.add_argument("new_csv_name", help="path to new csv file name")
     args = parser.parse_args()
 
+    # read in Julian's QC csv and the R2 assembly CSV with s3 links
     qc = pd.read_csv(args.qc_csv_file)
     r2 = pd.read_csv(args.r2_csv)
-
-    print(f"Rows: {qc.shape[0]}")
-    print(f"Columns: {qc.shape[1]}")
-    print(qc.columns)
-    print(r2.columns)
 
     # Merge in s3 links
     qc_merged = qc.merge(r2[['assembly_id', 'assembly', 'assembly_fai']], on='assembly_id', how='left')
 
-    print(f"Rows: {qc_merged.shape[0]}")
-    print(f"Columns: {qc_merged.shape[1]}")
-
-    print(qc_merged.columns)
-
+    # write only necessary columns to file
     columns_to_write = ['sample_id', 'haplotype', 'assembly_id', 'sequence_id', 'asat_start',
        'asat_end', 'assembly', 'assembly_fai','chrom_assignment']
 
