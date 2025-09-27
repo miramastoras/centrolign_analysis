@@ -17,7 +17,7 @@ def main():
     print(r2.columns)
 
     # Merge in s3 links
-    qc_merged = qc.merge(r2[['assembly_name', 'assembly', 'assembly_fai']], on='assembly_name', how='left')
+    qc_merged = qc.merge(r2[['assembly_id', 'assembly', 'assembly_fai']], on='assembly_id', how='left')
 
     print(f"Rows: {qc_merged.shape[0]}")
     print(f"Columns: {qc_merged.shape[1]}")
