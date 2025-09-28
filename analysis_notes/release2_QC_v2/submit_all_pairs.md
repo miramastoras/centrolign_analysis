@@ -66,7 +66,6 @@ Slurm script to run on list of samples, downloads fasta file per sample and extr
 
 git -C /private/groups/patenlab/mira/centrolign/github/centrolign_analysis pull
 
-
 cd /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2_QC_v2/extract_fastas
 
 mkdir -p logs
