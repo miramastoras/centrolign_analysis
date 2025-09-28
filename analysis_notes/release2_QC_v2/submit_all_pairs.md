@@ -72,12 +72,14 @@ cd /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release
 mkdir -p logs
 sbatch \
   /private/groups/patenlab/mira/centrolign/github/centrolign_analysis/analysis_notes/release2_QC_v2/slurm_scripts/extract_fasta_r2_QCv2.sh
-
 ```
 
 Get list of fasta file per chromosome, and all vs all combinations
 
-
+Run centrolign all pairs
+```
+#SBATCH --job-name=washu_pairwise-centrolign
+```
 
 
 

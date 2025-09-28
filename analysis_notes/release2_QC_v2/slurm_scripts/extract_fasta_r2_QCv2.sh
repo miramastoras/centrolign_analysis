@@ -36,7 +36,8 @@ HOR_ARRAY_BED=/private/groups/patenlab/mira/centrolign/batch_submissions/centrol
 
 for CHR in {1..22} X Y M; do
     echo "chr${CHR}"
-    mkdir -p /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2_QC_v2/extract_fastas/${CHR}/
+    OUTPATH=/private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2_QC_v2/extract_fastas/chr${CHR}
+    mkdir -p $OUTPATH
 
     #REGIONFILE=/data/tmp/$(whoami)/${CHR}/${ASM_ID}.chr${CHR}.hor.txt
     REGIONFILE=/private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2_QC_v2/test/${ASM_ID}.chr${CHR}.hor.txt
@@ -50,7 +51,7 @@ for CHR in {1..22} X Y M; do
             # extract and add the sample name as the sequence name
             echo "extract region" `cat $REGIONFILE`
 
-            HORFASTA=/private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2_QC_v2/extract_fastas/${CHR}/${ASM_ID}_${SMP}.${HAP}_chr${CHR}_hor_array.fasta
+            HORFASTA=$OUTPATH/${ASM_ID}_${SMP}.${HAP}_chr${CHR}_hor_array.fasta
 
             samtools faidx -r $REGIONFILE $ASM_FASTA | sed "s/>/>$SMP.$HAP /g" > $HORFASTA
 
