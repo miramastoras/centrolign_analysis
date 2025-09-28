@@ -9,6 +9,7 @@ Downloaded full assembly list for release 2 from here https://github.com/human-p
 ```sh
 /private/groups/patenlab/mira/centrolign/annotations/assemblies_pre_release_v0.6.1.index.csv
 ```
+Manually added CHM13 and HG002 to the file
 
 #### 1. Extract HOR fasta files for all chromosomes
 
@@ -37,7 +38,7 @@ do
 done  
 ```
 
-Python script to create per sample bed files containing all of the arrays, and list of all the samples to run
+Python script to create per sample bed files containing all of the arrays
 ```sh
 git -C /private/groups/patenlab/mira/centrolign/github/centrolign_analysis pull
 
@@ -51,7 +52,21 @@ python3 /private/groups/patenlab/mira/centrolign/github/centrolign_analysis/anal
   /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2_QC_v2/per_smp_asat_beds/
 ```
 
+Get list of all samples for submitting sbatch script
+```sh
+cut -f1-3 -d"," asat_arrays_chr3_4.csv | grep -v sample_id > all_samples_with_asats.txt
+cut -f1-3 -d"," asat_arrays_wo_chr3_4.csv | grep -v sample_id >> all_samples_with_asats.txt
+
+sort all_samples_with_asats.txt | uniq > tmp ; mv tmp all_samples_with_asats.txt
+# 466 samples
+```
+
 Slurm script to run on list of samples, downloads fasta file per sample and extracts HOR sequence per sample placing it in dir per chromosome
+```sh
+sbatch \
+  extract_fasta_r2_QCv2.sh
+
+```
 
 Get list of fasta file per chromosome, and all vs all combinations
 
@@ -91,14 +106,7 @@ do
 done
 ```
 Run slurm script to extract fasta file
-```
-sbatch \
-  --array=1-2%2 \
-  --job-name=chr1_extract_fa \
-  --export=CHR=chr1 \
-  run_job.sh
 
-```
 
 Need to use python script to get list of all arrays passing QC per sample. Just extract fastas for all chroms, then just run the all pairs for the first 5.
 

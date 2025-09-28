@@ -4,7 +4,7 @@ import os
 
 def main():
     # Set up argument parser
-    parser = argparse.ArgumentParser(description="Read a CSV file and process a specific column.")
+    parser = argparse.ArgumentParser(description="Reads concatenated asat csv files and outputs per sample beds for all the arrays")
     parser.add_argument("qc_csv_file", help="Path to the QC CSV file")
     parser.add_argument("output_path", help="Path to the output bed files")
     args = parser.parse_args()
