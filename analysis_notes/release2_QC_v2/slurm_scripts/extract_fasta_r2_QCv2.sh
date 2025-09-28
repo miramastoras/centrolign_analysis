@@ -17,7 +17,6 @@ SMP=$(awk -F"," "NR==$SLURM_ARRAY_TASK_ID" "$SMP_FILE" | cut -f1 -d",")
 HAP=$(awk -F"," "NR==$SLURM_ARRAY_TASK_ID" "$SMP_FILE" | cut -f2 -d",")
 ASM_ID=$(awk -F"," "NR==$SLURM_ARRAY_TASK_ID" "$SMP_FILE" | cut -f3 -d",")
 
-echo $SMP, $HAP, $ASM_ID
 
 S3_FILE=/private/groups/patenlab/mira/centrolign/annotations/assemblies_pre_release_v0.6.1.index.csv
 
@@ -25,12 +24,37 @@ S3_ASM=$(grep $ASM_ID $S3_FILE | cut -f13 -d",")
 S3_ASM_FAI=$(grep $ASM_ID $S3_FILE | cut -f11 -d",")
 
 LOCAL_FOLDER=/data/tmp/$(whoami)/${CHR}/
-
-echo $S3_ASM, $S3_ASM_FAI
-#mkdir -p ${LOCAL_FOLDER}
+mkdir -p ${LOCAL_FOLDER}
 
 # Download assembly
-#aws s3 cp $S3_ASM $TMP_DIR/
-#aws s3 cp $S3_ASM $TMP_DIR/
+aws s3 cp $S3_ASM $LOCAL_FOLDER/
+aws s3 cp $S3_ASM $LOCAL_FOLDER/
 
-#samtools faidx -r $REGIONFILE ~{assemblyFasta} | sed "s/>/>$SAMPLE.$HAP /g" > $HORFASTA
+ASM_FASTA=$(basename $S3_ASM)
+
+HOR_ARRAY_BED=/private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2_QC_v2/per_smp_asat_beds/${SMP}.${HAP}_asat_arrays.bed
+
+for CHR in {1..22} X Y M; do
+    echo "chr${CHR}"
+    mkdir -p /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2_QC_v2/extract_fastas/${CHR}/
+
+    #REGIONFILE=/data/tmp/$(whoami)/${CHR}/${ASM_ID}.chr${CHR}.hor.txt
+    REGIONFILE=/private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2_QC_v2/test/${ASM_ID}.chr${CHR}.hor.txt
+    touch $REGIONFILE
+    grep -w chr${CHR} ${HOR_ARRAY_BED} | awk '{ printf "%s:%d-%d\n", $1, $2+1, $3 }' > ${REGIONFILE}
+    ls $REGIONFILE
+
+    if [ -s $REGIONFILE ];
+        then
+            echo "chr${CHR} exists, $REGIONFILE"
+            # extract and add the sample name as the sequence name
+            echo "extract region" `cat $REGIONFILE`
+
+            HORFASTA=/private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2_QC_v2/extract_fastas/${CHR}/${ASM_ID}_${SMP}.${HAP}_chr${CHR}_hor_array.fasta
+
+            samtools faidx -r $REGIONFILE $ASM_FASTA | sed "s/>/>$SMP.$HAP /g" > $HORFASTA
+
+    else
+        echo "~{sampleID} chr${CHR} was filtered out"
+    fi
+done
