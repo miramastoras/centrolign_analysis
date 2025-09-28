@@ -22,7 +22,7 @@ def main():
         bed_df = group[["sequence_id", "asat_start", "asat_end", "chrom_assignment"]]
 
         # Construct filename
-        filename = f"{sample_id}.{haplotype}_asat_arrays.bed"
+        filename = os.path.join(args.output_path, f"{sample_id}.{haplotype}_asat_arrays.bed")
 
         # Write to BED file (tab-separated, no header/index)
         bed_df.to_csv(filename, sep="\t", header=False, index=False)

@@ -28,9 +28,12 @@ done
 ```
 Python script to create per sample bed files containing all of the arrays, and list of all the samples to run
 ```sh
+git -C /private/groups/patenlab/mira/centrolign/github/centrolign_analysis pull
+
+
 python3 /private/groups/patenlab/mira/centrolign/github/centrolign_analysis/analysis_notes/release2_QC_v2/parse_QC_csv.py \
   /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2_QC_v2/asat_arrays_all_chroms.csv \
-  /private/groups/patenlab/mira/centrolign/annotations/assemblies_pre_release_v0.6.1.index.csv
+  /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2_QC_v2/per_smp_asat_beds/
 ```
 
 Slurm script to run on list of samples, downloads fasta file per sample and extracts HOR sequence per sample placing it in dir per chromosome
