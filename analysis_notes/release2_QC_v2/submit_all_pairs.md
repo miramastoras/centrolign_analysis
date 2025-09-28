@@ -63,8 +63,15 @@ sort all_samples_with_asats.txt | uniq > tmp ; mv tmp all_samples_with_asats.txt
 
 Slurm script to run on list of samples, downloads fasta file per sample and extracts HOR sequence per sample placing it in dir per chromosome
 ```sh
+
+git -C /private/groups/patenlab/mira/centrolign/github/centrolign_analysis pull
+
+
+cd /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2_QC_v2/extract_fastas
+
+mkdir -p logs
 sbatch \
-  extract_fasta_r2_QCv2.sh
+  /private/groups/patenlab/mira/centrolign/github/centrolign_analysis/analysis_notes/release2_QC_v2/slurm_scripts/extract_fasta_r2_QCv2.sh
 
 ```
 
