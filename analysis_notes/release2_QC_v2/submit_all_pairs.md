@@ -28,7 +28,7 @@ done
 #!/bin/sh
 chromosomes=("chr3" "chr4")
 
-grep sample_id /private/groups/migalab/juklucas/censat_regions/active_arrays/asat_arrays_chr1.csv > /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2_QC_v2/asat_arrays_chr3_4.csv
+grep sample_id /private/groups/migalab/juklucas/censat_regions/active_arrays/asat_arrays_chr3.csv > /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2_QC_v2/asat_arrays_chr3_4.csv
 
 for chr in "${chromosomes[@]}"
 do
@@ -45,7 +45,7 @@ python3 /private/groups/patenlab/mira/centrolign/github/centrolign_analysis/anal
   /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2_QC_v2/asat_arrays_wo_chr3_4.csv \
   /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2_QC_v2/per_smp_asat_beds/
 
-# Chr 3 and Chr 4 
+# Chr 3 and Chr 4
 python3 /private/groups/patenlab/mira/centrolign/github/centrolign_analysis/analysis_notes/release2_QC_v2/parse_QC_csv.py \
   /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2_QC_v2/asat_arrays_chr3_4.csv \
   /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2_QC_v2/per_smp_asat_beds/

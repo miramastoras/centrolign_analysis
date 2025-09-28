@@ -11,13 +11,13 @@ def main():
 
     # read in Julian's QC csv
     df = pd.read_csv(args.qc_csv_file)
-    print(df.head())
+
     # Group by assembly_id
     for assembly_id, group in df.groupby("assembly_id"):
         # Extract sample_id and haplotype (same for the whole group)
         sample_id = group["sample_id"].iloc[0]
         haplotype = group["haplotype"].iloc[0]
-        print(sample_id)
+
         # Prepare the output DataFrame
         bed_df = group[["sequence_id", "asat_start", "asat_end", "chrom_assignment"]]
 
