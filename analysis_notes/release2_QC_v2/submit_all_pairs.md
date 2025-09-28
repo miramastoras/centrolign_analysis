@@ -10,13 +10,45 @@ Downloaded full assembly list for release 2 from here https://github.com/human-p
 /private/groups/patenlab/mira/centrolign/annotations/assemblies_pre_release_v0.6.1.index.csv
 ```
 
-### Starting with Chr 1, Chr 12, Chr 10, Chr 11, Chr 8
+#### 1. Extract HOR fasta files for all chromosomes
+
+Concatenate all of the QC csv files together
+```sh
+cd /private/groups/migalab/juklucas/censat_regions/active_arrays
+
+chromosomes=("chr1" "chr2" "chr3" "chr4" "chr5" "chr6" "chr7" "chr8" "chr9" "chr10" "chr11" "chr12" "chr13" "chr14" "chr15" "chr16" "chr17" "chr18" "chr19" "chr20" "chr21" "chr22" "chrX" "chrY")
+
+grep sample_id /private/groups/migalab/juklucas/censat_regions/active_arrays/asat_arrays_chr1.csv > /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2_QC_v2/asat_arrays_all_chroms.csv
+
+for chr in "${chromosomes[@]}"
+do
+  wc -l /private/groups/migalab/juklucas/censat_regions/active_arrays/asat_arrays_${chr}.csv
+  cat /private/groups/migalab/juklucas/censat_regions/active_arrays/asat_arrays_${chr}.csv | grep -v "sample_id" >> /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2_QC_v2/asat_arrays_all_chroms.csv
+done  
+```
+Python script to create per sample bed files containing all of the arrays, and list of all the samples to run
+```sh
+python3 /private/groups/patenlab/mira/centrolign/github/centrolign_analysis/analysis_notes/release2_QC_v2/parse_QC_csv.py \
+  /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2_QC_v2/asat_arrays_all_chroms.csv \
+  /private/groups/patenlab/mira/centrolign/annotations/assemblies_pre_release_v0.6.1.index.csv
+```
+
+Slurm script to run on list of samples, downloads fasta file per sample and extracts HOR sequence per sample placing it in dir per chromosome
+
+Get list of fasta file per chromosome, and all vs all combinations
 
 
-#### 1. Extract HOR fasta files
+
+
+
+
+
+
 
 ```sh
-# Python script to create new csv file with s3 links
+# Python script to create new csv file with s3 links, and output a bed file
+# with asat locations
+
 git -C /private/groups/patenlab/mira/centrolign/github/centrolign_analysis pull
 
 chromosomes=("chr1" "chr12" "chr10" "chr11" "chr8")
@@ -29,11 +61,28 @@ do
     python3 /private/groups/patenlab/mira/centrolign/github/centrolign_analysis/analysis_notes/release2_QC_v2/parse_QC_csv.py \
       /private/groups/migalab/juklucas/censat_regions/active_arrays/asat_arrays_${chr}.csv \
       /private/groups/patenlab/mira/centrolign/annotations/assemblies_pre_release_v0.6.1.index.csv \
-      /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2_QC_v2/active_array_csvs/asat_arrays_${chr}.csv
+      /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2_QC_v2/active_array_csvs/asat_arrays_${chr}.csv \
       /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2_QC_v2/active_array_beds/${chr}/
+done
+
+# Cat all of the active array files together
+chromosomes=("chr1" "chr12" "chr10" "chr11" "chr8")
+for chr in "${chromosomes[@]}"
+do
+  cat /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2_QC_v2/active_array_csvs/asat_arrays_${chr}.csv >> /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2_QC_v2/active_array_csvs/asat_arrays_all_chroms.csv
 done
 ```
 Run slurm script to extract fasta file
 ```
+sbatch \
+  --array=1-2%2 \
+  --job-name=chr1_extract_fa \
+  --export=CHR=chr1 \
+  run_job.sh
 
 ```
+
+Need to use python script to get list of all arrays passing QC per sample. Just extract fastas for all chroms, then just run the all pairs for the first 5.
+
+
+### Starting with Chr 1, Chr 12, Chr 10, Chr 11, Chr 8
