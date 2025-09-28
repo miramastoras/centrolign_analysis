@@ -24,9 +24,18 @@ def main():
         # Construct filename
         filename = os.path.join(args.output_path, f"{sample_id}.{haplotype}_asat_arrays.bed")
 
-        # Write to BED file (tab-separated, no header/index)
-        bed_df.to_csv(filename, sep="\t", header=False, index=False)
+        # Check if the file already exists
+        file_exists = os.path.exists(filename)
 
+        # Append if file exists, otherwise create new.
+        # this is because chr 3 and chr4 are formatted differently
+        bed_df.to_csv(
+            filename,
+            sep="\t",
+            header=False,
+            index=False,
+            mode='a' if file_exists else 'w'
+        )
 
 if __name__ == "__main__":
     main()

@@ -12,27 +12,37 @@ Downloaded full assembly list for release 2 from here https://github.com/human-p
 
 #### 1. Extract HOR fasta files for all chromosomes
 
-Concatenate all of the QC csv files together
+Concatenate all of the QC csv files together. Have to run chr3 and chr4 separately because they are formatted differently
+
 ```sh
-cd /private/groups/migalab/juklucas/censat_regions/active_arrays
+chromosomes=("chr1" "chr2" "chr5" "chr6" "chr7" "chr8" "chr9" "chr10" "chr11" "chr12" "chr13" "chr14" "chr15" "chr16" "chr17" "chr18" "chr19" "chr20" "chr21" "chr22" "chrX" "chrY")
 
-chromosomes=("chr1" "chr2" "chr3" "chr4" "chr5" "chr6" "chr7" "chr8" "chr9" "chr10" "chr11" "chr12" "chr13" "chr14" "chr15" "chr16" "chr17" "chr18" "chr19" "chr20" "chr21" "chr22" "chrX" "chrY")
-
-grep sample_id /private/groups/migalab/juklucas/censat_regions/active_arrays/asat_arrays_chr1.csv > /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2_QC_v2/asat_arrays_all_chroms.csv
+grep sample_id /private/groups/migalab/juklucas/censat_regions/active_arrays/asat_arrays_chr1.csv > /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2_QC_v2/asat_arrays_wo_chr3_4.csv
 
 for chr in "${chromosomes[@]}"
 do
   wc -l /private/groups/migalab/juklucas/censat_regions/active_arrays/asat_arrays_${chr}.csv
-  cat /private/groups/migalab/juklucas/censat_regions/active_arrays/asat_arrays_${chr}.csv | grep -v "sample_id" >> /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2_QC_v2/asat_arrays_all_chroms.csv
+  cat /private/groups/migalab/juklucas/censat_regions/active_arrays/asat_arrays_${chr}.csv | grep -v "sample_id" >> /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2_QC_v2/asat_arrays_wo_chr3_4.csv
+done  
+
+#!/bin/sh
+chromosomes=("chr3" "chr4")
+
+grep sample_id /private/groups/migalab/juklucas/censat_regions/active_arrays/asat_arrays_chr1.csv > /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2_QC_v2/asat_arrays_chr3_4.csv
+
+for chr in "${chromosomes[@]}"
+do
+  wc -l /private/groups/migalab/juklucas/censat_regions/active_arrays/asat_arrays_${chr}.csv
+  cat /private/groups/migalab/juklucas/censat_regions/active_arrays/asat_arrays_${chr}.csv | grep -v "sample_id" >> /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2_QC_v2/asat_arrays_chr3_4.csv
 done  
 ```
+
 Python script to create per sample bed files containing all of the arrays, and list of all the samples to run
 ```sh
 git -C /private/groups/patenlab/mira/centrolign/github/centrolign_analysis pull
 
-
 python3 /private/groups/patenlab/mira/centrolign/github/centrolign_analysis/analysis_notes/release2_QC_v2/parse_QC_csv.py \
-  /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2_QC_v2/asat_arrays_all_chroms.csv \
+  /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2_QC_v2/asat_arrays_wo_chr3_4.csv \
   /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2_QC_v2/per_smp_asat_beds/
 ```
 
