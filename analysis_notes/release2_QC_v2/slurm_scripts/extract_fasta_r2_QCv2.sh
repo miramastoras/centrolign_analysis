@@ -53,7 +53,7 @@ for CHR in {1..22} X Y M; do
 
             HORFASTA=$OUTPATH/${ASM_ID}_${SMP}.${HAP}_chr${CHR}_hor_array.fasta
 
-            samtools faidx -r $REGIONFILE $ASM_FASTA | sed "s/>/>$SMP.$HAP /g" > $HORFASTA
+            samtools faidx -r $REGIONFILE $LOCAL_FOLDER/$ASM_FASTA | sed "s/>/>$SMP.$HAP /g" > $HORFASTA
 
     else
         echo "~{sampleID} chr${CHR} was filtered out"
