@@ -7,7 +7,7 @@
 #SBATCH --mem=56gb
 #SBATCH --ntasks=1
 #SBATCH --cpus-per-task=1
-#SBATCH --array=[1-465]%465
+#SBATCH --array=[16-17]%2
 #SBATCH --exclude=phoenix-[09,10,22,23,24,18]
 #SBATCH --output=logs/array_job_%A_task_%a.log
 #SBATCH --time=1:00:00
@@ -41,7 +41,7 @@ for CHR in {1..22} X Y M; do
     mkdir -p $OUTPATH
 
     #REGIONFILE=/data/tmp/$(whoami)/${CHR}/${ASM_ID}.chr${CHR}.hor.txt
-    REGIONFILE=/private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2_QC_v2/test/${ASM_ID}.chr${CHR}.hor.txt
+    REGIONFILE=${LOCAL_FOLDER}/${ASM_ID}.chr${CHR}.hor.txt
     touch $REGIONFILE
     grep -w chr${CHR} ${HOR_ARRAY_BED} | awk '{ printf "%s:%d-%d\n", $1, $2+1, $3 }' > ${REGIONFILE}
     ls $REGIONFILE
