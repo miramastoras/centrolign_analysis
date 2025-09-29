@@ -2,7 +2,6 @@
 # Slurm script to use centrolign as a pairwise aligner on all pairs of sequences
 # from an input directory
 
-#SBATCH --job-name=washu_pairwise-centrolign
 #SBATCH --partition=short
 #SBATCH --mail-user=mmastora@ucsc.edu
 #SBATCH --mail-type=ALL
@@ -10,7 +9,6 @@
 #SBATCH --mem=56gb
 #SBATCH --ntasks=1
 #SBATCH --cpus-per-task=1
-#SBATCH --array=[1-2]%128
 #SBATCH --output=logs/array_job_%A_task_%a.log
 #SBATCH --time=1:00:00
 
@@ -18,11 +16,9 @@ date
 hostname
 pwd
 
-COMBINATIONS_FILE=/private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/washu_pedigree/all_vs_PAN027/washu_pedigree_all_pairs_combinations_allchroms.txt
+COMBINATIONS_FILE=/private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2_QC_v2/all_pairs/${CHR}/release2_QC_v2_all_pairs_combinations_${CHR}.txt
 
-CHR=$(awk "NR==$SLURM_ARRAY_TASK_ID" "$COMBINATIONS_FILE" | cut -f3)
-
-CHROMDIR=/private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/washu_pedigree/all_vs_PAN027/${CHR}
+CHROMDIR=/private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/washu_pedigree/all_vs_PAN027/private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2_QC_v2/all_pairs/${CHR}
 
 WORKDIR=$CHROMDIR/work/
 OUTDIR=$CHROMDIR/pairwise_cigar/

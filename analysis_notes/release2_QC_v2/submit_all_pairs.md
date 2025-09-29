@@ -72,12 +72,80 @@ mkdir -p logs
 sbatch \
   /private/groups/patenlab/mira/centrolign/github/centrolign_analysis/analysis_notes/release2_QC_v2/slurm_scripts/extract_fasta_r2_QCv2.sh
 ```
+Accounting check: Make sure we aren't missing any fastas
+```sh
+# check to make sure none of the fastas are empty
+cd /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2_QC_v2/extract_fastas
 
-Get list of fasta file per chromosome, and all vs all combinations
+find . -type f -empty
+
+# check that number of fastas per chrom matches julian's original files
+chromosomes=("chr1" "chr2" "chr3" "chr4" "chr5" "chr6" "chr7" "chr8" "chr9" "chr10" "chr11" "chr12" "chr13" "chr14" "chr15" "chr16" "chr17" "chr18" "chr19" "chr20" "chr21" "chr22" "chrX" "chrY")
+
+for chr in "${chromosomes[@]}"
+do
+  fastas=`ls /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2_QC_v2/extract_fastas/${chr}/ | wc -l`
+  QC=`grep -v "sample_id" /private/groups/migalab/juklucas/censat_regions/active_arrays/asat_arrays_${chr}.tsv | wc -l`
+
+  echo $chr,$fastas,$QC
+  if [[ "$fastas" == "$QC" ]]; then
+    echo "true"
+  fi
+done
+
+## checks passed.
+```
+### Run centrolign all pairs for Chr 1, Chr 12, Chr 10, Chr 11, Chr 8
+
+
+Get list of fasta files per chromosome
+```sh
+cd /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2_QC_v2/extract_fastas
+
+chromosomes=("chr1" "chr12" "chr10" "chr11" "chr8")
+for chr in "${chromosomes[@]}"
+do
+    ls /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2_QC_v2/extract_fastas/${chr} | while read line ;
+      do realpath $line >> /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2_QC_v2/extract_fastas/fasta_lists/release2_QC_v2_${chr}.txt
+    done
+done
+
+# Sanity check again that we have all fastas
+for chr in "${chromosomes[@]}"
+do
+  fastas=`cat /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2_QC_v2/extract_fastas/fasta_lists/release2_QC_v2_${chr}.txt | wc -l`
+  QC=`grep -v "sample_id" /private/groups/migalab/juklucas/censat_regions/active_arrays/asat_arrays_${chr}.tsv | wc -l`
+
+  echo $chr,$fastas,$QC
+  if [[ "$fastas" == "$QC" ]]; then
+    echo "true"
+  fi
+done
+```
+Generate all vs all combinations
+```sh
+chromosomes=("chr1" "chr12" "chr10" "chr11" "chr8")
+
+# get all vs all pairwise combinations
+for chr in "${chromosomes[@]}"
+do
+  mkdir -p /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2_QC_v2/all_pairs/${chr}
+
+  while read -r s1; do
+      while read -r s2; do
+          [[ "$s1" < "$s2" ]] && echo -e "$s1\t$s2\t$chr"
+      done < /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2_QC_v2/extract_fastas/fasta_lists/release2_QC_v2_${chr}.txt
+  done < /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2_QC_v2/extract_fastas/fasta_lists/release2_QC_v2_${chr}.txt > /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2_QC_v2/all_pairs/${chr}/release2_QC_v2_all_pairs_combinations_${chr}.txt
+done
+```
 
 Run centrolign all pairs
-```
-#SBATCH --job-name=washu_pairwise-centrolign
+```sh
+sbatch
+    --job-name=chr1_r2_QCv2 \
+    --array=[1-2]%128 \
+    --export=CHR=chr1 \
+    /private/groups/patenlab/mira/centrolign/github/centrolign_analysis/analysis_notes/release2_QC_v2/slurm_scripts/all_pairs.sh
 ```
 
 
@@ -107,9 +175,7 @@ do
 done
 
 # Cat all of the active array files together
-chromosomes=("chr1" "chr12" "chr10" "chr11" "chr8")
-for chr in "${chromosomes[@]}"
-do
+
   cat /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2_QC_v2/active_array_csvs/asat_arrays_${chr}.csv >> /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2_QC_v2/active_array_csvs/asat_arrays_all_chroms.csv
 done
 ```
@@ -117,6 +183,3 @@ Run slurm script to extract fasta file
 
 
 Need to use python script to get list of all arrays passing QC per sample. Just extract fastas for all chroms, then just run the all pairs for the first 5.
-
-
-### Starting with Chr 1, Chr 12, Chr 10, Chr 11, Chr 8

@@ -52,7 +52,7 @@ for CHR in {1..22} X Y M; do
             # extract and add the sample name as the sequence name
             echo "extract region" `cat $REGIONFILE`
 
-            HORFASTA=$OUTPATH/${ASM_ID}_${SMP}.${HAP}_chr${CHR}_hor_array.fasta
+            HORFASTA=$OUTPATH/${SMP}.${HAP}_chr${CHR}_hor_array.fasta
 
             samtools faidx -r $REGIONFILE $LOCAL_FOLDER/$ASM_FASTA | sed "s/>/>$SMP.$HAP /g" > $HORFASTA
 
