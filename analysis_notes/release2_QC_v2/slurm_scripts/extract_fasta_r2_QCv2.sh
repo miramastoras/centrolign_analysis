@@ -60,3 +60,6 @@ for CHR in {1..22} X Y M; do
         echo "~{sampleID} chr${CHR} was filtered out"
     fi
 done
+
+rm $LOCAL_FOLDER/$ASM_FASTA
+rm $LOCAL_FOLDER/{$ASM_FASTA}.fai
