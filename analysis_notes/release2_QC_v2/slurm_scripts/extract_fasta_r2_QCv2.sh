@@ -57,9 +57,9 @@ for CHR in {1..22} X Y M; do
             samtools faidx -r $REGIONFILE $LOCAL_FOLDER/$ASM_FASTA | sed "s/>/>$SMP.$HAP /g" > $HORFASTA
 
     else
-        echo "~{sampleID} chr${CHR} was filtered out"
+        echo "chr${CHR} was filtered out"
     fi
 done
 
-rm $LOCAL_FOLDER/$ASM_FASTA
-rm $LOCAL_FOLDER/{$ASM_FASTA}.fai
+rm $LOCAL_FOLDER/${ASM_FASTA}
+rm $LOCAL_FOLDER/${ASM_FASTA}.fai
