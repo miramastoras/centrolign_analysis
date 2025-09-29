@@ -189,6 +189,9 @@ def main():
     combined_df['chr'] = pd.Categorical(combined_df['chr'], categories=chromosomes, ordered=True)
 
     # Create plot
+    # Set global font size
+    plt.rcParams.update({'font.size': 14})
+    
     plt.figure(figsize=(14, 6))
     sns.swarmplot(
         data=combined_df,
