@@ -61,7 +61,7 @@ sort all_samples_with_asats.txt | uniq > tmp ; mv tmp all_samples_with_asats.txt
 # 466 samples
 ```
 
-Slurm script to run on list of samples, downloads fasta file per sample and extracts HOR sequence per sample placing it in dir per chromosome
+Slurm script to run on list of samples, downloads fasta file per sample and extracts HOR sequence per sample, placing it in dir per chromosome
 ```sh
 
 git -C /private/groups/patenlab/mira/centrolign/github/centrolign_analysis pull
@@ -102,6 +102,8 @@ Get list of fasta files per chromosome
 ```sh
 cd /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2_QC_v2/extract_fastas
 
+mkdir -p /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2_QC_v2/extract_fastas/fasta_lists/
+
 chromosomes=("chr1" "chr12" "chr10" "chr11" "chr8")
 for chr in "${chromosomes[@]}"
 do
@@ -138,48 +140,29 @@ do
   done < /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2_QC_v2/extract_fastas/fasta_lists/release2_QC_v2_${chr}.txt > /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2_QC_v2/all_pairs/${chr}/release2_QC_v2_all_pairs_combinations_${chr}.txt
 done
 ```
+Count per chrom
+```sh
+for chr in "${chromosomes[@]}"
+do
+  wc -l /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2_QC_v2/all_pairs/${chr}/release2_QC_v2_all_pairs_combinations_${chr}.txt
+done
+
+# 63903 /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2_QC_v2/all_pairs/chr1/release2_QC_v2_all_pairs_combinations_chr1.txt
+# 69378 /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2_QC_v2/all_pairs/chr12/release2_QC_v2_all_pairs_combinations_chr12.txt
+# 57630 /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2_QC_v2/all_pairs/chr10/release2_QC_v2_all_pairs_combinations_chr10.txt
+# 84666 /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2_QC_v2/all_pairs/chr11/release2_QC_v2_all_pairs_combinations_chr11.txt
+# 61075 /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2_QC_v2/all_pairs/chr8/release2_QC_v2_all_pairs_combinations_chr8.txt
+```
 
 Run centrolign all pairs
 ```sh
-sbatch
+mkdir -p /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2_QC_v2/all_pairs/chr1/logs
+
+cd /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2_QC_v2/all_pairs/chr1/
+
+sbatch \
     --job-name=chr1_r2_QCv2 \
     --array=[1-2]%128 \
     --export=CHR=chr1 \
     /private/groups/patenlab/mira/centrolign/github/centrolign_analysis/analysis_notes/release2_QC_v2/slurm_scripts/all_pairs.sh
 ```
-
-
-
-
-
-
-
-```sh
-# Python script to create new csv file with s3 links, and output a bed file
-# with asat locations
-
-git -C /private/groups/patenlab/mira/centrolign/github/centrolign_analysis pull
-
-chromosomes=("chr1" "chr12" "chr10" "chr11" "chr8")
-for chr in "${chromosomes[@]}"
-do
-    mkdir -p /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2_QC_v2/active_array_fastas/${chr}/
-
-    mkdir -p /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2_QC_v2/active_array_beds/${chr}/
-
-    python3 /private/groups/patenlab/mira/centrolign/github/centrolign_analysis/analysis_notes/release2_QC_v2/parse_QC_csv.py \
-      /private/groups/migalab/juklucas/censat_regions/active_arrays/asat_arrays_${chr}.csv \
-      /private/groups/patenlab/mira/centrolign/annotations/assemblies_pre_release_v0.6.1.index.csv \
-      /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2_QC_v2/active_array_csvs/asat_arrays_${chr}.csv \
-      /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2_QC_v2/active_array_beds/${chr}/
-done
-
-# Cat all of the active array files together
-
-  cat /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2_QC_v2/active_array_csvs/asat_arrays_${chr}.csv >> /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2_QC_v2/active_array_csvs/asat_arrays_all_chroms.csv
-done
-```
-Run slurm script to extract fasta file
-
-
-Need to use python script to get list of all arrays passing QC per sample. Just extract fastas for all chroms, then just run the all pairs for the first 5.
