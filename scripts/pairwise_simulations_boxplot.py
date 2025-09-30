@@ -40,6 +40,12 @@ aligner_to_index = {aligner: i for i, aligner in enumerate(aligners)}
 #  Compute mean F1 per (chr, aligner)
 group_means = df.groupby(['chr', 'aligner'])['F1'].mean().reset_index()
 
+mean_f1_chr_aligner = df.groupby(['chr', 'aligner'])['F1'].mean()
+
+print("\nMean F1 Score per Chromosome and Aligner (to 16 decimal places):")
+for (chr_, aligner), mean_f1 in mean_f1_chr_aligner.items():
+    print(f"{chr_:6s} {aligner:15s}: {mean_f1:.16f}")
+
 # Set up boxplots
 fig, ax = plt.subplots(figsize=(12, 6))
 
@@ -245,3 +251,29 @@ plt.tight_layout()
 
 plt.savefig('/Users/miramastoras/Desktop/github_repos/centrolign_analysis/analysis_notes/simulations/figures/msa_vs_pairwise_simulations_violins.png', dpi=600, bbox_inches='tight')
 plt.savefig('/Users/miramastoras/Desktop/github_repos/centrolign_analysis/analysis_notes/simulations/figures/msa_vs_pairwise_simulations_violins.svg', dpi=600, bbox_inches='tight')
+
+# Ensure precision issues don't affect equality (set an epsilon threshold)
+EPSILON = 1e-20  # very strict tolerance for float comparison
+
+# Get only rows for the two aligners you want to compare
+# (adjust this if you're comparing more or a different pair)
+aligners_of_interest = ['pairwise', 'MSA']  # or replace with your two aligners
+df_filtered = df[df['aligner'].isin(aligners_of_interest)]
+
+# Pivot the data: one row per (case, chr), columns are F1 scores per aligner
+f1_pivot = df_filtered.pivot_table(
+    index=['case', 'chr'],
+    columns='aligner',
+    values='F1'
+).dropna()  # drop any rows where one aligner is missing
+
+# Compare the F1 scores
+f1_diff = (np.abs(f1_pivot[aligners_of_interest[0]] - f1_pivot[aligners_of_interest[1]]) < EPSILON)
+
+# Count identical and non-identical F1s
+num_identical = f1_diff.sum()
+num_different = (~f1_diff).sum()
+
+print(f"Number of (case, chr) pairs with identical F1 scores: {num_identical}")
+print(f"Number of (case, chr) pairs with different F1 scores: {num_different}")
+

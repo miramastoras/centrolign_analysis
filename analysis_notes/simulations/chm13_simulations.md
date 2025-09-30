@@ -334,3 +334,13 @@ Plot in pairwise boxplot scripts:
 ```sh
 python3 centrolign_analysis/scripts/pairwise_simulations_boxplot.py
 ```
+
+Check if the cigar strings are identical
+
+### Tree building evaluation
+
+Do inferred partitions of leaves in tree from MSA match the “true” tree?
+
+```sh
+python3 /private/groups/patenlab/mira/centrolign/github/centrolign_analysis/scripts/plot_tree_building_eval.py /private/groups/patenlab/mira/centrolign/simulations/MSA_simulations/
+```
