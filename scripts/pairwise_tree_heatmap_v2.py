@@ -81,12 +81,12 @@ def tree_to_linkage_matrix(biopython_tree):
     for c in tree.find_clades(terminal=False):
         d = tree.distance(c)
         anc_lst.append((c, list(c), d))
-        print(c[0].comment,c[1].comment)
+        #print(c[0].comment,c[1].comment)
     anc_lst.sort(key=lambda x: x[2], reverse=True)
 
     # running number of node
     nodes = len(list(tree.find_clades(terminal=True)))
-    print(len(anc_lst))
+    #print(len(anc_lst))
     lnk_lst = []
     for anc, children, anc_d in anc_lst:
         #print(anc)
@@ -164,16 +164,21 @@ def main():
         print(heatmap_y_labels)
     # Plot two matplotlib grids side by side
     # scale width ratio for middle axes (containing labels) by number of samples
-    axes1_width_ratio=(-0.00356*len(samples))+0.52492
+    axes1_width_ratio = max((-0.00356 * len(samples)) + 0.52492, 0.05)
+
     fig, axes = plt.subplots(1, 4, figsize=(12, 6), gridspec_kw = {'wspace':0, 'hspace':0,'width_ratios': [4, axes1_width_ratio,2,.25]})
 
     # convert newick to linkage matrix
     linkage_matrix, id_map = tree_to_linkage_matrix(tree)
 
-    linewidth=(-0.00744) *(len(samples))+1.05208
+    linewidth = max((-0.00744) * len(samples) + 1.05208, 0.1)
+    # plot dendogram on left axes
+    # plot dendrogram on left axes
     # plot dendogram on left axes
     with plt.rc_context({'lines.linewidth': linewidth}):
-        dn1 = dendrogram(linkage_matrix, ax=axes[0], orientation='left',labels=[id_map.get(i, str(i)) for i in range(len(id_map))],link_color_func=lambda x: 'black')
+        dn1 = dendrogram(linkage_matrix, ax=axes[0], orientation='left',
+                     labels=[id_map.get(i, str(i)) for i in range(len(id_map))],
+                     link_color_func=lambda x: 'black')
 
     # get mapping of y position of leaves and leaf labels
     leaf_label_y_map = {}
@@ -198,11 +203,25 @@ def main():
     axes[1].set_axis_off()
 
     # plot sample labels on axes 1
-    sample_label_size=-0.04959*(len(samples))+7.34713
+    sample_label_size = max(2, min(12, 70 / (len(samples) ** 0.5)))
+    print(f"[DEBUG] Sample label font size: {sample_label_size}")
+
     label_ends=(float(axes[0].get_ylim()[1])) / 7
-    for sample in leaf_label_y_map.keys():
-        axes[1].plot([0,1], [leaf_label_y_map[sample],leaf_label_y_map[sample]], linestyle=':',color="black", linewidth=linewidth)
-        axes[1].text(0, leaf_label_y_map[sample], sample, fontsize=sample_label_size, color='black',va='bottom')
+
+    if len(samples) > 300:
+        print("Too many samples; skipping text labels to avoid clutter.")
+        for sample in leaf_label_y_map.keys():
+            axes[1].plot([0, 1], [leaf_label_y_map[sample], leaf_label_y_map[sample]],
+                     linestyle=':', color="black", linewidth=linewidth)
+    else:
+        for sample in leaf_label_y_map.keys():
+            axes[1].plot([0, 1], [leaf_label_y_map[sample], leaf_label_y_map[sample]],
+                     linestyle=':', color="black", linewidth=linewidth)
+            axes[1].text(0, leaf_label_y_map[sample], sample,
+                     fontsize=sample_label_size, color='black', va='bottom')
+    # for sample in leaf_label_y_map.keys():
+    #     axes[1].plot([0,1], [leaf_label_y_map[sample],leaf_label_y_map[sample]], linestyle=':',color="black", linewidth=linewidth)
+    #     axes[1].text(0, leaf_label_y_map[sample], sample, fontsize=sample_label_size, color='black',va='bottom')
 
     # heatmap colors
     # Color scale

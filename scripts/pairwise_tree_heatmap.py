@@ -16,6 +16,7 @@ import matplotlib.patches as patches
 import csv
 from matplotlib.cm import get_cmap
 from matplotlib.ticker import FuncFormatter
+import math
 
 def arg_parser():
     '''
@@ -198,11 +199,20 @@ def main():
     axes[1].set_axis_off()
 
     # plot sample labels on axes 1
-    sample_label_size=-0.04959*(len(samples))+7.34713
+    #sample_label_size=-0.04959*(len(samples))+7.34713
+    sample_label_size = max(2, 10 - math.log(len(samples), 1.5))
     label_ends=(float(axes[0].get_ylim()[1])) / 7
-    for sample in leaf_label_y_map.keys():
-        axes[1].plot([0,1], [leaf_label_y_map[sample],leaf_label_y_map[sample]], linestyle=':',color="black", linewidth=linewidth)
-        axes[1].text(0, leaf_label_y_map[sample], sample, fontsize=sample_label_size, color='black',va='bottom')
+    if len(samples) < 300:
+        for sample in leaf_label_y_map.keys():
+            axes[1].plot([0, 1], [leaf_label_y_map[sample], leaf_label_y_map[sample]],
+                         linestyle=':', color="black", linewidth=linewidth)
+            axes[1].text(0, leaf_label_y_map[sample], sample,
+                         fontsize=sample_label_size, color='black', va='bottom')
+    else:
+        print("Too many samples; skipping text labels to avoid clutter.")
+    # for sample in leaf_label_y_map.keys():
+    #     axes[1].plot([0,1], [leaf_label_y_map[sample],leaf_label_y_map[sample]], linestyle=':',color="black", linewidth=linewidth)
+    #     axes[1].text(0, leaf_label_y_map[sample], sample, fontsize=sample_label_size, color='black',va='bottom')
 
     # heatmap colors
     # Color scale
