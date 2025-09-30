@@ -42,6 +42,9 @@ def arg_parser():
                         required=False,
                         default="Guide Tree",
                         help="label of tree to plot in heatmap")
+    parser.add_argument("--no_labels",
+                    action="store_true",
+                    help="Suppress sample name labeling on the heatmap. Reccommended if sample size exceeds 130.")
     parser.add_argument("-d", "--tree_distance_unit",
                         required=False,
                         default="KYA",
@@ -203,12 +206,12 @@ def main():
     axes[1].set_axis_off()
 
     # plot sample labels on axes 1
-    sample_label_size = max(2, min(12, 70 / (len(samples) ** 0.5)))
+    sample_label_size = max(-0.04959 * len(samples) + 7.34713, 2)
     print(f"[DEBUG] Sample label font size: {sample_label_size}")
 
     label_ends=(float(axes[0].get_ylim()[1])) / 7
 
-    if len(samples) > 300:
+    if args.no_labels:
         print("Too many samples; skipping text labels to avoid clutter.")
         for sample in leaf_label_y_map.keys():
             axes[1].plot([0, 1], [leaf_label_y_map[sample], leaf_label_y_map[sample]],
