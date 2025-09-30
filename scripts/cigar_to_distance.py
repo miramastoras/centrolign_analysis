@@ -19,18 +19,6 @@ def parse_cigar(cigar):
         parsed.append((m.group(2), int(m.group(1))))
     return parsed
 
-def cigar_to_dist_method4(cigar):
-    '''
-    Does not accept cigar strings that use M instead of X or =
-    Calculates distance as follows:
-    Distance = 1 - (proportion aligned) * (matches / (matches + mismatches))
-    Proportion aligned = (ref aligned + query aligned / ref total + query total)
-    Proportion aligned = ((matches+mismatches)*2) + isolated I&Ds / (((matches+mismatches)*2) + adjacent I&D ops)
-    '''
-    for i in len(cigar):
-        op=
-
-    return 1
 
 def cigar_to_dist_method3(cigar):
     '''
@@ -92,7 +80,7 @@ def cigar_to_dist_method1(cigar, min_scale):
        ---------------
      (ref_len + query_len)
     '''
-    print("calculating distance 1")
+    print("calculating distance 1 - Jordan's original formula")
     query_len = 0
     ref_len = 0
     matches = 0
@@ -108,7 +96,7 @@ def cigar_to_dist_method1(cigar, min_scale):
             query_len += op_len
         else:
             assert(False)
-    print(matches, ref_len,query_len)
+    #print(matches, ref_len,query_len)
     if min_scale:
         return 1.0 - matches / min(ref_len, query_len)
     else:
@@ -152,7 +140,7 @@ if __name__ == "__main__":
     mat = {}
 
     fps = os.listdir(aln_dir)
-    
+
     for i in range(len(fps)):
         if (i + 1) % 100 == 0:
             print("processed {} of {} files".format(i + 1, len(fps)), file = sys.stderr)
