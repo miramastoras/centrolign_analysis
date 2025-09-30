@@ -387,3 +387,25 @@ sbatch \
     --export=CHR=chr7 \
     /private/groups/patenlab/mira/centrolign/github/centrolign_analysis/analysis_notes/release2_QC_v2/slurm_scripts/all_pairs.sh
 ```
+
+**Sanity check: search for empty cigar strings, count number in each dir**
+
+```sh
+# Search for empty cigar strings
+chromosomes=("chr2" "chr6" "chr7")
+
+for chr in "${chromosomes[@]}"
+do
+  echo $chr
+  find /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2_QC_v2/all_pairs/${chr}/pairwise_cigar/ -type f -empty
+done
+
+# Count strings in each dir
+chromosomes=("chr2" "chr6" "chr7")
+
+for chr in "${chromosomes[@]}"
+do
+  echo $chr
+  ls /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2_QC_v2/all_pairs/${chr}/pairwise_cigar/ | wc -l
+done
+```

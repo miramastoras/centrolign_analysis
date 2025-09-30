@@ -41,7 +41,7 @@ FASTA2=$(awk "NR==$SLURM_ARRAY_TASK_ID" "$COMBINATIONS_FILE" | cut -f2)
 echo "fasta 1:" $FASTA1
 echo "fasta 2:" $FASTA2
 
-#TEMP_FASTA=${WORKDIR}/${SAMPLE1}_${SAMPLE2}.fa
-#cat $FASTA1 $FASTA2 > $TEMP_FASTA
-#time /private/home/mmastora/progs/centrolign/build/centrolign -v 3 --skip-calibration $TEMP_FASTA > $OUTDIR/pairwise_cigar_${SAMPLE1}_${SAMPLE2}.txt
-#rm $TEMP_FASTA
+TEMP_FASTA=${WORKDIR}/${SAMPLE1}_${SAMPLE2}.fa
+cat $FASTA1 $FASTA2 > $TEMP_FASTA
+time /private/home/mmastora/progs/centrolign/build/centrolign -v 3 --skip-calibration $TEMP_FASTA > $OUTDIR/pairwise_cigar_${SAMPLE1}_${SAMPLE2}.txt
+rm $TEMP_FASTA
