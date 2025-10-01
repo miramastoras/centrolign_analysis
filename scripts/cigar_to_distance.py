@@ -80,7 +80,7 @@ def cigar_to_dist_method1(cigar, min_scale):
        ---------------
      (ref_len + query_len)
     '''
-    print("calculating distance 1 - Jordan's original formula")
+    #print("calculating distance 1 - Jordan's original formula")
     query_len = 0
     ref_len = 0
     matches = 0
@@ -153,7 +153,7 @@ if __name__ == "__main__":
         samp1 = m.group(1)
         samp2 = m.group(2)
 
-        print(int(args.dist_metric))
+        #print(int(args.dist_metric))
         if int(args.dist_metric) == 1:
             dist = cigar_to_dist_method1(cigar, use_min_scale)
         elif int(args.dist_metric) == 2:
