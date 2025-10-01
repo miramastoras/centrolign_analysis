@@ -387,6 +387,47 @@ sbatch \
     --export=CHR=chr7 \
     /private/groups/patenlab/mira/centrolign/github/centrolign_analysis/analysis_notes/release2_QC_v2/slurm_scripts/all_pairs.sh
 ```
+Run centrolign all pairs - Chr 5
+```sh
+git -C /private/groups/patenlab/mira/centrolign/github/centrolign_analysis pull
+
+mkdir -p /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2_QC_v2/all_pairs/chr5/logs
+
+cd /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2_QC_v2/all_pairs/chr5/
+
+sbatch \
+    --job-name=chr5_r2_QCv2 \
+    --array=[1-43956]%128 \
+    --export=CHR=chr5 \
+    /private/groups/patenlab/mira/centrolign/github/centrolign_analysis/analysis_notes/release2_QC_v2/slurm_scripts/all_pairs.sh
+
+sbatch \
+--job-name=chr5_r2_QCv2 \
+    --array=[43957-56953]%128 \
+    --export=CHR=chr5 \
+    /private/groups/patenlab/mira/centrolign/github/centrolign_analysis/analysis_notes/release2_QC_v2/slurm_scripts/all_pairs.sh
+```
+Run centrolign all pairs - Chr 9
+```sh
+git -C /private/groups/patenlab/mira/centrolign/github/centrolign_analysis pull
+
+mkdir -p /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2_QC_v2/all_pairs/chr9/logs
+
+cd /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2_QC_v2/all_pairs/chr9/
+
+sbatch \
+    --job-name=chr9_r2_QCv2 \
+    --array=[1-40000]%128 \
+    --export=CHR=chr9 \
+    /private/groups/patenlab/mira/centrolign/github/centrolign_analysis/analysis_notes/release2_QC_v2/slurm_scripts/all_pairs.sh
+
+#!/bin/sh
+sbatch \
+    --job-name=chr9_r2_QCv2 \
+    --array=[40001-83028]%128 \
+    --export=CHR=chr9 \
+    /private/groups/patenlab/mira/centrolign/github/centrolign_analysis/analysis_notes/release2_QC_v2/slurm_scripts/all_pairs.sh
+```
 
 **Sanity check: search for empty cigar strings, count number in each dir**
 

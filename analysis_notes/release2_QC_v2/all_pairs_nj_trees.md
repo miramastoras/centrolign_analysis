@@ -4,8 +4,6 @@
 
 Get distance matrices for all pairs
 ```sh
-
-## Submit on slurm - ~ 1hr runtime
 chromosomes=("chr1" "chr12" "chr10" "chr11" "chr8")
 
 mkdir -p /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2_QC_v2/all_pairs/distance_matrices
@@ -38,6 +36,57 @@ do
         -t /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2_QC_v2/all_pairs/nj_trees/${chr}_r2_QC_v2_centrolign_all_pairs_nj_tree.nwk
   done
 ```
+Create sample lists for the heatmaps
+```sh
+chromosomes=("chr1" "chr12" "chr10" "chr11" "chr8")
+
+for chr in "${chromosomes[@]}"
+do
+  cut -f1-2 /private/groups/migalab/juklucas/censat_regions/active_arrays/asat_arrays_${chr}.tsv | grep -v "sample_id" | sed 's/\t/./g' > /private/groups/patenlab/mira/centrolign/analysis/HPRC_release2_QCv2/sample_lists/${chr}.samples.txt
+done
+
+ls | while read line ; do wc -l $line;done
+```
+
+Plot pairwise heatmaps
+```sh
+chromosomes=("chr1" "chr12" "chr10" "chr11" "chr8")
+
+for chr in "${chromosomes[@]}"
+do
+    python3 /Users/miramastoras/Desktop/github_repos/centrolign_analysis/scripts/pairwise_tree_heatmap_v2.py \
+        -t /Users/miramastoras/Desktop/HPRCr2_QC_v2/${chr}_r2_QC_v2_centrolign_all_pairs_nj_tree.format5.nwk \
+        -s /Users/miramastoras/Desktop/HPRCr2_QC_v2/${chr}.samples.txt \
+        -p /Users/miramastoras/Desktop/HPRCr2_QC_v2/${chr}_r2_QC_v2_centrolign_pairwise_distance.csv \
+        -m "Centrolign all pairs distances" \
+        -n "${chr} NJ tree" \
+        -d "All pairs Distances" \
+        -o /Users/miramastoras/Desktop/github_repos/centrolign_analysis/analysis_notes/release2_QC_v2/figures/${chr}_r2_QC_v2_all_pairs --no_labels
+done
+```
+
+### Chr 2, Chr 6, Chr 7
+
+Get distance matrices and create NJ trees
+```sh
+git -C /private/groups/patenlab/mira/centrolign/github/centrolign_analysis/ pull
+
+sbatch \
+    --job-name=chr2_r2_QCv2_tree \
+    --export=CHR=chr2 \
+    /private/groups/patenlab/mira/centrolign/github/centrolign_analysis/analysis_notes/release2_QC_v2/slurm_scripts/all_pairs_nj_tree.sh
+
+sbatch \
+    --job-name=chr6_r2_QCv2_tree \
+    --export=CHR=chr6 \
+    /private/groups/patenlab/mira/centrolign/github/centrolign_analysis/analysis_notes/release2_QC_v2/slurm_scripts/all_pairs_nj_tree.sh
+
+sbatch \
+    --job-name=chr7_r2_QCv2_tree \
+    --export=CHR=chr7 \
+    /private/groups/patenlab/mira/centrolign/github/centrolign_analysis/analysis_notes/release2_QC_v2/slurm_scripts/all_pairs_nj_tree.sh
+```
+
 Create sample lists for the heatmaps
 ```sh
 chromosomes=("chr1" "chr12" "chr10" "chr11" "chr8")
