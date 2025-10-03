@@ -2,6 +2,11 @@
 
 '''
 Purpose: Plot tree with heatmap displaying pairwise input values
+
+Updates to v2:
+ - ability to render sample lists with n > 130
+ - option to pass in a secondary sample list, whose pairwise values with itself will be colored a competely different color than the heatmap
+         this is a visual check to make sure a subset of the tree is correct.
 Author: Mira Mastoras, mmastora@ucsc.edu
 '''
 
@@ -52,6 +57,10 @@ def arg_parser():
     parser.add_argument("-o", "--output_dir",
                         required=True,
                         help="directory path to write output files to")
+    parser.add_argument("--highlight_samples",
+                        required=False,
+                        help="List of samples for which all pairwise values will be colored red in the heatmap")
+
 
     return parser.parse_args()
 
@@ -145,6 +154,11 @@ def main():
             key = "_".join(sorted([row[0],row[1]]))
             value = float(row[2])  # Column 3 as the value
             pairwise_vals[key] = value
+
+    highlight_samples = set()
+    if args.highlight_samples:
+        with open(args.highlight_samples, 'r') as file:
+            highlight_samples = set(line.strip() for line in file)
 
     min_pairwise = min(pairwise_vals.values())  # 10
     max_pairwise = max(pairwise_vals.values())
@@ -276,7 +290,15 @@ def main():
 
             # draw diamond for current pair
             diamond_xy=[bottom,left,top,right]
-            diamond = patches.Polygon(diamond_xy, fill=True, facecolor=(cmap(val)))
+
+            # Check if both samples are in the highlight list
+            if id_map[pos1] in highlight_samples and id_map[pos2] in highlight_samples:
+                facecolor = 'red'  # Highlight color
+            else:
+                facecolor = cmap(val)
+
+            diamond = patches.Polygon(diamond_xy, fill=True, facecolor=facecolor)
+
             axes[2].add_patch(diamond)
 
     # hide y axis labels for dendogram
