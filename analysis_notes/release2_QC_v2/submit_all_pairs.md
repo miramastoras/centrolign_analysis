@@ -615,7 +615,7 @@ sbatch \
 
 ```sh
 # Search for empty cigar strings
-chromosomes=("chr13" "chr14" "chr17" "chr18")
+chromosomes=("chr13" "chr14" "chr17" "chr18" "chr16" "chr15")
 
 for chr in "${chromosomes[@]}"
 do
@@ -624,7 +624,7 @@ do
 done
 
 # Count strings in each dir
-chromosomes=("chr13" "chr14" "chr17" "chr18")
+chromosomes=("chr13" "chr14" "chr17" "chr18" "chr16" "chr15")
 
 for chr in "${chromosomes[@]}"
 do
@@ -632,3 +632,183 @@ do
   ls /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2_QC_v2/all_pairs/${chr}/pairwise_cigar/ | wc -l
 done
 ```
+
+### Run centrolign all pairs for Chr 19, Chr 20, Chr 21, Chr 22, Chr X, Chr Y
+
+
+Get list of fasta files per chromosome
+```sh
+cd /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2_QC_v2/extract_fastas
+
+mkdir -p /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2_QC_v2/extract_fastas/fasta_lists/
+
+chromosomes=("chr19" "chr20" "chr21" "chr22" "chrX" "chrY")
+for chr in "${chromosomes[@]}"
+do
+    ls /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2_QC_v2/extract_fastas/${chr}/ | while read line ;
+      do realpath $chr/$line >> /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2_QC_v2/extract_fastas/fasta_lists/release2_QC_v2_${chr}.txt
+    done
+done
+
+# Sanity check again that we have all fastas - check against QC list length
+
+for chr in "${chromosomes[@]}"
+do
+  fastas=`cat /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2_QC_v2/extract_fastas/fasta_lists/release2_QC_v2_${chr}.txt | wc -l`
+  QC=`grep -v "sample_id" /private/groups/migalab/juklucas/censat_regions/active_arrays/asat_arrays_${chr}.tsv | wc -l`
+
+  echo $chr,$fastas,$QC
+  if [[ "$fastas" == "$QC" ]]; then
+    echo "true"
+  fi
+done
+```
+Generate all vs all combinations
+```sh
+chromosomes=("chr19" "chr20" "chr21" "chr22" "chrX" "chrY")
+
+# get all vs all pairwise combinations
+for chr in "${chromosomes[@]}"
+do
+  mkdir -p /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2_QC_v2/all_pairs/${chr}
+
+  while read -r s1; do
+      while read -r s2; do
+          [[ "$s1" < "$s2" ]] && echo -e "$s1\t$s2\t$chr"
+      done < /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2_QC_v2/extract_fastas/fasta_lists/release2_QC_v2_${chr}.txt
+  done < /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2_QC_v2/extract_fastas/fasta_lists/release2_QC_v2_${chr}.txt > /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2_QC_v2/all_pairs/${chr}/release2_QC_v2_all_pairs_combinations_${chr}.txt
+done
+```
+Count per chrom
+```sh
+for chr in "${chromosomes[@]}"
+do
+  wc -l /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2_QC_v2/all_pairs/${chr}/release2_QC_v2_all_pairs_combinations_${chr}.txt
+done
+
+# 48828 /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2_QC_v2/all_pairs/chr19/release2_QC_v2_all_pairs_combinations_chr19.txt
+# 53956 /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2_QC_v2/all_pairs/chr20/release2_QC_v2_all_pairs_combinations_chr20.txt
+# 38226 /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2_QC_v2/all_pairs/chr21/release2_QC_v2_all_pairs_combinations_chr21.txt
+# 67161 /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2_QC_v2/all_pairs/chr22/release2_QC_v2_all_pairs_combinations_chr22.txt
+# 47278 /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2_QC_v2/all_pairs/chrX/release2_QC_v2_all_pairs_combinations_chrX.txt
+# 990 /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2_QC_v2/all_pairs/chrY/release2_QC_v2_all_pairs_combinations_chrY.txt
+```
+Run centrolign all pairs - Chr 19
+```sh
+git -C /private/groups/patenlab/mira/centrolign/github/centrolign_analysis pull
+
+mkdir -p /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2_QC_v2/all_pairs/chr19/logs
+
+cd /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2_QC_v2/all_pairs/chr19/
+
+sbatch \
+    --job-name=chr19_r2_QCv2 \
+    --array=[1-48828]%128 \
+    --export=CHR=chr19 \
+    /private/groups/patenlab/mira/centrolign/github/centrolign_analysis/analysis_notes/release2_QC_v2/slurm_scripts/all_pairs.sh
+```
+
+Run centrolign all pairs - Chr 20
+```sh
+git -C /private/groups/patenlab/mira/centrolign/github/centrolign_analysis pull
+
+mkdir -p /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2_QC_v2/all_pairs/chr20/logs
+
+cd /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2_QC_v2/all_pairs/chr20/
+
+sbatch \
+    --job-name=chr20_r2_QCv2 \
+    --array=[1-30000]%128 \
+    --export=CHR=chr20 \
+    /private/groups/patenlab/mira/centrolign/github/centrolign_analysis/analysis_notes/release2_QC_v2/slurm_scripts/all_pairs.sh
+
+sbatch \
+    --job-name=chr20_r2_QCv2 \
+    --array=[30001-53956]%128 \
+    --export=CHR=chr20 \
+    /private/groups/patenlab/mira/centrolign/github/centrolign_analysis/analysis_notes/release2_QC_v2/slurm_scripts/all_pairs.sh
+```
+
+Run centrolign all pairs - Chr 21
+```sh
+git -C /private/groups/patenlab/mira/centrolign/github/centrolign_analysis pull
+
+mkdir -p /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2_QC_v2/all_pairs/chr21/logs
+
+cd /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2_QC_v2/all_pairs/chr21/
+
+sbatch \
+    --job-name=chr21_r2_QCv2 \
+    --array=[1-38226]%128 \
+    --export=CHR=chr21 \
+    /private/groups/patenlab/mira/centrolign/github/centrolign_analysis/analysis_notes/release2_QC_v2/slurm_scripts/all_pairs.sh
+```
+
+Run centrolign all pairs - Chr 22
+```sh
+git -C /private/groups/patenlab/mira/centrolign/github/centrolign_analysis pull
+
+mkdir -p /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2_QC_v2/all_pairs/chr22/logs
+
+cd /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2_QC_v2/all_pairs/chr22/
+
+sbatch \
+    --job-name=chr22_r2_QCv2 \
+    --array=[1-30000]%128 \
+    --export=CHR=chr22 \
+    /private/groups/patenlab/mira/centrolign/github/centrolign_analysis/analysis_notes/release2_QC_v2/slurm_scripts/all_pairs.sh
+
+sbatch \
+    --job-name=chr22_r2_QCv2 \
+    --array=[30001-67161]%128 \
+    --export=CHR=chr22 \
+    /private/groups/patenlab/mira/centrolign/github/centrolign_analysis/analysis_notes/release2_QC_v2/slurm_scripts/all_pairs.sh
+```
+Run centrolign all pairs - Chr X
+```sh
+git -C /private/groups/patenlab/mira/centrolign/github/centrolign_analysis pull
+
+mkdir -p /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2_QC_v2/all_pairs/chrX/logs
+
+cd /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2_QC_v2/all_pairs/chrX/
+
+sbatch \
+    --job-name=chrX_r2_QCv2 \
+    --array=[1-47278]%128 \
+    --export=CHR=chrX \
+    /private/groups/patenlab/mira/centrolign/github/centrolign_analysis/analysis_notes/release2_QC_v2/slurm_scripts/all_pairs.sh
+```
+Run centrolign all pairs - Chr Y
+```sh
+git -C /private/groups/patenlab/mira/centrolign/github/centrolign_analysis pull
+
+mkdir -p /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2_QC_v2/all_pairs/chrY/logs
+
+cd /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2_QC_v2/all_pairs/chrY/
+
+sbatch \
+    --job-name=chrY_r2_QCv2 \
+    --array=[1-990]%128 \
+    --export=CHR=chrY \
+    /private/groups/patenlab/mira/centrolign/github/centrolign_analysis/analysis_notes/release2_QC_v2/slurm_scripts/all_pairs.sh
+```
+**Sanity check: search for empty cigar strings, count number in each dir**
+
+```sh
+# Search for empty cigar strings
+chromosomes=("chr19" "chr20" "chr21")
+
+for chr in "${chromosomes[@]}"
+do
+  echo $chr
+  find /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2_QC_v2/all_pairs/${chr}/pairwise_cigar/ -type f -empty
+done
+
+# Count strings in each dir
+chromosomes=("chr19" "chr20" "chr21")
+
+for chr in "${chromosomes[@]}"
+do
+  echo $chr
+  ls /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2_QC_v2/all_pairs/${chr}/pairwise_cigar/ | wc -l
+done

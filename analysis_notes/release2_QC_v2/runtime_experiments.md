@@ -19,7 +19,7 @@ done
 # Extract fasta files with flanks
 git -C /private/groups/patenlab/mira/centrolign/github/centrolign_analysis pull
 
-cd /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2_QC_v2/extract_fastas
+cd /private/groups/patenlab/mira/centrolign/batch_submissions/runtime_debugging/r2_QC_v2_flanks_test/chr12/extract_fastas_100kb_flank
 
 mkdir -p logs
 sbatch \
