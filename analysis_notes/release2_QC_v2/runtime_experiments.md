@@ -5,7 +5,7 @@
 For chr12, select 50 samples. Run with 100 kb of flanks, and without 100 kb of flanks
 
 1. Randomly select 50 samples from chr 12
-```
+```sh
 grep -v "sample_id" /private/groups/migalab/juklucas/censat_regions/active_arrays/asat_arrays_chr12.tsv | shuf -n 50 | cut -f 1-3 | sed 's/\t/,/g' > /private/groups/patenlab/mira/centrolign/batch_submissions/runtime_debugging/r2_QC_v2_flanks_test/chr12/samples.txt
 ```
 2. Regenerate fasta files with 100kb flanks
@@ -24,6 +24,5 @@ cd /private/groups/patenlab/mira/centrolign/batch_submissions/runtime_debugging/
 mkdir -p logs
 sbatch \
   /private/groups/patenlab/mira/centrolign/github/centrolign_analysis/analysis_notes/release2_QC_v2/slurm_scripts/extract_fasta_r2_QCv2_100kb_flank_chr12.sh
-
-
 ```
+3. Combine fastas for MSA

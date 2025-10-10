@@ -35,31 +35,30 @@ ASM_FASTA=$(basename $S3_ASM)
 
 HOR_ARRAY_BED=/private/groups/patenlab/mira/centrolign/batch_submissions/runtime_debugging/r2_QC_v2_flanks_test/chr12/per_smp_asat_beds_100kb/${SMP}.${HAP}_asat_arrays.100kb_flank.bed
 
-for CHR in {12}; do
-    echo "chr${CHR}"
-    OUTPATH=/private/groups/patenlab/mira/centrolign/batch_submissions/runtime_debugging/r2_QC_v2_flanks_test/chr${CHR}/extract_fastas_100kb_flank/
-    mkdir -p $OUTPATH
+CHR=12
+echo "chr${CHR}"
+OUTPATH=/private/groups/patenlab/mira/centrolign/batch_submissions/runtime_debugging/r2_QC_v2_flanks_test/chr${CHR}/extract_fastas_100kb_flank/
+mkdir -p $OUTPATH
 
-    #REGIONFILE=/data/tmp/$(whoami)/${CHR}/${ASM_ID}.chr${CHR}.hor.txt
-    REGIONFILE=${LOCAL_FOLDER}/${ASM_ID}.chr${CHR}.hor.txt
-    touch $REGIONFILE
-    grep -w chr${CHR} ${HOR_ARRAY_BED} | awk '{ printf "%s:%d-%d\n", $1, $2+1, $3 }' > ${REGIONFILE}
-    ls $REGIONFILE
+#REGIONFILE=/data/tmp/$(whoami)/${CHR}/${ASM_ID}.chr${CHR}.hor.txt
+REGIONFILE=${LOCAL_FOLDER}/${ASM_ID}.chr${CHR}.hor.txt
+touch $REGIONFILE
+grep -w chr${CHR} ${HOR_ARRAY_BED} | awk '{ printf "%s:%d-%d\n", $1, $2+1, $3 }' > ${REGIONFILE}
+ls $REGIONFILE
 
-    if [ -s $REGIONFILE ];
-        then
-            echo "chr${CHR} exists, $REGIONFILE"
-            # extract and add the sample name as the sequence name
-            echo "extract region" `cat $REGIONFILE`
+if [ -s $REGIONFILE ];
+    then
+        echo "chr${CHR} exists, $REGIONFILE"
+        # extract and add the sample name as the sequence name
+        echo "extract region" `cat $REGIONFILE`
 
-            HORFASTA=$OUTPATH/${SMP}.${HAP}_chr${CHR}_hor_array.fasta
+        HORFASTA=$OUTPATH/${SMP}.${HAP}_chr${CHR}_hor_array.fasta
 
-            samtools faidx -r $REGIONFILE $LOCAL_FOLDER/$ASM_FASTA | sed "s/>/>$SMP.$HAP /g" > $HORFASTA
+        samtools faidx -r $REGIONFILE $LOCAL_FOLDER/$ASM_FASTA | sed "s/>/>$SMP.$HAP /g" > $HORFASTA
 
-    else
-        echo "chr${CHR} was filtered out"
-    fi
-done
+else
+    echo "chr${CHR} was filtered out"
+fi
 
 rm $LOCAL_FOLDER/${ASM_FASTA}
 rm $LOCAL_FOLDER/${ASM_FASTA}.fai
