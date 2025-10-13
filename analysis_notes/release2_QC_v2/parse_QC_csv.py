@@ -11,6 +11,7 @@ def main():
 
     # read in Julian's QC csv
     if args.qc_table.endswith(".tsv"):
+        print("tsv")
         df = pd.read_csv(args.qc_table, sep="\t")
 
     elif args.qc_table.endswith(".csv"):
