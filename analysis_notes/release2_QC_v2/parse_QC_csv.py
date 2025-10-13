@@ -5,12 +5,20 @@ import os
 def main():
     # Set up argument parser
     parser = argparse.ArgumentParser(description="Reads concatenated asat csv files and outputs per sample beds for all the arrays")
-    parser.add_argument("qc_csv_file", help="Path to the QC CSV file")
+    parser.add_argument("qc_table", help="Path to the QC table file. Either csv or tsv accepted")
     parser.add_argument("output_path", help="Path to the output bed files")
     args = parser.parse_args()
 
     # read in Julian's QC csv
-    df = pd.read_csv(args.qc_csv_file, sep="\t")
+    if args.qc_table.endswith(".tsv"):
+        df = pd.read_csv(args.qc_table, sep="\t")
+
+    elif args.qc_table.endswith(".csv"):
+        df = pd.read_csv(args.qc_table)
+
+    else:
+        print("Error: invalid input file format. Must be either tsv or csv")
+        exit()
 
     # Group by assembly_id
     for assembly_id, group in df.groupby("assembly_id"):
