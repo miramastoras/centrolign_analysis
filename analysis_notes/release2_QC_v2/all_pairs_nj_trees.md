@@ -215,6 +215,89 @@ do
         -o /Users/miramastoras/Desktop/github_repos/centrolign_analysis/analysis_notes/release2_QC_v2/figures/${chr}_r2_QC_v2_all_pairs --no_labels
 done
 ```
+
+### Chr 19, Chr 20, Chr 21, chr 22, chrX, chrY
+
+Get distance matrices and create NJ trees
+```sh
+git -C /private/groups/patenlab/mira/centrolign/github/centrolign_analysis/ pull
+
+cd /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2_QC_v2/all_pairs/nj_trees
+
+mkdir -p /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2_QC_v2/all_pairs/nj_trees/logs
+
+sbatch \
+    --job-name=chr19_r2_QCv2_tree \
+    --export=CHR=chr19 \
+    /private/groups/patenlab/mira/centrolign/github/centrolign_analysis/analysis_notes/release2_QC_v2/slurm_scripts/all_pairs_nj_tree.sh
+
+sbatch \
+    --job-name=chr20_r2_QCv2_tree \
+    --export=CHR=chr20 \
+    /private/groups/patenlab/mira/centrolign/github/centrolign_analysis/analysis_notes/release2_QC_v2/slurm_scripts/all_pairs_nj_tree.sh
+
+sbatch \
+    --job-name=chr21_r2_QCv2_tree \
+    --export=CHR=chr21 \
+    /private/groups/patenlab/mira/centrolign/github/centrolign_analysis/analysis_notes/release2_QC_v2/slurm_scripts/all_pairs_nj_tree.sh
+
+sbatch \
+    --job-name=chr22_r2_QCv2_tree \
+    --export=CHR=chr22 \
+    /private/groups/patenlab/mira/centrolign/github/centrolign_analysis/analysis_notes/release2_QC_v2/slurm_scripts/all_pairs_nj_tree.sh
+
+sbatch \
+    --job-name=chrX_r2_QCv2_tree \
+    --export=CHR=chrX \
+    /private/groups/patenlab/mira/centrolign/github/centrolign_analysis/analysis_notes/release2_QC_v2/slurm_scripts/all_pairs_nj_tree.sh
+
+sbatch \
+    --job-name=chrY_r2_QCv2_tree \
+    --export=CHR=chrY \
+    /private/groups/patenlab/mira/centrolign/github/centrolign_analysis/analysis_notes/release2_QC_v2/slurm_scripts/all_pairs_nj_tree.sh
+```
+Create sample lists for the heatmaps
+```sh
+chromosomes=("chr19" "chr20" "chr21" "chr22" "chrX" "chrY")
+
+for chr in "${chromosomes[@]}"
+do
+  cut -f1-2 /private/groups/migalab/juklucas/censat_regions/active_arrays/asat_arrays_${chr}.tsv | grep -v "sample_id" | sed 's/\t/./g' > /private/groups/patenlab/mira/centrolign/analysis/HPRC_release2_QCv2/sample_lists/${chr}.samples.txt
+done
+
+# Sanity check the sample list is the correct size
+cd /private/groups/patenlab/mira/centrolign/analysis/HPRC_release2_QCv2/sample_lists/
+ls  | while read line ; do wc -l $line;done
+```
+
+Copy scripts for plots to local
+```sh
+mkdir -p /private/groups/patenlab/mira/HPRC_release2_QCv2_all_pairs_heatmaps/
+cp /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2_QC_v2/all_pairs/nj_trees/*format5* /private/groups/patenlab/mira/HPRC_release2_QCv2_all_pairs_heatmaps/
+
+cp /private/groups/patenlab/mira/centrolign/analysis/HPRC_release2_QCv2/sample_lists/*samples.txt /private/groups/patenlab/mira/HPRC_release2_QCv2_all_pairs_heatmaps/
+
+cp /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2_QC_v2/all_pairs/distance_matrices/* /private/groups/patenlab/mira/HPRC_release2_QCv2_all_pairs_heatmaps/
+```
+
+Plot pairwise heatmaps
+```sh
+chromosomes=("chr19" "chr20" "chr21" "chr22" "chrX" "chrY")
+
+for chr in "${chromosomes[@]}"
+do
+    python3 /Users/miramastoras/Desktop/github_repos/centrolign_analysis/scripts/pairwise_tree_heatmap_v2.py \
+        -t /Users/miramastoras/Desktop/HPRC_release2_QCv2_all_pairs_heatmaps/${chr}_r2_QC_v2_centrolign_all_pairs_nj_tree.format5.nwk \
+        -s /Users/miramastoras/Desktop/HPRC_release2_QCv2_all_pairs_heatmaps/${chr}.samples.txt \
+        -p /Users/miramastoras/Desktop/HPRC_release2_QCv2_all_pairs_heatmaps/${chr}_r2_QC_v2_centrolign_pairwise_distance.csv \
+        -m "Centrolign all pairs distances" \
+        -n "${chr} NJ tree" \
+        -d "All pairs Distances" \
+        -o /Users/miramastoras/Desktop/github_repos/centrolign_analysis/analysis_notes/release2_QC_v2/figures/${chr}_r2_QC_v2_all_pairs --no_labels
+done
+```
+Pushed plots to github
+
 ## Dividing up the input guide trees for runtime
 
 Because centrolign runtime gets unreasonable beyond ~ 180-200 samples, we need to divide up the input NJ trees and submit separate GSA runs. This works out for our downstream analysis okay though, because there are clades that have almost 0 alignment identity, we can't report variants between those clades, and will instead need to report variants only within clades that are alignable.

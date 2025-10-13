@@ -35,7 +35,8 @@ ASM_FASTA=$(basename $S3_ASM)
 
 HOR_ARRAY_BED=/private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2_QC_v2/per_smp_asat_beds/${SMP}.${HAP}_asat_arrays.bed
 
-for CHR in {1..22} X Y M; do
+#for CHR in {1..22} X Y M; do
+for CHR in {3..4} ; do
     echo "chr${CHR}"
     OUTPATH=/private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2_QC_v2/extract_fastas/chr${CHR}
     mkdir -p $OUTPATH

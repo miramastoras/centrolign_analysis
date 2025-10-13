@@ -13,7 +13,7 @@ Manually added CHM13 and HG002 to the file
 
 #### 1. Extract HOR fasta files for all chromosomes
 
-Concatenate all of the QC csv files together. Have to run chr3 and chr4 separately because they are formatted differently
+Concatenate all of the QC csv files together. Have to run chr3 and chr4 separately because they came in later.
 
 ```sh
 chromosomes=("chr1" "chr2" "chr5" "chr6" "chr7" "chr8" "chr9" "chr10" "chr11" "chr12" "chr13" "chr14" "chr15" "chr16" "chr17" "chr18" "chr19" "chr20" "chr21" "chr22" "chrX" "chrY")
@@ -29,12 +29,12 @@ done
 #!/bin/sh
 chromosomes=("chr3" "chr4")
 
-grep sample_id /private/groups/migalab/juklucas/censat_regions/active_arrays/asat_arrays_chr3.csv > /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2_QC_v2/asat_arrays_chr3_4.csv
+grep sample_id /private/groups/migalab/juklucas/censat_regions/active_arrays/asat_arrays_chr3.tsv > /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2_QC_v2/asat_arrays_chr3_4.tsv
 
 for chr in "${chromosomes[@]}"
 do
-  wc -l /private/groups/migalab/juklucas/censat_regions/active_arrays/asat_arrays_${chr}.csv
-  cat /private/groups/migalab/juklucas/censat_regions/active_arrays/asat_arrays_${chr}.csv | grep -v "sample_id" >> /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2_QC_v2/asat_arrays_chr3_4.csv
+  wc -l /private/groups/migalab/juklucas/censat_regions/active_arrays/asat_arrays_${chr}.tsv
+  cat /private/groups/migalab/juklucas/censat_regions/active_arrays/asat_arrays_${chr}.tsv | grep -v "sample_id" >> /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2_QC_v2/asat_arrays_chr3_4.tsv
 done  
 ```
 
@@ -48,22 +48,21 @@ python3 /private/groups/patenlab/mira/centrolign/github/centrolign_analysis/anal
 
 # Chr 3 and Chr 4
 python3 /private/groups/patenlab/mira/centrolign/github/centrolign_analysis/analysis_notes/release2_QC_v2/parse_QC_csv.py \
-  /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2_QC_v2/asat_arrays_chr3_4.csv \
+  /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2_QC_v2/asat_arrays_chr3_4.tsv \
   /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2_QC_v2/per_smp_asat_beds/
 ```
 
 Get list of all samples for submitting sbatch script
 ```sh
-cut -f1-3 -d"," asat_arrays_chr3_4.csv | grep -v sample_id > all_samples_with_asats.txt
+cut -f1-3 /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2_QC_v2/asat_arrays_chr3_4.tsv | grep -v sample_id | sed 's/\t/,/g' > all_samples_with_asats.txt
 cut -f1-3 -d"," asat_arrays_wo_chr3_4.csv | grep -v sample_id >> all_samples_with_asats.txt
 
 sort all_samples_with_asats.txt | uniq > tmp ; mv tmp all_samples_with_asats.txt
-# 466 samples
+# 465 samples
 ```
 
 Slurm script to run on list of samples, downloads fasta file per sample and extracts HOR sequence per sample, placing it in dir per chromosome
 ```sh
-
 git -C /private/groups/patenlab/mira/centrolign/github/centrolign_analysis pull
 
 cd /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2_QC_v2/extract_fastas
@@ -796,7 +795,7 @@ sbatch \
 
 ```sh
 # Search for empty cigar strings
-chromosomes=("chr19" "chr20" "chr21")
+chromosomes=("chr19" "chr20" "chr21" "chr22" "chrX" "chrY")
 
 for chr in "${chromosomes[@]}"
 do
@@ -805,10 +804,11 @@ do
 done
 
 # Count strings in each dir
-chromosomes=("chr19" "chr20" "chr21")
+chromosomes=("chr19" "chr20" "chr21" "chr22" "chrX" "chrY")
 
 for chr in "${chromosomes[@]}"
 do
   echo $chr
   ls /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2_QC_v2/all_pairs/${chr}/pairwise_cigar/ | wc -l
 done
+```
