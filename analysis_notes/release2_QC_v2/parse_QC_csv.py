@@ -10,7 +10,7 @@ def main():
     args = parser.parse_args()
 
     # read in Julian's QC csv
-    df = pd.read_csv(args.qc_csv_file)
+    df = pd.read_csv(args.qc_csv_file, sep="\t")
 
     # Group by assembly_id
     for assembly_id, group in df.groupby("assembly_id"):
