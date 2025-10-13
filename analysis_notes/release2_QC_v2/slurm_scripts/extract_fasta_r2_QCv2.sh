@@ -9,7 +9,7 @@
 #SBATCH --cpus-per-task=1
 #SBATCH --array=[1-465]%465
 #SBATCH --exclude=phoenix-[09,10,22,23,24,18]
-#SBATCH --output=logs/array_job_%A_task_%a.log
+#SBATCH --output=logs/chr3_chr4/array_job_%A_task_%a.log
 #SBATCH --time=1:00:00
 
 SMP_FILE=/private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2_QC_v2/all_samples_with_asats.txt
