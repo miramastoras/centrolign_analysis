@@ -239,10 +239,9 @@ python3 centrolign_analysis/scripts/msa_simulations_boxplot.py
 python3 centrolign_analysis/scripts/pairwise_simulations_boxplot.py
 ```
 
-![pairwise](figures/pairwise_simulations_boxplots.png)
+![pairwise](figures/pairwise_simulations_violins.png)
 
-![MSA](figures/msa_simulations_boxplots.png)
-
+![pairwise](figures/msa_simulations_violins.png)
 ### Comparing the performance of pairwise simulations and MSA simulations for centrolign
 
 Run direct pairwise alignments for the simulated sequences created for the MSA benchmarking
@@ -334,6 +333,7 @@ Plot in pairwise boxplot scripts:
 ```sh
 python3 centrolign_analysis/scripts/pairwise_simulations_boxplot.py
 ```
+![pairwise_vs_msa](figures/MSA_vs_pairwise_simulations_violins.png)
 
 Check if the cigar strings are identical
 
@@ -344,3 +344,5 @@ Do inferred partitions of leaves in tree from MSA match the “true” tree?
 ```sh
 python3 /private/groups/patenlab/mira/centrolign/github/centrolign_analysis/scripts/plot_tree_building_eval.py /private/groups/patenlab/mira/centrolign/simulations/MSA_simulations/
 ```
+
+![node_height](figures/node_height_swarm.png)
