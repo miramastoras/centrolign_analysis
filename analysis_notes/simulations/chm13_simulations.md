@@ -333,7 +333,7 @@ Plot in pairwise boxplot scripts:
 ```sh
 python3 centrolign_analysis/scripts/pairwise_simulations_boxplot.py
 ```
-![pairwise_vs_msa](figures/MSA_vs_pairwise_simulations_violins.png)
+![pairwise_vs_msa](figures/msa_vs_pairwise_simulations_violins.png)
 
 Check if the cigar strings are identical
 
