@@ -461,3 +461,94 @@ do
     -o /Users/miramastoras/Desktop/github_repos/centrolign_analysis/analysis_notes/release2_QC_v2/split_nj_tree/${chr}_aligns_to_other_subgroups.csv
 done
 ```
+
+### Chr7 and chr 22
+
+Chrom 5 is easy to begin with because it has a clear place to split the tree, at the deepest node.
+
+
+Combine all fasta files for the chromosomes first:
+```sh
+chromosomes=("chr7" "chr22")
+
+for chr in "${chromosomes[@]}"
+do
+  cat /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2_QC_v2/extract_fastas/fasta_lists/release2_QC_v2_${chr}.txt | while read line ; do cat $line ; done > /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2_QC_v2/full_fastas/HPRC_release2_QC_v2.${chr}.fasta
+
+  samtools faidx /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2_QC_v2/full_fastas/HPRC_release2_QC_v2.${chr}.fasta
+
+done
+
+# Sanity check all seqs made it into the fasta by checking against sample list
+for chr in "${chromosomes[@]}"
+do
+  list=`cat /private/groups/patenlab/mira/centrolign/analysis/HPRC_release2_QCv2/sample_lists/${chr}.samples.txt | wc -l`
+  fasta=`cat /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2_QC_v2/full_fastas/HPRC_release2_QC_v2.${chr}.fasta.fai | wc -l`
+
+  echo $chr,$fasta,$list
+  if [[ "$fasta" == "$list" ]]; then
+    echo "true"
+  fi
+done
+
+## Split into N subgroups
+N=2
+for chr in "${chromosomes[@]}"
+do
+  mkdir -p /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2_QC_v2/split_nj_trees/${chr}/
+  docker run -u `id -u`:`id -g` -v /private/groups:/private/groups/ \
+      miramastoras/centromere_scripts:v0.1.4 \
+      python3 /private/groups/patenlab/mira/centrolign/github/centromere-scripts/benchmarking/split_fasta_by_tree.py \
+      -t /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2_QC_v2/all_pairs/nj_trees/${chr}_r2_QC_v2_centrolign_all_pairs_nj_tree.nwk \
+      -f /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2_QC_v2/full_fastas/HPRC_release2_QC_v2.${chr}.fasta \
+      -n ${N} \
+      -o /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2_QC_v2/split_nj_trees/${chr}/split_by_${N}/
+done
+```
+
+Sanity check 1: color all samples in subgroup 0 with solid red
+```sh
+# get subgroup 0 list of samples for all three chroms
+chromosomes=("chr7" "chr22")
+
+for chr in "${chromosomes[@]}"
+do
+  samtools faidx /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2_QC_v2/split_nj_trees/${chr}/split_by_2/subgroup_0_seqs.fasta
+  samtools faidx /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2_QC_v2/split_nj_trees/${chr}/split_by_2/subgroup_1_seqs.fasta
+
+  cut -f1 /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2_QC_v2/split_nj_trees/${chr}/split_by_2/subgroup_0_seqs.fasta.fai > /private/groups/patenlab/mira/color_subgroups_heatmap/${chr}.subgroup_0.samples.txt
+done
+
+```
+Plotting on local computer:
+
+```sh
+chromosomes=("chr7" "chr22")
+
+for chr in "${chromosomes[@]}"
+do
+  python3 /Users/miramastoras/Desktop/github_repos/centrolign_analysis/scripts/pairwise_tree_heatmap_v2.py \
+    -t /Users/miramastoras/Desktop/HPRC_release2_QCv2_all_pairs_heatmaps/${chr}_r2_QC_v2_centrolign_all_pairs_nj_tree.format5.nwk \
+    -s /Users/miramastoras/Desktop/HPRC_release2_QCv2_all_pairs_heatmaps/${chr}.samples.txt \
+    -p /Users/miramastoras/Desktop/HPRC_release2_QCv2_all_pairs_heatmaps/${chr}_r2_QC_v2_centrolign_pairwise_distance.csv \
+    -m "Centrolign all pairs distances" \
+    -n "${chr} NJ tree" \
+    -d "All pairs Distances" \
+    -o /Users/miramastoras/Desktop/color_subgroups_heatmap/${chr}_r2_QC_v2_all_pairs --no_labels \
+    --highlight_samples /Users/miramastoras/Desktop/color_subgroups_heatmap/${chr}.subgroup_0.samples.txt
+done
+```
+
+Sanity check 2: Bin pairwise distances between the two subset groups.
+```sh
+chromosomes=("chr7" "chr22")
+for chr in "${chromosomes[@]}"
+do
+    echo $chr
+    python3 /Users/miramastoras/Desktop/github_repos/centrolign_analysis/scripts/bin_pairwise_distances.py \
+    -s /Users/miramastoras/Desktop/HPRC_release2_QCv2_all_pairs_heatmaps/${chr}.samples.txt \
+    -d /Users/miramastoras/Desktop/HPRC_release2_QCv2_all_pairs_heatmaps/${chr}_r2_QC_v2_centrolign_pairwise_distance.csv \
+    -u /Users/miramastoras/Desktop/color_subgroups_heatmap/${chr}.subgroup_0.samples.txt \
+    -o /Users/miramastoras/Desktop/github_repos/centrolign_analysis/analysis_notes/release2_QC_v2/split_nj_tree/${chr}_aligns_to_other_subgroups.csv
+done
+```
