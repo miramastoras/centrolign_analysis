@@ -58,7 +58,7 @@ def plot_swarm(df, output_prefix):
 
     plt.figure(figsize=(12, 6))
     sns.set(style="whitegrid")
-    ax = sns.swarmplot(data=df, x='chromosome', y='aligned_jaccard', size=4)
+    ax = sns.swarmplot(data=df, x='chromosome', y='aligned_jaccard', size=.2)
 
     plt.xticks(rotation=45, ha='right')
     plt.title("Aligned Jaccard Similarity per Chromosome")
