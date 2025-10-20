@@ -47,8 +47,8 @@ def read_pairwise_files(directory):
 
     return pd.concat(all_rows, ignore_index=True)
 
-def plot_swarm(df, output_prefix):
-    # Convert aligned_jaccard to numeric, coercing 'NA' or invalid entries to NaN
+def plot_violin(df, output_prefix):
+    # Convert aligned_jaccard to numeric (skip 'NA')
     df['aligned_jaccard'] = pd.to_numeric(df['aligned_jaccard'], errors='coerce')
     df = df.dropna(subset=['aligned_jaccard'])
 
@@ -58,14 +58,23 @@ def plot_swarm(df, output_prefix):
 
     plt.figure(figsize=(12, 6))
     sns.set(style="whitegrid")
-    ax = sns.swarmplot(data=df, x='chromosome', y='aligned_jaccard', size=4)
+
+    ax = sns.violinplot(
+        data=df,
+        x='chromosome',
+        y='aligned_jaccard',
+        inner='point',  # Show individual points inside the violin
+        scale='width',
+        cut=0
+    )
 
     plt.xticks(rotation=45, ha='right')
-    plt.title("Aligned Jaccard Similarity per Chromosome")
+    plt.title("Aligned Jaccard Similarity per Chromosome (Violin Plot)")
     plt.tight_layout()
-    output_file = f"{output_prefix}_swarmplot.png"
+
+    output_file = f"{output_prefix}_violinplot.png"
     plt.savefig(output_file, dpi=300)
-    print(f"Plot saved to {output_file}")
+    print(f"Violin plot saved to {output_file}")
 
 if __name__ == "__main__":
     if len(sys.argv) != 3:
