@@ -57,7 +57,7 @@ def read_pairwise_files(directory):
         return pd.DataFrame()
 
     return pd.concat(all_rows, ignore_index=True)
-    
+
 if __name__ == "__main__":
     if len(sys.argv) != 2:
         print("Usage: python plot_pairwise_consistency_per_chrom.py <directory_path>")
@@ -68,4 +68,4 @@ if __name__ == "__main__":
     combined_df = read_pairwise_files(dir_path)
 
     # Print or save the result
-    print(combined_df.head())  # or save with combined_df.to_csv("output.csv", index=False)
+    print(combined_df.tail())  # or save with combined_df.to_csv("output.csv", index=False)
