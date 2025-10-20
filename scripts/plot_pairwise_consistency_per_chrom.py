@@ -17,35 +17,47 @@ def extract_chromosome(filename):
 def read_pairwise_files(directory):
     """
     Find all *_pairwise_consistency.txt files in the directory, extract chromosome info,
-    and load them into a single DataFrame.
+    and load them into a single DataFrame. Skips empty files.
     """
     all_rows = []
 
     for filename in os.listdir(directory):
         if filename.endswith('_pairwise_consistency.txt'):
             filepath = os.path.join(directory, filename)
+
+            # Skip if file is empty (0 bytes)
+            if os.path.getsize(filepath) == 0:
+                print(f"Skipping empty file: {filename}")
+                continue
+
             try:
                 chrom = extract_chromosome(filename)
             except ValueError as e:
                 print(f"Warning: {e}")
                 continue
 
-            # Read the file into a DataFrame
-            df = pd.read_csv(filepath, sep="\t")
+            try:
+                # Read the file
+                df = pd.read_csv(filepath, sep="\t")
 
-            # Add chromosome column
-            df['chromosome'] = chrom
+                # Skip if file has no rows
+                if df.empty:
+                    print(f"Skipping empty DataFrame: {filename}")
+                    continue
 
-            all_rows.append(df)
+                df['chromosome'] = chrom
+                all_rows.append(df)
+
+            except Exception as e:
+                print(f"Error reading {filename}: {e}")
+                continue
 
     if not all_rows:
-        print("No valid files found.")
+        print("No valid non-empty files found.")
         return pd.DataFrame()
 
-    # Concatenate all dataframes
-    combined_df = pd.concat(all_rows, ignore_index=True)
-    return combined_df
-
+    return pd.concat(all_rows, ignore_index=True)
+    
 if __name__ == "__main__":
     if len(sys.argv) != 2:
         print("Usage: python plot_pairwise_consistency_per_chrom.py <directory_path>")
