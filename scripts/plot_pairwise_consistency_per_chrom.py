@@ -2,12 +2,10 @@ import os
 import re
 import pandas as pd
 import sys
+import seaborn as sns
+import matplotlib.pyplot as plt
 
 def extract_chromosome(filename):
-    """
-    Extract chromosome identifier from filename, e.g., 'chr12' from 'prefix_chr12_pairwise_consistency.txt'
-    or 'prefix_chr12_group1_pairwise_consistency.txt'
-    """
     match = re.search(r'(chr[0-9XYM]+)', filename)
     if match:
         return match.group(1)
@@ -15,17 +13,11 @@ def extract_chromosome(filename):
         raise ValueError(f"Chromosome not found in filename: {filename}")
 
 def read_pairwise_files(directory):
-    """
-    Find all *_pairwise_consistency.txt files in the directory, extract chromosome info,
-    and load them into a single DataFrame. Skips empty files.
-    """
     all_rows = []
-
     for filename in os.listdir(directory):
         if filename.endswith('_pairwise_consistency.txt'):
             filepath = os.path.join(directory, filename)
 
-            # Skip if file is empty (0 bytes)
             if os.path.getsize(filepath) == 0:
                 print(f"Skipping empty file: {filename}")
                 continue
@@ -37,10 +29,7 @@ def read_pairwise_files(directory):
                 continue
 
             try:
-                # Read the file
                 df = pd.read_csv(filepath, sep="\t")
-
-                # Skip if file has no rows
                 if df.empty:
                     print(f"Skipping empty DataFrame: {filename}")
                     continue
@@ -58,14 +47,33 @@ def read_pairwise_files(directory):
 
     return pd.concat(all_rows, ignore_index=True)
 
+def plot_swarm(df, output_prefix):
+    # Convert aligned_jaccard to numeric, coercing 'NA' or invalid entries to NaN
+    df['aligned_jaccard'] = pd.to_numeric(df['aligned_jaccard'], errors='coerce')
+    df = df.dropna(subset=['aligned_jaccard'])
+
+    if df.empty:
+        print("No valid aligned_jaccard values to plot.")
+        return
+
+    plt.figure(figsize=(12, 6))
+    sns.set(style="whitegrid")
+    ax = sns.swarmplot(data=df, x='chromosome', y='aligned_jaccard', size=4)
+
+    plt.xticks(rotation=45, ha='right')
+    plt.title("Aligned Jaccard Similarity per Chromosome")
+    plt.tight_layout()
+    output_file = f"{output_prefix}_swarmplot.png"
+    plt.savefig(output_file, dpi=300)
+    print(f"Plot saved to {output_file}")
+
 if __name__ == "__main__":
-    if len(sys.argv) != 2:
-        print("Usage: python plot_pairwise_consistency_per_chrom.py <directory_path>")
+    if len(sys.argv) != 3:
+        print("Usage: python combine_pairwise.py <directory_path> <output_prefix>")
         sys.exit(1)
 
     dir_path = sys.argv[1]
+    output_prefix = sys.argv[2]
 
     combined_df = read_pairwise_files(dir_path)
-
-    # Print or save the result
-    print(combined_df.tail())  # or save with combined_df.to_csv("output.csv", index=False)
+    plot_swarm(combined_df, output_prefix)
