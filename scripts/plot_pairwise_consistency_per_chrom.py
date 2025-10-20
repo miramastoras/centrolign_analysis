@@ -85,4 +85,4 @@ if __name__ == "__main__":
     output_prefix = sys.argv[2]
 
     combined_df = read_pairwise_files(dir_path)
-    plot_swarm(combined_df, output_prefix)
+    plot_violin(combined_df, output_prefix)
