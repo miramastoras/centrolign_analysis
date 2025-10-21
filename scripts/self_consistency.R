@@ -19,15 +19,17 @@ key1 = paste(dists$sample1, dists$sample2, sep = "_")
 key2 = paste(dists$sample2, dists$sample1, sep = "_")
 dists = rbind(dists, dists)
 row.names(dists) = c(key1, key2)
+print(length(row.names))
 sample_dists = dists[paste(dat$sample1, dat$sample2, sep = "_"), "distance"]
 dat[["dist"]] = sample_dists
 
 # Read alignment distance file and merge
-aln_dists = read.csv(alignment_distance_file, header = FALSE, sep = "\t")
+aln_dists = read.csv(alignment_distance_file, header = FALSE, sep = ",")
 key1 = paste(aln_dists$sample1, aln_dists$sample2, sep = "_")
 key2 = paste(aln_dists$sample2, aln_dists$sample1, sep = "_")
 aln_dists = rbind(aln_dists, aln_dists)
 row.names(aln_dists) = c(key1, key2)
+print(length(row.names))
 sample_aln_dists = aln_dists[paste(dat$sample1, dat$sample2, sep = "_"), "distance"]
 dat[["aln_dist"]] = sample_aln_dists  # add alignment distance column
 
