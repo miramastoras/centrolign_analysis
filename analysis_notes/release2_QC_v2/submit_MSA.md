@@ -765,6 +765,31 @@ time /private/home/mmastora/progs/centrolign/build/centrolign -v 4 \
   /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2_QC_v2/split_nj_trees/chr7/split_by_2/subgroup_1_seqs.fasta \
   > /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2_QC_v2/MSA/chr7/subgroup_1/chr7.subgroup_1.centrolign.gfa
 ```
+Induced pairwise
+
+```sh
+#!/bin/bash
+#SBATCH --job-name=chr7_MSA_subgroup_1_induced_pairwise
+#SBATCH --partition=long
+#SBATCH --mail-user=mmastora@ucsc.edu
+#SBATCH --mail-type=ALL
+#SBATCH --nodes=1
+#SBATCH --mem=200gb
+#SBATCH --ntasks=1
+#SBATCH --cpus-per-task=32
+#SBATCH --output=logs/centrolign_%x.%j.log
+#SBATCH --time=7-00:00
+
+
+time /private/home/mmastora/progs/centrolign/build/centrolign -v 4 \
+  -S /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2_QC_v2/MSA/chr7/subgroup_1/subproblems/ \
+  -T /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2_QC_v2/split_nj_trees/chr7/split_by_2/subgroup_1_tree.nwk \
+  -A /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2_QC_v2/MSA/chr7/subgroup_1/induced_pairwise_cigars/pairwise_cigar \
+  -R \
+  --threads 32 \
+  /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2_QC_v2/split_nj_trees/chr7/split_by_2/subgroup_1_seqs.fasta \
+  > /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2_QC_v2/MSA/chr7/subgroup_1/chr7.subgroup_1.centrolign.gfa
+```
 
 #### Chr 22
 
@@ -830,4 +855,36 @@ time /private/home/mmastora/progs/centrolign/build/centrolign -v 4 \
   -T /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2_QC_v2/split_nj_trees/chr22/split_by_2/subgroup_1_tree.nwk \
   /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2_QC_v2/split_nj_trees/chr22/split_by_2/subgroup_1_seqs.fasta \
   > /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2_QC_v2/MSA/chr22/subgroup_1/chr22.subgroup_1.centrolign.gfa
+```
+
+### Chr 20
+
+Decided to run entire sample list together, because of how fast chr7 ran
+
+Working directory:
+```sh
+mkdir -p /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2_QC_v2/MSA/chr20/subproblems/
+mkdir -p /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2_QC_v2/MSA/chr20/logs/
+cd /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2_QC_v2/MSA/chr20/
+```
+
+```sh
+#!/bin/bash
+#SBATCH --job-name=chr20_MSA
+#SBATCH --partition=long
+#SBATCH --mail-user=mmastora@ucsc.edu
+#SBATCH --mail-type=ALL
+#SBATCH --nodes=1
+#SBATCH --mem=800gb
+#SBATCH --ntasks=1
+#SBATCH --cpus-per-task=1
+#SBATCH --output=logs/centrolign_%x.%j.log
+#SBATCH --time=7-00:00
+
+
+time /private/home/mmastora/progs/centrolign/build/centrolign -v 4 \
+  -S /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2_QC_v2/MSA/chr20/subproblems/ \
+  -T /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2_QC_v2/all_pairs/nj_trees/chr20_r2_QC_v2_centrolign_all_pairs_nj_tree.nwk \
+  /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2_QC_v2/full_fastas/HPRC_release2_QC_v2.chr20.fasta \
+  > /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2_QC_v2/MSA/chr20/chr20.centrolign.gfa
 ```

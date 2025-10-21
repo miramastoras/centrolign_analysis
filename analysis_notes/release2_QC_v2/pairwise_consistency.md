@@ -235,3 +235,15 @@ time python3 /private/groups/patenlab/mira/centrolign/github/centromere-scripts/
     /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2_QC_v2/all_pairs/chr7/pairwise_cigar/pairwise_cigar_ \
     > /private/groups/patenlab/mira/centrolign/analysis/pairwise_consistency/HPRC_r2_QCv2_chr7_subgroup0_pairwise_consistency.txt
 ```
+
+### Get patristic distances from the input NJ tree
+
+```sh
+chromosomes=("chr4" "chr5" "chr6" "chr8" "chr7" "chr12" "chr17" "chr18")
+
+for chr in "${chromosomes[@]}"; do
+  /private/home/mmastora/progs/centrolign/build/tree_pair_dist /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2_QC_v2/all_pairs/nj_trees/${chr}_r2_QC_v2_centrolign_all_pairs_nj_tree.nwk > /private/groups/patenlab/mira/centrolign/analysis/pairwise_consistency/tree_pair_dist/${chr}_r2_QC_v2_centrolign_all_pairs_nj_tree.nwk.pair_dists.tsv
+done
+```
+
+### Pairwise consistency per-chrom histograms
