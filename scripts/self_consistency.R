@@ -35,24 +35,27 @@ print(length(row.names))
 sample_aln_dists = aln_dists[paste(dat$sample1, dat$sample2, sep = "_"), "distance"]
 dat[["aln_dist"]] = sample_aln_dists  # add alignment distance column
 
-# Plotting
+###### Plotting ######
+
 png(paste(outPNG, chr, "jaccard_hist.png", sep = "_"), width = 800, height = 600)
-plot(hist(dat$jaccard, breaks = 100), xlim = c(0, 1.1), xlab = "Jaccard")
+plot(hist(dat$jaccard, breaks = 100), xlim = c(0, 1.1), xlab = "Jaccard Similarity",
+    cex.axis = 1.5, cex.lab = 1.5, cex.main = 1.8, main="All Cigar Positions")
 dev.off()
 
 png(paste(outPNG, chr, "jaccard_vs_dist.png", sep = "_"), width = 800, height = 600)
 plot(dat$dist, dat$jaccard, pch = 19, col = alpha("black", 0.1), xlim = c(0, 1.1), ylim = c(0, 1.1),
-     xlab = "Patristic distance", ylab = "Jaccard similarity")
+     xlab = "Patristic distance (HOR NJ Tree)", ylab = "Jaccard similarity",cex.axis = 1.5, cex.lab = 1.5, cex.main = 1.8,
+     main="All Cigar Positions")
 dev.off()
 
 png(paste(outPNG, chr, "aligned_jaccard_hist.png", sep = "_"), width = 800, height = 600)
-plot(hist(dat$aligned_jaccard, breaks = 100), xlim = c(0, 1.1), xlab = "Aligned Jaccard",
-     cex.axis = 1.5, cex.lab = 1.5, cex.main = 1.8)
+plot(hist(dat$aligned_jaccard, breaks = 100), xlim = c(0, 1.1), xlab = "Jaccard similarity",
+     cex.axis = 1.5, cex.lab = 1.5, cex.main = 1.8, main="Only Aligned Pairs")
 dev.off()
 
 png(paste(outPNG, chr, "aligned_jaccard_vs_dist.png", sep = "_"), width = 800, height = 600)
 plot(dat$dist, dat$aligned_jaccard, pch = 19, col = alpha("black", 0.1), xlim = c(0, 1.1), ylim = c(0, 1.1),
-     xlab = "Patristic distance", ylab = "Jaccard similarity", main = "Only aligned pairs",
+     xlab = "Patristic distance (HOR NJ Tree)", ylab = "Jaccard similarity", main = "Only aligned pairs",
      cex.axis = 1.5, cex.lab = 1.5, cex.main = 1.8)
 dev.off()
 
@@ -65,5 +68,6 @@ dev.off()
 ## plot centrolign pairwise direct distances vs jaccard
 png(paste(outPNG, chr, "jaccard_vs_centrolign_dist.png", sep = "_"), width = 800, height = 600)
 plot(dat$aln_dist, dat$jaccard, pch = 19, col = alpha("black", 0.1),  xlim = c(0, 1.1), ylim = c(0, 1.1),
-     xlab = "Centrolign direct pairwise distance", ylab = "Jaccard similarity",cex.axis = 1.5,cex.lab = 1.5,cex.main = 1.8)
+     xlab = "Centrolign direct pairwise distance", ylab = "Jaccard similarity",
+     main="All Cigar Positions",cex.axis = 1.5,cex.lab = 1.5,cex.main = 1.8)
 dev.off()
