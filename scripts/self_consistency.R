@@ -8,31 +8,50 @@ chr <- args[3]
 alignment_distance_file <- args[4]  # centrolign alignment distances file
 outPNG <- args[5]
 
-
 # Read pairwise consistency table
-dat = read.table(pairwise, header = T)
+dat = read.table(pairwise, header = TRUE)
 
-# Read pairwise patristic distances (from centrolign tree pair dist)
-dists = read.csv(patristic, header = T, sep = "\t")
+# === Patristic distances ===
+dists = read.csv(patristic, header = TRUE, sep = "\t")
 
+# Build symmetric keys for lookup
 key1 = paste(dists$sample1, dists$sample2, sep = "_")
 key2 = paste(dists$sample2, dists$sample1, sep = "_")
 
-dists = rbind(dists, dists)
-row.names(dists) = c(key1, key2)
+# Duplicate data to ensure symmetric lookup
+dists_reversed = dists
+dists_reversed$sample1 = dists$sample2
+dists_reversed$sample2 = dists$sample1
 
-sample_dists = dists[paste(dat$sample1, dat$sample2, sep = "_"), "distance"]
+# Combine both directions
+dists_full = rbind(dists, dists_reversed)
+rownames(dists_full) = paste(dists_full$sample1, dists_full$sample2, sep = "_")
 
+# Match and extract patristic distances for each row in dat
+sample_dists = dists_full[paste(dat$sample1, dat$sample2, sep = "_"), "distance"]
 dat[["dist"]] = sample_dists
 
-# Read alignment distance file and merge
+# === Alignment distances ===
 aln_dists = read.csv(alignment_distance_file, header = TRUE, sep = "\t")
-key1 = paste(aln_dists$sample1, aln_dists$sample2, sep = "_")
-key2 = paste(aln_dists$sample2, aln_dists$sample1, sep = "_")
-aln_dists = rbind(aln_dists, aln_dists)
-row.names(aln_dists) = c(key1, key2)
-sample_aln_dists = aln_dists[paste(dat$sample1, dat$sample2, sep = "_"), "distance"]
-dat[["aln_dist"]] = sample_aln_dists  # add alignment distance column
+
+# Create symmetric keys
+aln_key1 = paste(aln_dists$sample1, aln_dists$sample2, sep = "_")
+aln_key2 = paste(aln_dists$sample2, aln_dists$sample1, sep = "_")
+
+# Duplicate data for reverse pairs
+aln_dists_reversed = aln_dists
+aln_dists_reversed$sample1 = aln_dists$sample2
+aln_dists_reversed$sample2 = aln_dists$sample1
+
+# Combine both directions
+aln_dists_full = rbind(aln_dists, aln_dists_reversed)
+rownames(aln_dists_full) = paste(aln_dists_full$sample1, aln_dists_full$sample2, sep = "_")
+
+# Match and extract alignment distances
+sample_aln_dists = aln_dists_full[paste(dat$sample1, dat$sample2, sep = "_"), "distance"]
+dat[["aln_dist"]] = sample_aln_dists
+
+# === Plotting ===
 
 png(paste(outPNG, chr, "jaccard_hist.png", sep = "_"), width = 800, height = 600)
 plot(hist(dat$jaccard, breaks = 100), xlim = c(0, 1.1),xlab = "Jaccard")
