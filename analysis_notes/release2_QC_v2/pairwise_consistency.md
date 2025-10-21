@@ -247,3 +247,12 @@ done
 ```
 
 ### Pairwise consistency per-chrom histograms
+
+```sh
+Rscript /private/groups/patenlab/mira/centrolign/github/centrolign_analysis/scripts/self_consistency.R \
+  /private/groups/patenlab/mira/centrolign/analysis/pairwise_consistency/HPRC_r2_QCv2_chr6_pairwise_consistency.txt \
+  /private/groups/patenlab/mira/centrolign/analysis/pairwise_consistency/tree_pair_dist/chr6_r2_QC_v2_centrolign_all_pairs_nj_tree.nwk.pair_dists.tsv \
+  chr6 \
+  /private/groups/patenlab/mira/centrolign/analysis/pairwise_consistency/plots/
+
+```

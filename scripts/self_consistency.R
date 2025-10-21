@@ -26,7 +26,7 @@ dat[["dist"]] = sample_dists
 #plot(density(dat$jaccard))
 
 png(paste(outPNG, chr, "jaccard_hist.png", sep = "_"), width = 800, height = 600)
-plot(hist(dat$jaccard, breaks = 100), xlim = c(0, 1.1), ylim = c(0, 250),xlab = "Jaccard")
+plot(hist(dat$jaccard, breaks = 100), xlim = c(0, 1.1),xlab = "Jaccard")
 dev.off()
 
 png(paste(outPNG, chr, "jaccard_vs_dist.png", sep = "_"), width = 800, height = 600)
@@ -35,7 +35,7 @@ plot(dat$dist, dat$jaccard, pch = 19, col = alpha("black", 0.1), xlim = c(0, 1.1
 dev.off()
 
 png(paste(outPNG, chr, "aligned_jaccard_hist.png", sep = "_"), width = 800, height = 600)
-plot(hist(dat$aligned_jaccard, breaks = 100),xlim = c(0, 1.1), ylim = c(0, 120),xlab = "Aligned Jaccard",cex.axis = 1.5,cex.lab = 1.5,cex.main = 1.8)
+plot(hist(dat$aligned_jaccard, breaks = 100),xlim = c(0, 1.1),xlab = "Aligned Jaccard",cex.axis = 1.5,cex.lab = 1.5,cex.main = 1.8)
 dev.off()
 
 png(paste(outPNG, chr, "aligned_jaccard_vs_dist.png", sep = "_"), width = 800, height = 600)
