@@ -260,13 +260,14 @@ for chr in "${chromosomes[@]}"; do
 done
 
 #!/bin/sh
-chromosomes=("chr12" "chr5")
+chromosomes=("chr12" "chr5" "chr6")
 
 for chr in "${chromosomes[@]}"; do
   Rscript /private/groups/patenlab/mira/centrolign/github/centrolign_analysis/scripts/self_consistency.R \
     /private/groups/patenlab/mira/centrolign/analysis/pairwise_consistency/HPRC_r2_QCv2_${chr}_pairwise_consistency.txt \
     /private/groups/patenlab/mira/centrolign/analysis/pairwise_consistency/tree_pair_dist/${chr}_r2_QC_v2_centrolign_all_pairs_nj_tree.nwk.pair_dists.tsv \
     ${chr} \
+    /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2_QC_v2/all_pairs/distance_matrices/${chr}_r2_QC_v2_centrolign_pairwise_distance.csv \
     /private/groups/patenlab/mira/centrolign/analysis/pairwise_consistency/plots/HPRC_r2_QCv2
 done
 ```
