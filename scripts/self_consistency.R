@@ -6,8 +6,9 @@ args <- commandArgs(trailingOnly = TRUE)
 pairwise <- args[1]
 patristic <- args[2]
 chr <- args[3]
-outPNG <- args[4]
-alignment_distance_file <- args[5]  # NEW: alignment distances file
+alignment_distance_file <- args[4]
+outPNG <- args[5]
+
 
 # Read pairwise consistency table
 dat = read.table(pairwise, header = TRUE)
