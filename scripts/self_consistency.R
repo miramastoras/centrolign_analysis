@@ -25,6 +25,7 @@ dat[["dist"]] = sample_dists
 
 # Read alignment distance file and merge
 aln_dists = read.csv(alignment_distance_file, header = FALSE, sep = ",")
+print(head(aln_dists))
 key1 = paste(aln_dists$sample1, aln_dists$sample2, sep = "_")
 key2 = paste(aln_dists$sample2, aln_dists$sample1, sep = "_")
 aln_dists = rbind(aln_dists, aln_dists)
