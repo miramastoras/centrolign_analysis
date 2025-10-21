@@ -249,10 +249,103 @@ done
 ### Pairwise consistency per-chrom histograms
 
 ```sh
-Rscript /private/groups/patenlab/mira/centrolign/github/centrolign_analysis/scripts/self_consistency.R \
-  /private/groups/patenlab/mira/centrolign/analysis/pairwise_consistency/HPRC_r2_QCv2_chr6_pairwise_consistency.txt \
-  /private/groups/patenlab/mira/centrolign/analysis/pairwise_consistency/tree_pair_dist/chr6_r2_QC_v2_centrolign_all_pairs_nj_tree.nwk.pair_dists.tsv \
-  chr6 \
-  /private/groups/patenlab/mira/centrolign/analysis/pairwise_consistency/plots/
+chromosomes=("chr4" "chr5" "chr6" "chr8" "chr7" "chr12" "chr17" "chr18")
 
+for chr in "${chromosomes[@]}"; do
+  Rscript /private/groups/patenlab/mira/centrolign/github/centrolign_analysis/scripts/self_consistency.R \
+    /private/groups/patenlab/mira/centrolign/analysis/pairwise_consistency/HPRC_r2_QCv2_${chr}_pairwise_consistency.txt \
+    /private/groups/patenlab/mira/centrolign/analysis/pairwise_consistency/tree_pair_dist/${chr}_r2_QC_v2_centrolign_all_pairs_nj_tree.nwk.pair_dists.tsv \
+    ${chr} \
+    /private/groups/patenlab/mira/centrolign/analysis/pairwise_consistency/plots/HPRC_r2_QCv2
+done
+
+#!/bin/sh
+chromosomes=("chr12" "chr5")
+
+for chr in "${chromosomes[@]}"; do
+  Rscript /private/groups/patenlab/mira/centrolign/github/centrolign_analysis/scripts/self_consistency.R \
+    /private/groups/patenlab/mira/centrolign/analysis/pairwise_consistency/HPRC_r2_QCv2_${chr}_pairwise_consistency.txt \
+    /private/groups/patenlab/mira/centrolign/analysis/pairwise_consistency/tree_pair_dist/${chr}_r2_QC_v2_centrolign_all_pairs_nj_tree.nwk.pair_dists.tsv \
+    ${chr} \
+    /private/groups/patenlab/mira/centrolign/analysis/pairwise_consistency/plots/HPRC_r2_QCv2
+done
 ```
+
+#### Exploring some of the aligned jaccard = 1 for chr 6
+
+cd /private/groups/patenlab/mira/centrolign/analysis/chr3_chr4_interspersed_hsat_r2
+
+synteny plot
+
+```sh
+
+# create dummy bed file the size of the array for each sample
+samples=("NA21309.2" "HG01884.2")
+
+for smp in "${samples[@]}"; do
+  samtools faidx /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2_QC_v2/extract_fastas/chr6/${smp}_chr6_hor_array.fasta
+
+  awk 'BEGIN {OFS="\t"} {print $1, 0, $2, "entry", 0, ".", 0, $2, "0,0,0"}' /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2_QC_v2/extract_fastas/chr6/${smp}_chr6_hor_array.fasta.fai > /private/groups/patenlab/mira/centrolign/analysis/pairwise_consistency/chr6_examples/dummy_beds/${smp}.dummy.bed
+done
+
+# all pairs
+python /private/groups/migalab/juklucas/centrolign/chr12_test125/synteny_plot_bokeh.py   \
+    --beds \
+    /private/groups/patenlab/mira/centrolign/analysis/pairwise_consistency/chr6_examples/dummy_beds/NA21309.2.dummy.bed \
+    /private/groups/patenlab/mira/centrolign/analysis/pairwise_consistency/chr6_examples/dummy_beds/HG01884.2.dummy.bed \
+    --cigars \
+        /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2_QC_v2/all_pairs/chr6/pairwise_cigar/pairwise_cigar_HG01884.2_NA21309.2.txt \
+    --output /private/groups/patenlab/mira/centrolign/analysis/pairwise_consistency/chr6_examples/plots/synteny.chr6.direct_pairwise_HG01884.2_NA21309.2.html \
+    --web
+#!/bin/sh
+
+/private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2_QC_v2/MSA/chr6/induced_pairwise_cigars/pairwise_cigar_NA21309.2_HG01884.2.txt
+
+/private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2_QC_v2/MSA/chr6/induced_pairwise_cigars/pairwise_cigar_NA20827.1_NA20809.1.txt
+
+/private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2_QC_v2/all_pairs/chr6/pairwise_cigar/pairwise_cigar_NA20809.1_NA20827.1.txt
+
+
+/private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2_QC_v2/MSA/chr6/induced_pairwise_cigars/pairwise_cigar_HG00290.1_HG06807.1.txt
+
+/private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2_QC_v2/all_pairs/chr6/pairwise_cigar/pairwise_cigar_HG00290.1_HG06807.1.txt
+```
+
+```sh
+cd /private/groups/patenlab/mira/centrolign/analysis/pairwise_consistency/chr6_examples
+
+samples=("HG00290.1" "HG06807.1")
+
+# Process each line in the fai file
+for smp in "${samples[@]}"; do
+  samtools faidx /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2_QC_v2/extract_fastas/chr6/${smp}_chr6_hor_array.fasta
+  while read -r seqid length rest; do
+      # Create a BED file for each sequence
+      # BED format: chrom start end name score strand thickStart thickEnd itemRgb
+      echo -e "${seqid}\t0\t${length}\tentry\t0\t.\t0\t${length}\t0,0,0" > dummy_beds/"${seqid}.bed"
+      echo "Created bed file for ${seqid}"
+  done < /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2_QC_v2/extract_fastas/chr6/${smp}_chr6_hor_array.fasta.fai
+done
+
+
+python /private/groups/migalab/juklucas/centrolign/chr12_test125/synteny_plot_bokeh.py   \
+    --beds \
+      /private/groups/patenlab/mira/centrolign/analysis/pairwise_consistency/chr6_examples/dummy_beds/HG00290.1.bed \
+      /private/groups/patenlab/mira/centrolign/analysis/pairwise_consistency/chr6_examples/dummy_beds/HG06807.1.bed \
+    --cigars \
+        /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2_QC_v2/all_pairs/chr6/pairwise_cigar/pairwise_cigar_HG00290.1_HG06807.1.txt \
+    --output /private/groups/patenlab/mira/centrolign/analysis/pairwise_consistency/chr6_examples/plots/synteny_direct_HG00290.1_HG06807.1.html \
+    --web
+
+#!/bin/sh
+python /private/groups/migalab/juklucas/centrolign/chr12_test125/synteny_plot_bokeh.py   \
+    --beds \
+      /private/groups/patenlab/mira/centrolign/analysis/pairwise_consistency/chr6_examples/dummy_beds/HG00290.1.bed \
+      /private/groups/patenlab/mira/centrolign/analysis/pairwise_consistency/chr6_examples/dummy_beds/HG06807.1.bed \
+    --cigars \
+        /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2_QC_v2/MSA/chr6/induced_pairwise_cigars/pairwise_cigar_HG00290.1_HG06807.1.txt \
+    --output /private/groups/patenlab/mira/centrolign/analysis/pairwise_consistency/chr6_examples/plots/synteny_induced_HG00290.1_HG06807.1.html \
+    --web
+```
+
+## plot direct pairwise distance vs pairwise consistency

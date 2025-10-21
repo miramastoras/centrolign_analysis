@@ -1,16 +1,17 @@
 library(ggplot2)
 
+# Read in files
 args <- commandArgs(trailingOnly = TRUE)
 pairwise <- args[1]
 patristic <- args[2]
 chr <- args[3]
 outPNG <- args[4]
+alignment_distance_file <- args[5]  # centrolign alignment distances file
 
-
-# pairwise consistency table
+# Read pairwise consistency table
 dat = read.table(pairwise, header = T)
 
-# pairwise patristic distances from tree (using centrolign tree pair dist)
+# Read pairwise patristic distances (from centrolign tree pair dist)
 dists = read.csv(patristic, header = T, sep = "\t")
 
 key1 = paste(dists$sample1, dists$sample2, sep = "_")
@@ -23,7 +24,14 @@ sample_dists = dists[paste(dat$sample1, dat$sample2, sep = "_"), "distance"]
 
 dat[["dist"]] = sample_dists
 
-#plot(density(dat$jaccard))
+# Read alignment distance file and merge
+aln_dists = read.csv(alignment_distance_file, header = TRUE, sep = "\t")
+key1 = paste(aln_dists$sample1, aln_dists$sample2, sep = "_")
+key2 = paste(aln_dists$sample2, aln_dists$sample1, sep = "_")
+aln_dists = rbind(aln_dists, aln_dists)
+row.names(aln_dists) = c(key1, key2)
+sample_aln_dists = aln_dists[paste(dat$sample1, dat$sample2, sep = "_"), "distance"]
+dat[["aln_dist"]] = sample_aln_dists  # add alignment distance column
 
 png(paste(outPNG, chr, "jaccard_hist.png", sep = "_"), width = 800, height = 600)
 plot(hist(dat$jaccard, breaks = 100), xlim = c(0, 1.1),xlab = "Jaccard")
@@ -41,4 +49,16 @@ dev.off()
 png(paste(outPNG, chr, "aligned_jaccard_vs_dist.png", sep = "_"), width = 800, height = 600)
 plot(dat$dist, dat$aligned_jaccard, pch = 19, col = alpha("black", 0.1),  xlim = c(0, 1.1), ylim = c(0, 1.1),
      xlab = "Patristic distance", ylab = "Jaccard similarity", main = "Only aligned pairs",cex.axis = 1.5,cex.lab = 1.5,cex.main = 1.8)
+dev.off()
+
+## plot centrolign pairwise direct distances vs jaccard
+png(paste(outPNG, chr, "aligned_jaccard_vs_centrolign_dist.png", sep = "_"), width = 800, height = 600)
+plot(dat$aln_dist, dat$aligned_jaccard, pch = 19, col = alpha("black", 0.1),  xlim = c(0, 1.1), ylim = c(0, 1.1),
+     xlab = "Centrolign direct pairwise distance", ylab = "Jaccard similarity", main = "Only aligned pairs",cex.axis = 1.5,cex.lab = 1.5,cex.main = 1.8)
+dev.off()
+
+## plot centrolign pairwise direct distances vs jaccard
+png(paste(outPNG, chr, "jaccard_vs_centrolign_dist.png", sep = "_"), width = 800, height = 600)
+plot(dat$aln_dist, dat$jaccard, pch = 19, col = alpha("black", 0.1),  xlim = c(0, 1.1), ylim = c(0, 1.1),
+     xlab = "Centrolign direct pairwise distance", ylab = "Jaccard similarity",cex.axis = 1.5,cex.lab = 1.5,cex.main = 1.8)
 dev.off()
