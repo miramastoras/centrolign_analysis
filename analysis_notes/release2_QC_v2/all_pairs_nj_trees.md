@@ -668,7 +668,14 @@ done
 ![chr1_split2](plots/chr1_r2_QC_v2_subgroup1_splitby2_subgroup1_pairwise_tree_heatmap.png)
 
 Add chr1 subgroup1-subgroup1 samples to subgroup 0
+```sh
+# subgroup A
+cat /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2_QC_v2/split_nj_trees/chr1/split_by_2/split_subgroup1_by2/subgroup_1_seqs.fasta > /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2_QC_v2/split_nj_trees/chr1/combine_final_subgroups/chr1.subgroup0.fasta
 
+cat /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2_QC_v2/split_nj_trees/chr1/split_by_2/subgroup_0_seqs.fasta >>
+
+# subgroup B
+```
 
 #### chr 9
 
