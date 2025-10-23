@@ -67,18 +67,18 @@ def cigar_to_positions(cigar):
 
 def read_sample_pairs(csv_path):
     pairs = set()
-    with open(csv_path, newline='') as f:
-        reader = csv.reader(f)
-        #header = next(reader)  # assume header doesn't exist
-        for row in reader:
-            if len(row) < 2:
+    with open(csv_path, encoding="utf-8") as f:
+        for line in f:
+            # Strip newline and whitespace, then split on comma
+            parts = line.strip().split(',')
+            if len(parts) < 2:
                 continue
-            s1 = row[0].strip()
-            s2 = row[1].strip()
+            s1 = parts[0].strip()
+            s2 = parts[1].strip()
             if s1 and s2:
                 pairs.add((s1, s2))
     return pairs
-
+    
 if __name__ == "__main__":
 
 
