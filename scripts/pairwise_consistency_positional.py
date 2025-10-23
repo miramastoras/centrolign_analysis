@@ -1,4 +1,4 @@
-!/usr/bin/env python3
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
 Created on Mon Oct  2 18:37:40 2023
@@ -111,7 +111,7 @@ if __name__ == "__main__":
 
     print(samples_to_induced.keys())
     exit()
-    
+
     header = ["sample1", "sample2", "intersection", "union", "aligned_intersection", "aligned_union", "jaccard", "aligned_jaccard", "num_pos_ind", "num_pos_dir"]
     print("\t".join(header))
     for pair in sorted(samples_to_induced, key = lambda k : sorted(k)):
