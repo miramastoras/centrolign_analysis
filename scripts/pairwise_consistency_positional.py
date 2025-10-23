@@ -78,17 +78,18 @@ def read_sample_pairs(csv_path):
             if s1 and s2:
                 pairs.add((s1, s2))
     return pairs
-    
+
 if __name__ == "__main__":
 
 
-    if len(sys.argv) != 4:
-        print("usage:\npairwise_consistency.py induced_prefix direct_prefix sample_list > consistency.txt")
+    if len(sys.argv) != 5:
+        print("usage:\npairwise_consistency.py induced_prefix direct_prefix sample_list output_bed_prefix")
         exit(1)
 
     induced_prefix = os.path.abspath(sys.argv[1])
     direct_prefix = os.path.abspath(sys.argv[2])
     sample_csv = os.path.abspath(sys.argv[3])
+    out_bed_prefix = os.path.abspath(sys.argv[4])
 
     induced_dir = os.path.dirname(induced_prefix)
     direct_dir = os.path.dirname(direct_prefix)
@@ -108,9 +109,6 @@ if __name__ == "__main__":
     # Subset dictionaries to only include requested pairs (in either direction)
     samples_to_induced = {k: v for k, v in samples_to_induced.items() if k in sample_pairs or (k[::-1] in sample_pairs)}
     samples_to_direct  = {k: v for k, v in samples_to_direct.items() if k in sample_pairs or (k[::-1] in sample_pairs)}
-
-    print(samples_to_induced.keys())
-    exit()
 
     header = ["sample1", "sample2", "intersection", "union", "aligned_intersection", "aligned_union", "jaccard", "aligned_jaccard", "num_pos_ind", "num_pos_dir"]
     print("\t".join(header))
@@ -139,20 +137,31 @@ if __name__ == "__main__":
         induced_aligned_positions = set(p for p in induced_positions if p[0] != -1 and p[1] != -1)
         direct_aligned_positions = set(p for p in direct_positions if p[0] != -1 and p[1] != -1)
 
-        inter = len(induced_positions.intersection(direct_positions))
-        union = len(induced_positions.union(direct_positions))
-        inter_aligned = len(induced_aligned_positions.intersection(direct_aligned_positions))
-        union_aligned = len(induced_aligned_positions.union(direct_aligned_positions))
+        ##### commenting out global pairwise consistency scores
+        # inter = len(induced_positions.intersection(direct_positions))
+        # union = len(induced_positions.union(direct_positions))
+        # inter_aligned = len(induced_aligned_positions.intersection(direct_aligned_positions))
+        # union_aligned = len(induced_aligned_positions.union(direct_aligned_positions))
+        #
+        # jacc = inter / union
+        # if union_aligned == 0:
+        #     jacc_aln = "NA"
+        # else:
+        #     jacc_aln = inter_aligned / union_aligned
+        #
+        #
+        # row = [pair[0], pair[1], inter, union, inter_aligned, union_aligned, jacc, jacc_aln, len(induced_positions), len(direct_positions)]
+        # print("\t".join(str(v) for v in row))
 
-        jacc = inter / union
-        if union_aligned == 0:
-            jacc_aln = "NA"
-        else:
-            jacc_aln = inter_aligned / union_aligned
+        ###### Produce a bed file of positions in the reference array
+        ###### (from the induced alignments) where the induced and
+        ###### direct do not match
 
+        # Compute mismatches using set operations
+        mismatches = induced_aligned_positions - direct_aligned_positions
 
-        row = [pair[0], pair[1], inter, union, inter_aligned, union_aligned, jacc, jacc_aln, len(induced_positions), len(direct_positions)]
-        print("\t".join(str(v) for v in row))
-
-        # For each pairwise comparison, report with respect to the reference in the induced cigar
-        # for every position in the ref, whether that position matches or doesn't match the direct.
+        # Write BED file with only mismatches
+        bed_path = f"{out_bed_prefix}_{pair[0]}_{pair[1]}.bed"
+        with open(bed_path, "w") as bed:
+            for ref, query in sorted(mismatches):
+                bed.write(f"{pair[0]}\t{ref}\t{ref+1}\t0\n")
