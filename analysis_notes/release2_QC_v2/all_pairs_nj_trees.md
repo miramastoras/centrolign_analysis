@@ -667,16 +667,54 @@ done
 ```
 ![chr1_split2](plots/chr1_r2_QC_v2_subgroup1_splitby2_subgroup1_pairwise_tree_heatmap.png)
 
-Add chr1 subgroup1-subgroup1 samples to subgroup 0
+Add chr1 subgroup1-subgroup1 samples to subgroup 0, creating subgroup A
 ```sh
 # subgroup A
-cat /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2_QC_v2/split_nj_trees/chr1/split_by_2/split_subgroup1_by2/subgroup_1_seqs.fasta > /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2_QC_v2/split_nj_trees/chr1/combine_final_subgroups/chr1.subgroup0.fasta
+cat /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2_QC_v2/split_nj_trees/chr1/split_by_2/split_subgroup1_by2/subgroup_1_seqs.fasta > /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2_QC_v2/split_nj_trees/chr1/combine_final_subgroups/chr1.subgroup_A.fasta
 
-cat /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2_QC_v2/split_nj_trees/chr1/split_by_2/subgroup_0_seqs.fasta >>
-
-# subgroup B
+cat /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2_QC_v2/split_nj_trees/chr1/split_by_2/subgroup_0_seqs.fasta >> /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2_QC_v2/split_nj_trees/chr1/combine_final_subgroups/chr1.subgroup_A.fasta
 ```
+Subtract chr1 subgroup 1-1 from subgroup 1, creating subgroup B
+```sh
+# create regions file of subgroup 1 minus samples from subgroup 1-1
+cut -f1 /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2_QC_v2/split_nj_trees/chr1/split_by_2/split_subgroup1_by2/subgroup_1_seqs.fasta.fai > /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2_QC_v2/split_nj_trees/chr1/split_by_2/split_subgroup1_by2/subgroup1-subgroup1.samples.txt
 
+cut -f1 /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2_QC_v2/split_nj_trees/chr1/split_by_2/subgroup_1_seqs.fasta.fai > /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2_QC_v2/split_nj_trees/chr1/split_by_2/split_subgroup1_by2/subgroup1.samples.txt
+
+grep -v -f /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2_QC_v2/split_nj_trees/chr1/split_by_2/split_subgroup1_by2/subgroup1-subgroup1.samples.txt /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2_QC_v2/split_nj_trees/chr1/split_by_2/split_subgroup1_by2/subgroup1.samples.txt > subgroupB.txt
+
+# create fasta for subgroup B with regions file
+samtools faidx -r /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2_QC_v2/split_nj_trees/chr1/split_by_2/split_subgroup1_by2/subgroupB.txt /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2_QC_v2/split_nj_trees/chr1/split_by_2/subgroup_1_seqs.fasta > /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2_QC_v2/split_nj_trees/chr1/combine_final_subgroups/chr1.subgroup_B.fasta
+```
+Color subgroup A red to verify correct division of samples
+```sh
+chromosomes=chr1
+for chr in "${chromosomes[@]}"
+do
+  python3 /Users/miramastoras/Desktop/github_repos/centrolign_analysis/scripts/pairwise_tree_heatmap_v2.py \
+    -t /Users/miramastoras/Desktop/HPRC_release2_QCv2_all_pairs_heatmaps/${chr}_r2_QC_v2_centrolign_all_pairs_nj_tree.format5.nwk \
+    -s /Users/miramastoras/Desktop/HPRC_release2_QCv2_all_pairs_heatmaps/${chr}.samples.txt \
+    -p /Users/miramastoras/Desktop/HPRC_release2_QCv2_all_pairs_heatmaps/${chr}_r2_QC_v2_centrolign_pairwise_distance.csv \
+    -m "Centrolign all pairs distances" \
+    -n "${chr} NJ tree" \
+    -d "All pairs Distances" \
+    -o /Users/miramastoras/Desktop/github_repos/centrolign_analysis/analysis_notes/release2_QC_v2/plots/${chr}_r2_QC_v2_subgroupA --no_labels \
+    --highlight_samples /Users/miramastoras/Desktop/color_subgroups_heatmap/subgroupA.samples.txt
+done
+```
+![subgroupA](plots/chr1_r2_QC_v2_subgroupApairwise_tree_heatmap.png)
+
+Sanity check: no overlapping sample sets
+```sh
+cut -f1 /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2_QC_v2/split_nj_trees/chr1/combine_final_subgroups/chr1.subgroup_B.fasta.fai | while read line ; do
+  grep -w $line /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2_QC_v2/split_nj_trees/chr1/combine_final_subgroups/chr1.subgroup_A.fasta.fai
+done
+
+cut -f1 /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2_QC_v2/split_nj_trees/chr1/combine_final_subgroups/chr1.subgroup_A.fasta.fai | while read line ; do
+  echo $line
+  grep -w "$line" /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2_QC_v2/split_nj_trees/chr1/combine_final_subgroups/chr1.subgroup_B.fasta.fai
+done
+```
 #### chr 9
 
 ![chr9_split1](plots/chr9_r2_QC_v2_subgroup0_first_splitpairwise_tree_heatmap.png)

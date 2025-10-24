@@ -193,6 +193,26 @@ time python3 /private/groups/patenlab/mira/centrolign/github/centromere-scripts/
     /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2_QC_v2/all_pairs/chr8/pairwise_cigar/pairwise_cigar_ \
     > /private/groups/patenlab/mira/centrolign/analysis/pairwise_consistency/HPRC_r2_QCv2_chr8_subgroup0_pairwise_consistency.txt
 ```
+
+```sh
+#!/bin/bash
+#SBATCH --job-name=chr8_subgroup1_pairwise_consistency
+#SBATCH --partition=long
+#SBATCH --mail-user=mmastora@ucsc.edu
+#SBATCH --mail-type=ALL
+#SBATCH --nodes=1
+#SBATCH --mem=200gb
+#SBATCH --ntasks=1
+#SBATCH --cpus-per-task=1
+#SBATCH --output=centrolign_%x.%j.log
+#SBATCH --time=7-00:00
+
+# subgroup 1
+time python3 /private/groups/patenlab/mira/centrolign/github/centromere-scripts/benchmarking/pairwise_consistency.py \
+    /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2_QC_v2/MSA/chr8/subgroup_1/induced_pairwise_cigars/pairwise_cigar_ \
+    /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2_QC_v2/all_pairs/chr8/pairwise_cigar/pairwise_cigar_ \
+    > /private/groups/patenlab/mira/centrolign/analysis/pairwise_consistency/HPRC_r2_QCv2_chr8_subgroup1_pairwise_consistency.txt
+```
 ### Chr 4
 
 ```sh
@@ -272,7 +292,8 @@ done
 ### Pairwise consistency per-chrom histograms
 
 ```sh
-chromosomes=("chr12" "chr5" "chr6")
+chromosomes=("chr12" "chr5" "chr6" )
+chromosomes=("chr4" "chr17" "chr18" )
 
 for chr in "${chromosomes[@]}"; do
   Rscript /private/groups/patenlab/mira/centrolign/github/centrolign_analysis/scripts/self_consistency.R \
@@ -324,4 +345,53 @@ python /private/groups/migalab/juklucas/centrolign/chr12_test125/synteny_plot_bo
         /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2_QC_v2/MSA/chr6/induced_pairwise_cigars/pairwise_cigar_HG00290.1_HG06807.1.txt \
     --output /private/groups/patenlab/mira/centrolign/analysis/pairwise_consistency/chr6_examples/plots/synteny_induced_HG00290.1_HG06807.1.html \
     --web
+```
+#### Subset pairwise consistency to samples with < .2 centrolign distance
+
+```sh
+chromosomes=("chr12" "chr5" "chr6" "chr4" "chr17" "chr18" )
+
+for chr in "${chromosomes[@]}"; do
+  awk -F ',' '$3 < 0.2' /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2_QC_v2/all_pairs/distance_matrices/${chr}_r2_QC_v2_centrolign_pairwise_distance.csv > /private/groups/patenlab/mira/centrolign/analysis/pairwise_consistency/pairwise_samples_dist_lt_0.2/${chr}_r2_QC_v2_centrolign_pairwise_distance.dist_lt_0.2.csv
+done
+
+for chr in "${chromosomes[@]}"; do
+  awk -F ',' '$3 < 0.4' /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2_QC_v2/all_pairs/distance_matrices/${chr}_r2_QC_v2_centrolign_pairwise_distance.csv > /private/groups/patenlab/mira/centrolign/analysis/pairwise_consistency/pairwise_samples_dist_lt_0.4/${chr}_r2_QC_v2_centrolign_pairwise_distance.dist_lt_0.4.csv
+done
+```
+Plot pairwise consistency for just these
+```sh
+chromosomes=("chr12" "chr5" "chr6" "chr4" "chr17" "chr18" )
+
+for chr in "${chromosomes[@]}"; do
+  Rscript /private/groups/patenlab/mira/centrolign/github/centrolign_analysis/scripts/self_consistency.R \
+    /private/groups/patenlab/mira/centrolign/analysis/pairwise_consistency/HPRC_r2_QCv2_${chr}_pairwise_consistency.txt \
+    /private/groups/patenlab/mira/centrolign/analysis/pairwise_consistency/tree_pair_dist/${chr}_r2_QC_v2_centrolign_all_pairs_nj_tree.nwk.pair_dists.tsv \
+    ${chr} \
+    /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2_QC_v2/all_pairs/distance_matrices/${chr}_r2_QC_v2_centrolign_pairwise_distance.csv \
+    /private/groups/patenlab/mira/centrolign/analysis/pairwise_consistency/pairwise_samples_dist_lt_0.4/${chr}_r2_QC_v2_centrolign_pairwise_distance.dist_lt_0.4.csv \
+    /private/groups/patenlab/mira/centrolign/analysis/pairwise_consistency/plots/HPRC_r2_QCv2_dist_lt_0.4
+done
+```
+
+#### Plot positional pairwise consistency for highly related samples
+
+Get bed files of positions in ref array where the direct and induced don't match
+
+(Only pairwise samples with distance < .4)
+```sh
+time python3 /private/home/mmastora/github/centrolign_analysis/scripts/pairwise_consistency_positional.py \
+    /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2_QC_v2/MSA/chr6/induced_pairwise_cigars/pairwise_cigar_ \
+    /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2_QC_v2/all_pairs/chr6/pairwise_cigar/pairwise_cigar_ \
+    /private/groups/patenlab/mira/centrolign/analysis/pairwise_consistency/pairwise_samples_dist_lt_0.4/chr6_r2_QC_v2_centrolign_pairwise_distance.dist_lt_0.4.csv \
+    /private/groups/patenlab/mira/centrolign/analysis/pairwise_consistency/pairwise_consistency_positional/chr6/mismatching_positions/chr6
+```
+
+Bin by regions of self similarity
+```sh
+time python3 /Users/miramastoras/Desktop/github_repos/centrolign_analysis/scripts/pairwise_consistency_positional.py \
+    /Users/miramastoras/Desktop/unit_test_induced/pairwise_cigar_ \
+    /Users/miramastoras/Desktop/unit_test_direct/pairwise_cigar_ \
+    /Users/miramastoras/Desktop/samples.txt \
+    /Users/miramastoras/Desktop/unit_tests_
 ```
