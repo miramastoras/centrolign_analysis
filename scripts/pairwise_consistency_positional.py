@@ -110,8 +110,8 @@ if __name__ == "__main__":
     samples_to_induced = {k: v for k, v in samples_to_induced.items() if k in sample_pairs or (k[::-1] in sample_pairs)}
     samples_to_direct  = {k: v for k, v in samples_to_direct.items() if k in sample_pairs or (k[::-1] in sample_pairs)}
 
-    header = ["sample1", "sample2", "intersection", "union", "aligned_intersection", "aligned_union", "jaccard", "aligned_jaccard", "num_pos_ind", "num_pos_dir"]
-    print("\t".join(header))
+    #header = ["sample1", "sample2", "intersection", "union", "aligned_intersection", "aligned_union", "jaccard", "aligned_jaccard", "num_pos_ind", "num_pos_dir"]
+    #print("\t".join(header))
     for pair in sorted(samples_to_induced, key = lambda k : sorted(k)):
 
         induced_cigar = parse_cigar(open(samples_to_induced[pair]).read())
@@ -160,8 +160,27 @@ if __name__ == "__main__":
         # Compute mismatches using set operations
         mismatches = induced_aligned_positions - direct_aligned_positions
 
+        # get mismatching ref positions
+        mismatch_refs = sorted(ref for ref, _ in mismatches)
+        merged_intervals = []
+
+        # merge adjacent ref positions
+        if mismatch_refs:
+            start = mismatch_refs[0]
+            end = start + 1
+
+            for pos in mismatch_refs[1:]:
+                if pos == end:  # consecutive
+                    end += 1
+                else:
+                    merged_intervals.append((start, end))
+                    start = pos
+                    end = pos + 1
+            merged_intervals.append((start, end))  # add last interval
+
         # Write BED file with only mismatches
-        bed_path = f"{out_bed_prefix}_{pair[0]}_{pair[1]}.bed"
-        with open(bed_path, "w") as bed:
-            for ref, query in sorted(mismatches):
-                bed.write(f"{pair[0]}\t{ref}\t{ref+1}\t0\n")
+        if mismatches:
+            bed_path = f"{out_bed_prefix}_{pair[0]}_{pair[1]}.bed"
+            with open(bed_path, "w") as bed:
+                for start, end in merged_intervals:
+                    bed.write(f"{pair[0]}\t{start}\t{end}\n")
