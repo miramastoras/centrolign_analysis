@@ -67,7 +67,7 @@ plot(hist(dat$jaccard, breaks = 100), xlim = c(0, 1.1), xlab = "Jaccard Similari
 dev.off()
 
 png(paste(outPNG, chr, "jaccard_vs_dist.png", sep = "_"), width = 800, height = 600)
-plot(dat$dist, dat$jaccard, pch = 19, col = alpha("black", 0.1), xlim = c(0, 1.1), ylim = c(0, 1.1),
+plot(dat$dist, dat$jaccard, pch = 19, col = alpha("black", 0.1),
      xlab = "Patristic distance (HOR NJ Tree)", ylab = "Jaccard similarity", cex.axis = 1.5, cex.lab = 1.5, cex.main = 1.8,
      main = paste(chr, "All Cigar Positions (Filtered)", sep=" "))
 dev.off()
@@ -78,19 +78,19 @@ plot(hist(dat$aligned_jaccard, breaks = 100), xlim = c(0, 1.1), xlab = "Jaccard 
 dev.off()
 
 png(paste(outPNG, chr, "aligned_jaccard_vs_dist.png", sep = "_"), width = 800, height = 600)
-plot(dat$dist, dat$aligned_jaccard, pch = 19, col = alpha("black", 0.1), xlim = c(0, 1.1), ylim = c(0, 1.1),
+plot(dat$dist, dat$aligned_jaccard, pch = 19, col = alpha("black", 0.1),
      xlab = "Patristic distance (HOR NJ Tree)", ylab = "Jaccard similarity",
      main = paste(chr, "Only aligned pairs (Filtered)", sep=" "), cex.axis = 1.5, cex.lab = 1.5, cex.main = 1.8)
 dev.off()
 
 png(paste(outPNG, chr, "aligned_jaccard_vs_centrolign_dist.png", sep = "_"), width = 800, height = 600)
-plot(dat$aln_dist, dat$aligned_jaccard, pch = 19, col = alpha("black", 0.1),  xlim = c(0, 1.1), ylim = c(0, 1.1),
+plot(dat$aln_dist, dat$aligned_jaccard, pch = 19, col = alpha("black", 0.1),
      xlab = "Centrolign direct pairwise distance", ylab = "Jaccard similarity",
      main = paste(chr, "Only aligned pairs (Filtered)", sep=" "), cex.axis = 1.5, cex.lab = 1.5, cex.main = 1.8)
 dev.off()
 
 png(paste(outPNG, chr, "jaccard_vs_centrolign_dist.png", sep = "_"), width = 800, height = 600)
-plot(dat$aln_dist, dat$jaccard, pch = 19, col = alpha("black", 0.1),  xlim = c(0, 1.1), ylim = c(0, 1.1),
+plot(dat$aln_dist, dat$jaccard, pch = 19, col = alpha("black", 0.1), 
      xlab = "Centrolign direct pairwise distance", ylab = "Jaccard similarity",
      main = paste(chr, "All Cigar Positions (Filtered)", sep=" "), cex.axis = 1.5, cex.lab = 1.5, cex.main = 1.8)
 dev.off()
