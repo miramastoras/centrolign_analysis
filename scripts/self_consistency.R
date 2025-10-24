@@ -8,15 +8,16 @@ args <- commandArgs(trailingOnly = TRUE)
 # 2 = patristic distance file
 # 3 = chromosome/label
 # 4 = alignment distance file
-# 5 = output prefix
-# 6 = sample combinations file
+# 5 = sample combinations file
+# 6 = output prefix
 
 pairwise <- args[1]
 patristic <- args[2]
 chr <- args[3]
 alignment_distance_file <- args[4]
-outPNG <- args[5]
-sample_combos_file <- args[6]
+sample_combos_file <- args[5]
+outPNG <- args[6]
+
 
 # ---- Read input data ----
 # Pairwise consistency table

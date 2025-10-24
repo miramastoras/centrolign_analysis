@@ -364,7 +364,7 @@ Plot pairwise consistency for just these
 chromosomes=("chr12" "chr5" "chr6" "chr4" "chr17" "chr18" )
 
 for chr in "${chromosomes[@]}"; do
-  Rscript /private/groups/patenlab/mira/centrolign/github/centrolign_analysis/scripts/self_consistency.R \
+  Rscript /private/home/mmastora/github/centrolign_analysis/scripts/self_consistency.R \
     /private/groups/patenlab/mira/centrolign/analysis/pairwise_consistency/HPRC_r2_QCv2_${chr}_pairwise_consistency.txt \
     /private/groups/patenlab/mira/centrolign/analysis/pairwise_consistency/tree_pair_dist/${chr}_r2_QC_v2_centrolign_all_pairs_nj_tree.nwk.pair_dists.tsv \
     ${chr} \
