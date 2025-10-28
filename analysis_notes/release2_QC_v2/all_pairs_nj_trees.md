@@ -462,12 +462,12 @@ do
 done
 ```
 
-### Chr7, chr20, chr 22 can be split by 2 subgroups
+### Chr7, chr20, chr 22, chr19 can be split by 2 subgroups
 
 Combine all fasta files for the chromosomes first:
 ```sh
-chromosomes=("chr7" "chr22")
-chromosomes=("chr20")
+chromosomes=("chr7" "chr22" "chr20" "chr19" "chr21")
+chromosomes=("chr21")
 
 for chr in "${chromosomes[@]}"
 do
@@ -507,7 +507,7 @@ done
 Sanity check 1: color all samples in subgroup 0 with solid red
 ```sh
 # get subgroup 0 list of samples for all three chroms
-chromosomes=("chr7" "chr22" "chr20")
+chromosomes=("chr7" "chr22" "chr20" "chr19" "chr21")
 
 for chr in "${chromosomes[@]}"
 do
@@ -521,8 +521,7 @@ done
 Plotting on local computer:
 
 ```sh
-chromosomes=("chr7" "chr22")
-chromosomes=("chr20")
+chromosomes=("chr7" "chr22" "chr20" "chr19" "chr21")
 
 for chr in "${chromosomes[@]}"
 do
@@ -540,7 +539,7 @@ done
 
 Sanity check 2: Bin pairwise distances between the two subset groups.
 ```sh
-chromosomes=("chr7" "chr22")
+chromosomes=("chr7" "chr22" "chr20" "chr19" "chr21")
 for chr in "${chromosomes[@]}"
 do
     echo $chr
@@ -552,13 +551,13 @@ do
 done
 ```
 
-### chr 1, 9, 10, 11, 19, 21 will need a more complicated strategy
+### chr 1, 9, 10, 11, 21 will need a more complicated strategy
 
 First, start by dividing all of them into two subgroups.
 
 Combine all fasta files for the chromosomes first:
 ```sh
-chromosomes=("chr1" "chr9" "chr10" "chr11" "chr19" "chr21")
+chromosomes=("chr1" "chr9" "chr10" "chr11")
 
 for chr in "${chromosomes[@]}"
 do
@@ -598,7 +597,7 @@ done
 Figure out which set of samples subgroup 0 and 1 are
 ```sh
 # get subgroup 0 list of samples for all chroms
-chromosomes=("chr1" "chr9" "chr10" "chr11" "chr19" "chr21")
+chromosomes=("chr1" "chr9" "chr10" "chr11" "chr21")
 
 for chr in "${chromosomes[@]}"
 do
@@ -612,7 +611,7 @@ done
 Plotting on local computer:
 
 ```sh
-chromosomes=("chr1" "chr9" "chr10" "chr11" "chr19" "chr21")
+chromosomes=("chr1" "chr9" "chr10" "chr11" "chr21")
 
 for chr in "${chromosomes[@]}"
 do
@@ -681,7 +680,7 @@ cut -f1 /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/re
 
 cut -f1 /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2_QC_v2/split_nj_trees/chr1/split_by_2/subgroup_1_seqs.fasta.fai > /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2_QC_v2/split_nj_trees/chr1/split_by_2/split_subgroup1_by2/subgroup1.samples.txt
 
-grep -v -f /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2_QC_v2/split_nj_trees/chr1/split_by_2/split_subgroup1_by2/subgroup1-subgroup1.samples.txt /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2_QC_v2/split_nj_trees/chr1/split_by_2/split_subgroup1_by2/subgroup1.samples.txt > subgroupB.txt
+grep -x -v -f /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2_QC_v2/split_nj_trees/chr1/split_by_2/split_subgroup1_by2/subgroup1-subgroup1.samples.txt /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2_QC_v2/split_nj_trees/chr1/split_by_2/split_subgroup1_by2/subgroup1.samples.txt > subgroupB.txt
 
 # create fasta for subgroup B with regions file
 samtools faidx -r /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2_QC_v2/split_nj_trees/chr1/split_by_2/split_subgroup1_by2/subgroupB.txt /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2_QC_v2/split_nj_trees/chr1/split_by_2/subgroup_1_seqs.fasta > /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2_QC_v2/split_nj_trees/chr1/combine_final_subgroups/chr1.subgroup_B.fasta
@@ -707,14 +706,111 @@ done
 Sanity check: no overlapping sample sets
 ```sh
 cut -f1 /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2_QC_v2/split_nj_trees/chr1/combine_final_subgroups/chr1.subgroup_B.fasta.fai | while read line ; do
-  grep -w $line /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2_QC_v2/split_nj_trees/chr1/combine_final_subgroups/chr1.subgroup_A.fasta.fai
+  grep -x $line /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2_QC_v2/split_nj_trees/chr1/combine_final_subgroups/chr1.subgroup_A.fasta.fai
 done
 
 cut -f1 /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2_QC_v2/split_nj_trees/chr1/combine_final_subgroups/chr1.subgroup_A.fasta.fai | while read line ; do
-  echo $line
-  grep -w "$line" /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2_QC_v2/split_nj_trees/chr1/combine_final_subgroups/chr1.subgroup_B.fasta.fai
+  grep -x "$line" /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2_QC_v2/split_nj_trees/chr1/combine_final_subgroups/chr1.subgroup_B.fasta.fai
 done
 ```
+
+#### chr 10
+
+![chr10_split1](plots/chr10_r2_QC_v2_subgroup0_first_splitpairwise_tree_heatmap.png)
+
+Split subgroup 0 by 2
+
+Subgroup 0 needs to now be split in two groups
+
+```sh
+chr=chr10
+
+docker run -u `id -u`:`id -g` -v /private/groups:/private/groups/ \
+    miramastoras/centromere_scripts:v0.1.4 \
+    python3 /private/groups/patenlab/mira/centrolign/github/centromere-scripts/benchmarking/split_fasta_by_tree.py \
+    -t /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2_QC_v2/split_nj_trees/chr10/split_by_2/subgroup_0_tree.nwk \
+    -f /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2_QC_v2/split_nj_trees/chr10/split_by_2/subgroup_0_seqs.fasta \
+    -n 2 \
+    -o /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2_QC_v2/split_nj_trees/chr10/split_by_2/split_subgroup0_by2/
+```
+
+subgroup0-subgroup0 has 67 samples, plotting to be sure
+```sh
+cd /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2_QC_v2/split_nj_trees/chr10/split_by_2/split_subgroup0_by2
+
+cut -f1 subgroup_0_seqs.fasta.fai > /private/groups/patenlab/mira/color_subgroups_heatmap/chr10_subgroup0_splitby2_subgroup0.txt
+```
+
+On local computer:
+```sh
+chromosomes=chr10
+for chr in "${chromosomes[@]}"
+do
+  python3 /Users/miramastoras/Desktop/github_repos/centrolign_analysis/scripts/pairwise_tree_heatmap_v2.py \
+    -t /Users/miramastoras/Desktop/HPRC_release2_QCv2_all_pairs_heatmaps/${chr}_r2_QC_v2_centrolign_all_pairs_nj_tree.format5.nwk \
+    -s /Users/miramastoras/Desktop/HPRC_release2_QCv2_all_pairs_heatmaps/${chr}.samples.txt \
+    -p /Users/miramastoras/Desktop/HPRC_release2_QCv2_all_pairs_heatmaps/${chr}_r2_QC_v2_centrolign_pairwise_distance.csv \
+    -m "Centrolign all pairs distances" \
+    -n "${chr} NJ tree" \
+    -d "All pairs Distances" \
+    -o /Users/miramastoras/Desktop/github_repos/centrolign_analysis/analysis_notes/release2_QC_v2/plots/${chr}_r2_QC_v2_subgroup0_splitby2_subgroup0_ --no_labels \
+    --highlight_samples /Users/miramastoras/Desktop/color_subgroups_heatmap/chr10_subgroup0_splitby2_subgroup0.txt
+done
+```
+
+![chr10_split1](plots/chr10_r2_QC_v2_subgroup0_splitby2_subgroup0_pairwise_tree_heatmap.png)
+
+Combining subgroup 0 - subgroup0 to subgroup 1 to create subgroup A
+```sh
+mkdir -p /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2_QC_v2/split_nj_trees/chr10/combine_final_subgroups/
+
+# subgroup A
+cat /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2_QC_v2/split_nj_trees/chr10/split_by_2/split_subgroup0_by2/subgroup_0_seqs.fasta > /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2_QC_v2/split_nj_trees/chr10/combine_final_subgroups/chr10.subgroup_A.fasta
+
+cat /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2_QC_v2/split_nj_trees/chr10/split_by_2/subgroup_1_seqs.fasta >> /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2_QC_v2/split_nj_trees/chr10/combine_final_subgroups/chr10.subgroup_A.fasta
+```
+Subtract chr10 subgroup 0-0 from subgroup 0, creating subgroup B
+```sh
+# create regions file of subgroup 0 minus samples from subgroup 0-0
+cut -f1 /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2_QC_v2/split_nj_trees/chr10/split_by_2/split_subgroup0_by2/subgroup_0_seqs.fasta.fai > /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2_QC_v2/split_nj_trees/chr10/split_by_2/split_subgroup0_by2/subgroup0-subgroup0.samples.txt
+
+cut -f1 /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2_QC_v2/split_nj_trees/chr10/split_by_2/subgroup_0_seqs.fasta.fai > /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2_QC_v2/split_nj_trees/chr10/split_by_2/split_subgroup0_by2/subgroup0.samples.txt
+
+grep -x -v -f /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2_QC_v2/split_nj_trees/chr10/split_by_2/split_subgroup0_by2/subgroup0-subgroup0.samples.txt /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2_QC_v2/split_nj_trees/chr10/split_by_2/split_subgroup0_by2/subgroup0.samples.txt > /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2_QC_v2/split_nj_trees/chr10/split_by_2/split_subgroup0_by2/subgroupB.txt
+
+# create fasta for subgroup B with regions file
+samtools faidx -r /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2_QC_v2/split_nj_trees/chr10/split_by_2/split_subgroup0_by2/subgroupB.txt /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2_QC_v2/split_nj_trees/chr10/split_by_2/subgroup_0_seqs.fasta > /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2_QC_v2/split_nj_trees/chr10/combine_final_subgroups/chr10.subgroup_B.fasta
+```
+
+Color subgroup A red to verify correct division of samples
+```sh
+chromosomes=chr10
+for chr in "${chromosomes[@]}"
+do
+  python3 /Users/miramastoras/Desktop/github_repos/centrolign_analysis/scripts/pairwise_tree_heatmap_v2.py \
+    -t /Users/miramastoras/Desktop/HPRC_release2_QCv2_all_pairs_heatmaps/${chr}_r2_QC_v2_centrolign_all_pairs_nj_tree.format5.nwk \
+    -s /Users/miramastoras/Desktop/HPRC_release2_QCv2_all_pairs_heatmaps/${chr}.samples.txt \
+    -p /Users/miramastoras/Desktop/HPRC_release2_QCv2_all_pairs_heatmaps/${chr}_r2_QC_v2_centrolign_pairwise_distance.csv \
+    -m "Centrolign all pairs distances" \
+    -n "${chr} NJ tree" \
+    -d "All pairs Distances" \
+    -o /Users/miramastoras/Desktop/github_repos/centrolign_analysis/analysis_notes/release2_QC_v2/plots/${chr}_r2_QC_v2_subgroupA_ --no_labels \
+    --highlight_samples /Users/miramastoras/Desktop/color_subgroups_heatmap/${chr}_subgroupA.samples.txt
+done
+```
+![subgroupA](plots/chr10_r2_QC_v2_subgroupA_pairwise_tree_heatmap.png)
+
+Sanity check: no overlapping sample sets
+```sh
+cut -f1 /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2_QC_v2/split_nj_trees/chr10/combine_final_subgroups/chr10.subgroup_B.fasta.fai | while read line ; do
+  grep -x $line /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2_QC_v2/split_nj_trees/chr10/combine_final_subgroups/chr10.subgroup_A.fasta.fai
+done
+
+cut -f1 /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2_QC_v2/split_nj_trees/chr10/combine_final_subgroups/chr10.subgroup_A.fasta.fai | while read line ; do
+  grep -x "$line" /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2_QC_v2/split_nj_trees/chr10/combine_final_subgroups/chr10.subgroup_B.fasta.fai
+done
+```
+
 #### chr 9
 
 ![chr9_split1](plots/chr9_r2_QC_v2_subgroup0_first_splitpairwise_tree_heatmap.png)
