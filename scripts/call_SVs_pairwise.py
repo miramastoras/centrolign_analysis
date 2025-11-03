@@ -7,8 +7,39 @@ Call SVs from centrolign pairwise cigar strings.
 import sys
 import os
 import re
+import argparse
+import matplotlib.pyplot as plt
+import seaborn as sns
+import pandas as pd
 
-def cigar_to_positions(cigar_ops, len_diff_threshold=0.1, min_len=50,ref_name="ref",query_name="query"):
+
+def arg_parser():
+    '''
+    Parses command line arguments with argparse
+    '''
+    parser = argparse.ArgumentParser(
+        prog='call_SVs_pairwise.py',
+        description="""Call SVs from centrolign pairwise cigar strings. Returns bedPE file of SVs.""")
+
+    parser.add_argument("-c", "--cigars",
+                        required=True,
+                        help="Folder containing cigar strings. Must be named as {args.cigars}{smp1}_{smp2}.txt")
+
+    return parser.parse_args()
+
+def map_to_samples(fps):
+    suff_regex = "([a-zA-Z0-9]+.[0-9])_([a-zA-Z0-9]+.[0-9]).txt$"
+
+    sample_map = {}
+    for fp in fps:
+        m = re.search(suff_regex, fp)
+        assert (m is not None)
+        key = tuple([m.group(1), m.group(2)])
+        sample_map[key] = fp
+
+    return sample_map
+
+def cigar_to_sv_positions(cigar_ops, len_diff_threshold=0.1, min_len=50,ref_name="ref",query_name="query"):
     """
     Iterate through CIGAR operations and return (ref, query) position pairs
     for insertions/deletions > 50 bp (or meeting adjacency rules).
@@ -18,7 +49,7 @@ def cigar_to_positions(cigar_ops, len_diff_threshold=0.1, min_len=50,ref_name="r
     - Include SV if I/D adjacent to D/I AND (EITHER adjacent op is > 50bp) AND lengths differ by > len_diff_threshold (default 10%).
     """
 
-    positions = []
+    #positions = []
     ref_pos = 0
     query_pos = 0
 
@@ -34,11 +65,11 @@ def cigar_to_positions(cigar_ops, len_diff_threshold=0.1, min_len=50,ref_name="r
         next_op = cigar_ops[i + 1][0] if i < len(cigar_ops) - 1 else None
         next_len = cigar_ops[i + 1][1] if i < len(cigar_ops) - 1 else None
 
-        if op == 'M':
+        if op in "MX=":
             ref_pos += length
             query_pos += length
 
-        elif op == 'I':
+        elif op in "IHS":
             include = False
             # Case 1: flanked by matches on both sides and > 50 bp
             if length > min_len and prev_op == 'M' and next_op == 'M':
@@ -52,8 +83,9 @@ def cigar_to_positions(cigar_ops, len_diff_threshold=0.1, min_len=50,ref_name="r
                 include = True
 
             if include:
-                positions.append((ref_name, ref_pos, ref_pos+1,  # end = ref_pos (exclusive)
-                           query_name, query_pos, query_pos + length, 'I'))  # end exclusive
+                #positions.append((ref_name, ref_pos, ref_pos+1,  # end = ref_pos (exclusive)
+                           #query_name, query_pos, query_pos + length, 'I'))  # end exclusive
+                print(ref_name, ref_pos, ref_pos + 1, query_name, query_pos, query_pos + length, "I",sep="\t")
 
             query_pos += length
 
@@ -71,14 +103,16 @@ def cigar_to_positions(cigar_ops, len_diff_threshold=0.1, min_len=50,ref_name="r
                 include = True
 
             if include:
-                positions.append((ref_name, ref_pos, ref_pos + length,  # end exclusive
-                               query_name, query_pos, query_pos+1, 'D'))  # end exclusive
+                #positions.append((ref_name, ref_pos, ref_pos + length,  # end exclusive
+                               #query_name, query_pos, query_pos+1, 'D'))  # end exclusive
+                print(ref_name, ref_pos, ref_pos + length, query_name, query_pos, query_pos + 1, "D", sep="\t")
+
             ref_pos += length
 
         else:
             assert (False)
 
-    return positions
+    return
 
 def parse_cigar(cigar):
     '''
@@ -93,20 +127,29 @@ def parse_cigar(cigar):
 # on real data double check there aren't any DID or IDI
 
 def main():
+    # parse command line arguments
+    args = arg_parser()
 
-    #cigar="15M400I7M150I156D8M"
-    cigar="15M600D300I2M"
-    cigar="150M60I70D100M"
-    cigar="1500D2000I2M300D2M"
-    # read in cigar from folder
-    # write output bedfiles
-    
-    # plot length distribution
-    #
-    parsed=parse_cigar(cigar)
-    #print(parsed)
-    sv_positions = cigar_to_positions(parsed)
-    print(sv_positions)
+    # read in all cigar strings from input directory
+    cigar_prefix = os.path.abspath(args.cigars)
+    cigar_dir = os.path.dirname(cigar_prefix)
+    cigar_file_prefix = os.path.basename(cigar_prefix)
+
+    cigar_files = [os.path.join(cigar_dir, f) for f in os.listdir(cigar_dir) if f.startswith(cigar_file_prefix)]
+
+    samples_to_induced = map_to_samples(cigar_files)
+
+    # for each cigar string, call SVs and write to bedfile
+    for pair in sorted(samples_to_induced, key=lambda k: sorted(k)):
+        # parse cigar string
+        cigar = parse_cigar(open(samples_to_induced[pair]).read())
+        ref=pair[0]
+        query=pair[1]
+
+        # call SVs
+        cigar_to_sv_positions(cigar,ref_name=ref,query_name=query)
+
+    # skipping write to bed file for now
 
 if __name__ == "__main__":
     main()
