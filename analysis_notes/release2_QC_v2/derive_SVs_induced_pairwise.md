@@ -50,52 +50,41 @@ output: bedPE file with SV coords relative to each assembly
 
 Testing how long it takes to run on chr8 subgroup 1
 ```sh
-time python3 /Users/miramastoras/Desktop/github_repos/centrolign_analysis/scripts/call_SVs_pairwise.py \
-  -c /Users/miramastoras/Desktop/chr12_cigars/pairwise_cigar_ \
-  -s /Users/miramastoras/Desktop/chr12_cigars/samples.txt \
-  -o /Users/miramastoras/Desktop/chr12_cigars/SVs_
+cut -f1 subgroup_1_seqs.fasta.fai  > /private/groups/patenlab/mira/centrolign/analysis/SVs_pairwise/chr8/test/chr8_subgroup1_samples.txt
 ```
 
+```sh
+#!/bin/bash
+#SBATCH --job-name=SVs_chr8_subgroup_1
+#SBATCH --partition=long
+#SBATCH --mail-user=mmastora@ucsc.edu
+#SBATCH --mail-type=ALL
+#SBATCH --nodes=1
+#SBATCH --mem=50gb
+#SBATCH --ntasks=1
+#SBATCH --cpus-per-task=1
+#SBATCH --output=call_SVs_%x.%j.log
+#SBATCH --time=7-00:00
+
+time python3 /private/groups/patenlab/mira/centrolign/github/centrolign_analysis/scripts/call_SVs_pairwise.py \
+  -c /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2_QC_v2/MSA/chr8/subgroup_1/induced_pairwise_cigars/pairwise_cigar_ \
+  -s /private/groups/patenlab/mira/centrolign/analysis/SVs_pairwise/chr8/test/chr8_subgroup1_samples.txt \
+  -o /private/groups/patenlab/mira/centrolign/analysis/SVs_pairwise/chr8/test/subgroup_1_SV_beds/
+```
+Ran in two minutes
+
+Local computer testing:
 ```sh
 time python3 /Users/miramastoras/Desktop/github_repos/centrolign_analysis/scripts/call_SVs_pairwise.py \
   -c /Users/miramastoras/Desktop/chr12_cigars/pairwise_cigar_ \
   -s /Users/miramastoras/Desktop/chr12_cigars/samples.txt \
   -o /Users/miramastoras/Desktop/chr12_cigars/SVs_
 ```
-```
-def plot_SV_length_dist(sv_positions):
-    """
-    Plot a swarm plot showing the length distribution of structural variants (SVs)
-    by type (Insertion or Deletion).
-
-    Parameters
-    ----------
-    sv_positions : list of tuples
-        Each tuple should have the format (ref, start_ref, end_ref, query, start_query, end_query, type),
-        where type is either 'I' for insertion or 'D' for deletion.
-    """
-    # Compute SV lengths
-    sv_data = []
-    for ref, start_ref, end_ref, query, start_query, end_query, sv_type in sv_positions:
-        if sv_type == 'I':
-            length = abs(end_query - start_query)
-        elif sv_type == 'D':
-            length = abs(end_ref - start_ref)
-        else:
-            continue  # skip unknown types
-
-        sv_data.append({"Type": "Insertion" if sv_type == "I" else "Deletion",
-                        "Length": length})
-
-    # Convert to DataFrame for easy plotting
-    df = pd.DataFrame(sv_data)
-    print(df)
-    # Plot
-    plt.figure(figsize=(8, 6))
-    sns.violinplot(x="Type", y="Length", data=df, size=6, palette="Set2")
-    plt.title("Structural Variant Length Distribution", fontsize=14)
-    plt.ylabel("SV Length (bp)")
-    plt.xlabel("SV Type")
-    plt.tight_layout()
-    plt.savefig('/Users/miramastoras/Desktop/svs.png')
+Plot SV length distributions
+```sh
+docker run -u `id -u`:`id -g` -v /private/groups:/private/groups/ \
+    miramastoras/centromere_scripts:v0.1.4 \
+    /private/groups/patenlab/mira/centrolign/github/centrolign_analysis/scripts/plot_SVs_pairwise.py \
+    -b /private/groups/patenlab/mira/centrolign/analysis/SVs_pairwise/chr8/test/subgroup_1_SV_beds/ \
+    -o /private/groups/patenlab/mira/centrolign/analysis/SVs_pairwise/chr8/test/SV_violin_subgroup1.png
 ```
