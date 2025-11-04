@@ -11,6 +11,7 @@ import argparse
 import matplotlib.pyplot as plt
 import seaborn as sns
 import pandas as pd
+from itertools import combinations
 
 
 def arg_parser():
@@ -24,6 +25,12 @@ def arg_parser():
     parser.add_argument("-c", "--cigars",
                         required=True,
                         help="Folder containing cigar strings. Must be named as {args.cigars}{smp1}_{smp2}.txt")
+    parser.add_argument("-s", "--samples",
+                        required=True,
+                        help="Txt file containing list of samples to run script on.")
+    parser.add_argument("-o", "--bed_prefix",
+                        required=True,
+                        help="Prefix / filepath to write output bed files to")
 
     return parser.parse_args()
 
@@ -39,7 +46,7 @@ def map_to_samples(fps):
 
     return sample_map
 
-def cigar_to_sv_positions(cigar_ops, len_diff_threshold=0.1, min_len=50,ref_name="ref",query_name="query"):
+def cigar_to_sv_positions(cigar_ops, bedfile_prefix,len_diff_threshold=0.1, min_len=50,ref_name="ref",query_name="query"):
     """
     Iterate through CIGAR operations and return (ref, query) position pairs
     for insertions/deletions > 50 bp (or meeting adjacency rules).
@@ -48,7 +55,7 @@ def cigar_to_sv_positions(cigar_ops, len_diff_threshold=0.1, min_len=50,ref_name
     - Include SV if I/D > 50 bp AND flanked by M on both sides.
     - Include SV if I/D adjacent to D/I AND (EITHER adjacent op is > 50bp) AND lengths differ by > len_diff_threshold (default 10%).
     """
-
+    bedfile=bedfile_prefix+ref_name+"_"+query_name+".bed"
     #positions = []
     ref_pos = 0
     query_pos = 0
@@ -85,7 +92,9 @@ def cigar_to_sv_positions(cigar_ops, len_diff_threshold=0.1, min_len=50,ref_name
             if include:
                 #positions.append((ref_name, ref_pos, ref_pos+1,  # end = ref_pos (exclusive)
                            #query_name, query_pos, query_pos + length, 'I'))  # end exclusive
-                print(ref_name, ref_pos, ref_pos + 1, query_name, query_pos, query_pos + length, "I",sep="\t")
+                #print(ref_name, ref_pos, ref_pos + 1, query_name, query_pos, query_pos + length, "I",sep="\t")
+                with open(bedfile,"a") as f:
+                    print(ref_name, ref_pos, ref_pos + 1, query_name, query_pos, query_pos + length, "I", sep="\t",file=f)
 
             query_pos += length
 
@@ -105,7 +114,10 @@ def cigar_to_sv_positions(cigar_ops, len_diff_threshold=0.1, min_len=50,ref_name
             if include:
                 #positions.append((ref_name, ref_pos, ref_pos + length,  # end exclusive
                                #query_name, query_pos, query_pos+1, 'D'))  # end exclusive
-                print(ref_name, ref_pos, ref_pos + length, query_name, query_pos, query_pos + 1, "D", sep="\t")
+                # print(ref_name, ref_pos, ref_pos + length, query_name, query_pos, query_pos + 1, "D", sep="\t")
+                with open(bedfile, "a") as f:
+                    print(ref_name, ref_pos, ref_pos + length, query_name, query_pos, query_pos + 1, "D", sep="\t",file=f)
+
 
             ref_pos += length
 
@@ -130,6 +142,14 @@ def main():
     # parse command line arguments
     args = arg_parser()
 
+    # read in list of samples
+    with open(args.samples) as f:
+        samples = [line.strip() for line in f if line.strip()]
+    print(f"Loaded {len(samples)} samples from {args.samples}",file=sys.stderr)
+
+    # generate all pairwise combinations (unordered)
+    valid_pairs = set(tuple(sorted(pair)) for pair in combinations(samples, 2))
+
     # read in all cigar strings from input directory
     cigar_prefix = os.path.abspath(args.cigars)
     cigar_dir = os.path.dirname(cigar_prefix)
@@ -137,17 +157,25 @@ def main():
 
     cigar_files = [os.path.join(cigar_dir, f) for f in os.listdir(cigar_dir) if f.startswith(cigar_file_prefix)]
 
+    # map files to sample pairs
     samples_to_induced = map_to_samples(cigar_files)
 
+    # filter only those pairs present in the provided sample list
+    filtered_pairs = {pair: fp for pair, fp in samples_to_induced.items() if tuple(sorted(pair)) in valid_pairs}
+
+    print(f"Running on {len(filtered_pairs)} pairwise combinations:",file=sys.stderr)
+
     # for each cigar string, call SVs and write to bedfile
-    for pair in sorted(samples_to_induced, key=lambda k: sorted(k)):
+    for pair in sorted(filtered_pairs, key=lambda k: sorted(k)):
         # parse cigar string
-        cigar = parse_cigar(open(samples_to_induced[pair]).read())
+        cigar = parse_cigar(open(filtered_pairs[pair]).read())
+
+        print(f"\nProcessing: {pair[0]} vs {pair[1]} ({os.path.basename(filtered_pairs[pair])})",file=sys.stderr)
         ref=pair[0]
         query=pair[1]
 
         # call SVs
-        cigar_to_sv_positions(cigar,ref_name=ref,query_name=query)
+        cigar_to_sv_positions(cigar,args.bed_prefix,ref_name=ref,query_name=query)
 
     # skipping write to bed file for now
 
