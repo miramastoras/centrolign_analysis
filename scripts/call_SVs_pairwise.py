@@ -60,64 +60,63 @@ def cigar_to_sv_positions(cigar_ops, bedfile_prefix,len_diff_threshold=0.1, min_
     ref_pos = 0
     query_pos = 0
 
-    def len_diff_above_threshold(a, b, threshold=0.1):
-        """Return True if lengths differ by more than the given fractional threshold."""
+    def percent_diff(a, b):
+        """Calculate percent difference between two values"""
         if a == 0 or b == 0:
             return False
-        return abs(a - b) / max(a, b) > threshold
+        return abs(a - b) / max(a, b)
 
     for i, (op, length) in enumerate(cigar_ops):
-        prev_op = cigar_ops[i - 1][0] if i > 0 else None
+        # if prev_op is the beginning or next_op is the end, set it to "M"
+        prev_op = cigar_ops[i - 1][0] if i > 0 else "M"
         prev_len = cigar_ops[i - 1][1] if i > 0 else None
-        next_op = cigar_ops[i + 1][0] if i < len(cigar_ops) - 1 else None
+        next_op = cigar_ops[i + 1][0] if i < len(cigar_ops) - 1 else "M"
         next_len = cigar_ops[i + 1][1] if i < len(cigar_ops) - 1 else None
 
+        # Don't write SNPs but iterate the position counters
         if op in "MX=":
             ref_pos += length
             query_pos += length
 
         elif op in "IHS":
-            include = False
-            # Case 1: flanked by matches on both sides and > 50 bp
-            if length > min_len and prev_op == 'M' and next_op == 'M':
-                include = True
-            # Case 2: adjacent to D, EITHER is > min_len, and length diff > threshold (determines if true SV or just unaligned sequence)
-            elif next_op == 'D' and (length > min_len or next_len > min_len) and \
-                 len_diff_above_threshold(length, next_len, len_diff_threshold):
-                include = True
-            elif prev_op == 'D' and (length > min_len or prev_len > min_len) and \
-                 len_diff_above_threshold(length, prev_len, len_diff_threshold):
-                include = True
 
-            if include:
-                #positions.append((ref_name, ref_pos, ref_pos+1,  # end = ref_pos (exclusive)
-                           #query_name, query_pos, query_pos + length, 'I'))  # end exclusive
-                #print(ref_name, ref_pos, ref_pos + 1, query_name, query_pos, query_pos + length, "I",sep="\t")
+            if length > min_len: # only write SVs > 50 bp
+                adj_id_diff = ""
+
+                # Case 1: flanked by matches on both sides
+                if prev_op in "MX=" and next_op in "MX=":
+                    adj_id_diff = -1
+
+                # Case 2: I adjacent to a D
+                elif next_op == 'D' :
+                    adj_id_diff = percent_diff(length,next_len)
+
+                elif prev_op == 'D' :
+                    adj_id_diff = percent_diff(length,prev_len)
+
                 with open(bedfile,"a") as f:
-                    print(ref_name, ref_pos, ref_pos + 1, query_name, query_pos, query_pos + length, "I", sep="\t",file=f)
+                    print(ref_name, ref_pos, ref_pos + 1, query_name, query_pos, query_pos + length, "I", adj_id_diff, sep="\t",file=f)
 
             query_pos += length
 
         elif op == 'D':
-            include = False
-            # Case 1: flanked by matches on both sides and > 50 bp
-            if length > min_len and prev_op == 'M' and next_op == 'M':
-                include = True
-            # Case 2: adjacent to I, EITHER > min_len, and large diff
-            elif next_op == 'I' and (length > min_len or next_len > min_len) and \
-                 len_diff_above_threshold(length, next_len, len_diff_threshold):
-                include = True
-            elif prev_op == 'I' and (length > min_len or prev_len > min_len) and \
-                 len_diff_above_threshold(length, prev_len, len_diff_threshold):
-                include = True
 
-            if include:
-                #positions.append((ref_name, ref_pos, ref_pos + length,  # end exclusive
-                               #query_name, query_pos, query_pos+1, 'D'))  # end exclusive
-                # print(ref_name, ref_pos, ref_pos + length, query_name, query_pos, query_pos + 1, "D", sep="\t")
+            if length > min_len:
+
+                adj_id_diff=""
+                # Case 1: flanked by matches on both sides and > 50 bp
+                if prev_op in "MX=" and next_op in "MX=":
+                    adj_id_diff = -1
+
+                # Case 2: adjacent to I, EITHER is > min_len, and large diff
+                elif next_op in 'IHS' :
+                    adj_id_diff = percent_diff(length,next_len)
+
+                elif prev_op in 'IHS' :
+                    adj_id_diff = percent_diff(length,prev_len)
+
                 with open(bedfile, "a") as f:
-                    print(ref_name, ref_pos, ref_pos + length, query_name, query_pos, query_pos + 1, "D", sep="\t",file=f)
-
+                    print(ref_name, ref_pos, ref_pos + length, query_name, query_pos, query_pos + 1, "D", adj_id_diff, sep="\t",file=f)
 
             ref_pos += length
 
