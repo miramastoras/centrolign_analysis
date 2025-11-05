@@ -100,8 +100,16 @@ def plot_length_distributions(df, output_prefix):
             print("No records for condition:", label)
             continue
 
+        # Compute histogram counts
+        counts, bin_edges = np.histogram(subset["length"], bins=bins)
+        print(f"\n=== {label} ===")
+        print("Bin ranges (start-end) | Count")
+        for i in range(len(counts)):
+            print(f"{int(bin_edges[i])}-{int(bin_edges[i + 1])} | {counts[i]}")
+
+        # Plot histogram
         plt.figure(figsize=(8, 5))
-        plt.hist(subset["length"], bins=50, color="skyblue", edgecolor="black", alpha=0.7)
+        plt.hist(subset["length"], bins=bins, color="skyblue", edgecolor="black", alpha=0.7)
         plt.title("SV Length Distribution: {}".format(label))
         plt.xlabel("Length (bp)")
         plt.ylabel("Count")
