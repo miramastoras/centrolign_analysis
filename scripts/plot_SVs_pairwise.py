@@ -94,7 +94,7 @@ def plot_length_distributions(df, output_prefix):
         ("D_diff_gt_0.1", (df["type"] == "D") & (df["diff"] > 0.1)),
     ]
 
-    bin_size = 2500
+    bin_size = 1000
     max_bin = 50000  # anything >= 1Mb goes in final bin
 
     for label, cond in conditions:
