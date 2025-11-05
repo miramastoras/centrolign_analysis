@@ -46,7 +46,7 @@ def map_to_samples(fps):
 
     return sample_map
 
-def cigar_to_sv_positions(cigar_ops, bedfile_prefix,len_diff_threshold=0.1, min_len=50,ref_name="ref",query_name="query"):
+def cigar_to_sv_positions(cigar_ops, bedfile_prefix,len_diff_threshold=0.1, min_len=49,ref_name="ref",query_name="query"):
     """
     Iterate through CIGAR operations and return (ref, query) position pairs
     for insertions/deletions > 50 bp (or meeting adjacency rules).
@@ -80,7 +80,7 @@ def cigar_to_sv_positions(cigar_ops, bedfile_prefix,len_diff_threshold=0.1, min_
 
         elif op in "IHS":
 
-            if length > min_len: # only write SVs > 50 bp
+            if length > min_len: # only write SVs >= 50 bp
                 adj_id_diff = ""
 
                 # Case 1: flanked by matches on both sides
@@ -104,7 +104,7 @@ def cigar_to_sv_positions(cigar_ops, bedfile_prefix,len_diff_threshold=0.1, min_
             if length > min_len:
 
                 adj_id_diff=""
-                # Case 1: flanked by matches on both sides and > 50 bp
+                # Case 1: flanked by matches on both sides and >= 50 bp
                 if prev_op in "MX=" and next_op in "MX=":
                     adj_id_diff = -1
 
