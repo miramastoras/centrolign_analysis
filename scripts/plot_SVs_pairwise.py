@@ -48,6 +48,11 @@ def read_sv_bed_files(clade, bed_folder):
                 )
                 df["clade"] = clade
                 df["source_file"] = filename  # optional, helps track origin
+                df["length"] = np.where(
+                    df["type"] == "I",
+                    df["end2"] - df["start2"],  # insertion → use sample2 coords
+                    df["end1"] - df["start1"]  # otherwise (deletion) → sample1 coords
+                )
                 all_beds.append(df)
             except Exception as e:
                 print("Warning: Could not read {}: {}".format(bed_path, e))
@@ -69,11 +74,8 @@ def plot_length_distributions(df, output_prefix):
       6) type = "D", diff > 0.1
     """
     if df.empty:
-        print("⚠️ DataFrame is empty, skipping plots.")
+        print("DataFrame is empty, skipping plots.")
         return
-
-    # Compute length
-    df["length"] = df["end1"] - df["start1"]
 
     # Define plotting conditions
     conditions = [
@@ -131,7 +133,7 @@ def main():
 
     if all_data:
         merged_df = pd.concat(all_data, ignore_index=True)
-        # Print head of DataFrame
+
         print("=== Head of merged DataFrame ===")
         print(merged_df.head(), "\n")
 
