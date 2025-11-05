@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
-
 import argparse
 import os
 import pandas as pd
+import matplotlib.pyplot as plt
 
 def arg_parser():
     '''
@@ -17,10 +17,10 @@ def arg_parser():
         help="CSV file with columns: clade,path_to_SV_beds"
     )
     parser.add_argument(
-        "-o", "--output",
+        "-p", "--plot_prefix",
         required=False,
-        default="merged_sv_beds.tsv",
-        help="Output TSV file (default: merged_sv_beds.tsv)"
+        default="sv_length_dist",
+        help="Output prefix for generated plot PNG files (default: sv_length_dist)"
     )
     return parser.parse_args()
 
@@ -58,6 +58,58 @@ def read_sv_bed_files(clade, bed_folder):
         print("Warning: No .bed files found in {} for clade '{}'".format(bed_folder, clade))
         return pd.DataFrame(columns=["sample1", "start1", "end1", "sample2", "start2", "end2", "type", "diff", "clade", "source_file"])
 
+def plot_length_distributions(df, output_prefix):
+    """
+    Generate plots showing SV length distributions for given conditions:
+      1) type = "I", diff = -1
+      2) type = "I", diff < 0.1
+      3) type = "I", diff > 0.1
+      4) type = "D", diff = -1
+      5) type = "D", diff < 0.1
+      6) type = "D", diff > 0.1
+    """
+    if df.empty:
+        print("⚠️ DataFrame is empty, skipping plots.")
+        return
+
+    # Compute length
+    df["length"] = df["end1"] - df["start1"]
+
+    # Define plotting conditions
+    conditions = [
+        ("I_diff_eq_-1", (df["type"] == "I") & (df["diff"] == -1)),
+        ("I_diff_lt_0.1", (df["type"] == "I") & (df["diff"] < 0.1)),
+        ("I_diff_gt_0.1", (df["type"] == "I") & (df["diff"] > 0.1)),
+        ("D_diff_eq_-1", (df["type"] == "D") & (df["diff"] == -1)),
+        ("D_diff_lt_0.1", (df["type"] == "D") & (df["diff"] < 0.1)),
+        ("D_diff_gt_0.1", (df["type"] == "D") & (df["diff"] > 0.1)),
+    ]
+
+    # Ensure directory exists for the output prefix
+    out_dir = os.path.dirname(output_prefix)
+    if out_dir and not os.path.exists(out_dir):
+        os.makedirs(out_dir)
+
+    # Plot using matplotlib only
+    for label, cond in conditions:
+        subset = df[cond]
+        if subset.empty:
+            print("No records for condition:", label)
+            continue
+
+        plt.figure(figsize=(8, 5))
+        plt.hist(subset["length"], bins=50, color="skyblue", edgecolor="black", alpha=0.7)
+        plt.title("SV Length Distribution: {}".format(label))
+        plt.xlabel("Length (bp)")
+        plt.ylabel("Count")
+        plt.grid(axis="y", linestyle="--", alpha=0.7)
+        plt.tight_layout()
+
+        output_file = "{}_{}.png".format(output_prefix, label)
+        plt.savefig(output_file)
+        plt.close()
+        print("Saved plot:", output_file)
+
 
 def main():
     # parse command line arguments
@@ -86,6 +138,8 @@ def main():
         # Print count of rows per clade
         print("=== Record count per clade ===")
         print(merged_df["clade"].value_counts())
+
+        plot_length_distributions(merged_df, args.plot_prefix)
     else:
         print("No data merged; check your input CSV and folder paths.")
 
