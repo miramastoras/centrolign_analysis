@@ -151,6 +151,11 @@ def main():
         print(merged_df["clade"].value_counts())
 
         plot_length_distributions(merged_df, args.plot_prefix)
+
+        top5 = merged_df.sort_values(by="length", ascending=False).head(5)
+        print("\n=== Top 5 largest SVs ===")
+        print(top5[["sample1", "sample2", "clade", "length", "type", "diff"]])
+        
     else:
         print("No data merged; check your input CSV and folder paths.")
 
