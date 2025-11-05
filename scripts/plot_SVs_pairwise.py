@@ -64,7 +64,7 @@ def read_sv_bed_files(clade, bed_folder):
         print("Warning: No .bed files found in {} for clade '{}'".format(bed_folder, clade))
         return pd.DataFrame(columns=["sample1", "start1", "end1", "sample2", "start2", "end2", "type", "diff", "clade", "source_file"])
 
-def plot_length_distributions(df, output_prefix):
+def plot_length_distributions(df, output_prefix,bins=100):
     """
     Generate plots showing SV length distributions for given conditions:
       1) type = "I", diff = -1
