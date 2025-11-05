@@ -173,7 +173,7 @@ def plot_category_counts(df, output_file):
 
     # Plot
     plt.figure(figsize=(8, 5))
-    plt.bar(labels, counts, color="skyblue", edgecolor="black", alpha=0.7)
+    plt.bar(labels, counts, color="skyblue",align='edge', edgecolor="black", alpha=0.7)
     plt.xlabel("Category")
     plt.ylabel("SV count")
     plt.title("SV Counts by Category")
@@ -218,7 +218,7 @@ def main():
         print("\n=== Top 5 largest SVs ===")
         print(top5[["sample1", "sample2", "clade", "length", "type", "diff"]])
 
-        output_file = f"{args.output_prefix}_category_counts.png"
+        output_file = f"{args.plot_prefix}_category_counts.png"
         plot_category_counts(merged_df, output_file)
 
     else:
