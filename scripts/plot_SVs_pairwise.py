@@ -141,6 +141,48 @@ def plot_length_distributions(df, output_prefix):
         plt.close()
         print(f"✅ Saved plot: {output_file}")
 
+def plot_category_counts(df, output_file):
+    """
+    Plot total SV counts for six categories:
+    x-axis = category
+    y-axis = SV count
+    """
+    import matplotlib.pyplot as plt
+
+    if df.empty:
+        print("⚠️ DataFrame is empty, skipping plot.")
+        return
+
+    categories = [
+        ("I_diff_eq_-1", (df["type"] == "I") & (df["diff"] == -1)),
+        ("I_diff_lt_0.1", (df["type"] == "I") & (df["diff"] < 0.1)),
+        ("I_diff_gt_0.1", (df["type"] == "I") & (df["diff"] > 0.1)),
+        ("D_diff_eq_-1", (df["type"] == "D") & (df["diff"] == -1)),
+        ("D_diff_lt_0.1", (df["type"] == "D") & (df["diff"] < 0.1)),
+        ("D_diff_gt_0.1", (df["type"] == "D") & (df["diff"] > 0.1)),
+    ]
+
+    counts = []
+    labels = []
+
+    for label, cond in categories:
+        count = df[cond].shape[0]
+        counts.append(count)
+        labels.append(label)
+        print(f"{label}: {count} SVs")
+
+    # Plot
+    plt.figure(figsize=(8, 5))
+    plt.bar(labels, counts, color="skyblue", edgecolor="black", alpha=0.7)
+    plt.xlabel("Category")
+    plt.ylabel("SV count")
+    plt.title("SV Counts by Category")
+    plt.xticks(rotation=45)
+    plt.tight_layout()
+    plt.savefig(output_file)
+    plt.close()
+    print(f"✅ Saved plot: {output_file}")
+
 
 def main():
     # parse command line arguments
@@ -175,6 +217,9 @@ def main():
         top5 = merged_df.sort_values(by="length", ascending=False).head(5)
         print("\n=== Top 5 largest SVs ===")
         print(top5[["sample1", "sample2", "clade", "length", "type", "diff"]])
+
+        output_file = f"{args.output_prefix}_category_counts.png"
+        plot_category_counts(merged_df, output_file)
 
     else:
         print("No data merged; check your input CSV and folder paths.")
