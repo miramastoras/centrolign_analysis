@@ -125,10 +125,12 @@ def plot_length_distributions(df, output_prefix):
 
         # Plot histogram
         plt.figure(figsize=(10, 5))
-        # create bin labels for plotting
-        bin_labels = [f"{int(bin_edges[i])}-{int(bin_edges[i+1]-1)}" for i in range(len(counts)-1)] + [">50Kb"]
-        plt.bar(range(len(counts)), counts, color="skyblue", edgecolor="black", alpha=0.7)
-        plt.xticks(range(len(counts)), bin_labels, rotation=90)
+        # x positions for bars
+        x_pos = list(range(len(counts)))
+        plt.bar(x_pos, counts, color="skyblue", edgecolor="black", alpha=0.7)
+        # x-axis labels: bin start values and '>1Mb' for final bin
+        x_labels = [str(int(bin_edges[i])) for i in range(len(counts) - 1)] + [">1Mb"]
+        plt.xticks(x_pos, x_labels, rotation=90)
         plt.title(f"SV Length Distribution: {label}")
         plt.xlabel("Length (bp)")
         plt.ylabel("Count")
