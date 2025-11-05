@@ -94,8 +94,8 @@ def plot_length_distributions(df, output_prefix):
         ("D_diff_gt_0.1", (df["type"] == "D") & (df["diff"] > 0.1)),
     ]
 
-    bin_size = 10000
-    max_bin = 500000  # anything >= 1Mb goes in final bin
+    bin_size = 5000
+    max_bin = 100000  # anything >= 1Mb goes in final bin
 
     for label, cond in conditions:
         subset = df[cond]
@@ -121,12 +121,12 @@ def plot_length_distributions(df, output_prefix):
         print("Bin range (bp) | Count")
         for i in range(len(counts) - 1):
             print(f"{int(bin_edges[i])}-{int(bin_edges[i+1]-1)} | {counts[i]}")
-        print(f">=500,000 | {overflow_count}")
+        print(f">=100,000 | {overflow_count}")
 
         # Plot histogram
         plt.figure(figsize=(10, 5))
         # create bin labels for plotting
-        bin_labels = [f"{int(bin_edges[i])}-{int(bin_edges[i+1]-1)}" for i in range(len(counts)-1)] + [">1Mb"]
+        bin_labels = [f"{int(bin_edges[i])}-{int(bin_edges[i+1]-1)}" for i in range(len(counts)-1)] + [">100Kb"]
         plt.bar(range(len(counts)), counts, color="skyblue", edgecolor="black", alpha=0.7)
         plt.xticks(range(len(counts)), bin_labels, rotation=90)
         plt.title(f"SV Length Distribution: {label}")
