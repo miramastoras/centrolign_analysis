@@ -64,21 +64,27 @@ def read_sv_bed_files(clade, bed_folder):
         print("Warning: No .bed files found in {} for clade '{}'".format(bed_folder, clade))
         return pd.DataFrame(columns=["sample1", "start1", "end1", "sample2", "start2", "end2", "type", "diff", "clade", "source_file"])
 
-def plot_length_distributions(df, output_prefix,bins=100):
+def plot_length_distributions(df, output_prefix):
     """
-    Generate plots showing SV length distributions for given conditions:
-      1) type = "I", diff = -1
-      2) type = "I", diff < 0.1
-      3) type = "I", diff > 0.1
-      4) type = "D", diff = -1
-      5) type = "D", diff < 0.1
-      6) type = "D", diff > 0.1
+    Generate SV length histograms with:
+      - bin size = 100 bp
+      - all SVs >= 1,000,000 bp in a single bin labeled '>1Mb'
+    Also prints counts per bin.
     """
+    import numpy as np
+    import matplotlib.pyplot as plt
+    import os
+
     if df.empty:
-        print("DataFrame is empty, skipping plots.")
+        print("⚠️ DataFrame is empty, skipping plots.")
         return
 
-    # Define plotting conditions
+    # Ensure directory exists
+    out_dir = os.path.dirname(output_prefix)
+    if out_dir and not os.path.exists(out_dir):
+        os.makedirs(out_dir)
+
+    # Define filter conditions
     conditions = [
         ("I_diff_eq_-1", (df["type"] == "I") & (df["diff"] == -1)),
         ("I_diff_lt_0.1", (df["type"] == "I") & (df["diff"] < 0.1)),
@@ -88,38 +94,50 @@ def plot_length_distributions(df, output_prefix,bins=100):
         ("D_diff_gt_0.1", (df["type"] == "D") & (df["diff"] > 0.1)),
     ]
 
-    # Ensure directory exists for the output prefix
-    out_dir = os.path.dirname(output_prefix)
-    if out_dir and not os.path.exists(out_dir):
-        os.makedirs(out_dir)
+    bin_size = 100
+    max_bin = 1_000_000  # anything >= 1Mb goes in final bin
 
-    # Plot using matplotlib only
     for label, cond in conditions:
         subset = df[cond]
         if subset.empty:
-            print("No records for condition:", label)
+            print("⚠️ No records for condition:", label)
             continue
 
-        # Compute histogram counts
-        counts, bin_edges = np.histogram(subset["length"], bins=bins)
+        # Cap lengths at max_bin for plotting/counting
+        lengths = subset["length"].copy()
+        lengths_capped = np.where(lengths >= max_bin, max_bin, lengths)
+
+        # Define bins: 0,100,200,...,1,000,000
+        bins = np.arange(0, max_bin + bin_size, bin_size)
+
+        counts, bin_edges = np.histogram(lengths_capped, bins=bins)
+
+        # Count SVs >=1Mb separately and add to final bin
+        overflow_count = (lengths >= max_bin).sum()
+        counts[-1] += overflow_count
+
+        # Print bin counts
         print(f"\n=== {label} ===")
-        print("Bin ranges (start-end) | Count")
-        for i in range(len(counts)):
-            print(f"{int(bin_edges[i])}-{int(bin_edges[i + 1])} | {counts[i]}")
+        print("Bin range (bp) | Count")
+        for i in range(len(counts) - 1):
+            print(f"{int(bin_edges[i])}-{int(bin_edges[i+1]-1)} | {counts[i]}")
+        print(f">=1,000,000 | {overflow_count}")
 
         # Plot histogram
-        plt.figure(figsize=(8, 5))
-        plt.hist(subset["length"], bins=bins, color="skyblue", edgecolor="black", alpha=0.7)
-        plt.title("SV Length Distribution: {}".format(label))
+        plt.figure(figsize=(10, 5))
+        # create bin labels for plotting
+        bin_labels = [f"{int(bin_edges[i])}-{int(bin_edges[i+1]-1)}" for i in range(len(counts)-1)] + [">1Mb"]
+        plt.bar(range(len(counts)), counts, color="skyblue", edgecolor="black", alpha=0.7)
+        plt.xticks(range(len(counts)), bin_labels, rotation=90)
+        plt.title(f"SV Length Distribution: {label}")
         plt.xlabel("Length (bp)")
         plt.ylabel("Count")
-        plt.grid(axis="y", linestyle="--", alpha=0.7)
         plt.tight_layout()
 
-        output_file = "{}_{}.png".format(output_prefix, label)
+        output_file = f"{output_prefix}_{label}.png"
         plt.savefig(output_file)
         plt.close()
-        print("Saved plot:", output_file)
+        print(f"✅ Saved plot: {output_file}")
 
 
 def main():
@@ -155,7 +173,7 @@ def main():
         top5 = merged_df.sort_values(by="length", ascending=False).head(5)
         print("\n=== Top 5 largest SVs ===")
         print(top5[["sample1", "sample2", "clade", "length", "type", "diff"]])
-        
+
     else:
         print("No data merged; check your input CSV and folder paths.")
 
