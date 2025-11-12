@@ -29,7 +29,12 @@ def process_bedpe_file(input_path, asat_dict, output_path):
             smp2_start = int(line[4]) + smp2_offset
             smp2_end = int(line[5]) + smp2_offset
 
-            print(smp1_contig, smp1_start, smp1_end, smp2_contig, smp2_start, smp2_end, line[6], line[7], sep="\t", file=outfile)
+            # this line prints the contig ID in the assembly instead of the sample name
+            #print(smp1_contig, smp1_start, smp1_end, smp2_contig, smp2_start, smp2_end, line[6], line[7], sep="\t", file=outfile)
+
+            # this line just prints the sample name
+            print(smp1, smp1_start, smp1_end, smp2, smp2_start, smp2_end, line[6], line[7], sep="\t",
+                  file=outfile)
 
 def load_bed_files(bed_folder, chrom):
     """
