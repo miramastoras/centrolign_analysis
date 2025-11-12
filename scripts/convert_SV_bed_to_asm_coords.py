@@ -116,8 +116,7 @@ def main():
     for filename in os.listdir(sv_beds_folder):
         if filename.endswith(".bed"):
             input_path = os.path.join(sv_beds_folder, filename)
-            output_filename = filename.replace(".bed", "_asm_coords.bed")
-            output_path = os.path.join(output_folder, output_filename)
+            output_path = os.path.join(output_folder, filename)
 
             process_bedpe_file(input_path, asat_dict,output_path)
 
