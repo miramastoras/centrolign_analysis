@@ -9,7 +9,7 @@
 #SBATCH --cpus-per-task=1
 #SBATCH --output=logs/centrolign_%x.%j.log
 #SBATCH --time=7-00:00
-#SBATCH --array=[23-26]%5
+#SBATCH --array=[22,26,27,32-39,41,43,44]%10
 
 CSV_FILE=/private/groups/patenlab/mira/centrolign/analysis/pairwise_consistency/centrolign_results.csv
 CHR_SUBGROUP=$(awk "NR==$SLURM_ARRAY_TASK_ID" "$CSV_FILE" | cut -f1 -d",")
