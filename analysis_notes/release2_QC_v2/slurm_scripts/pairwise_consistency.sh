@@ -16,12 +16,9 @@ CHR_SUBGROUP=$(awk "NR==$SLURM_ARRAY_TASK_ID" "$CSV_FILE" | cut -f1 -d",")
 CHR=$(awk "NR==$SLURM_ARRAY_TASK_ID" "$CSV_FILE" | cut -f1 -d"," | cut -f1 -d"_")
 INDUCED_CIGARS=$(awk "NR==$SLURM_ARRAY_TASK_ID" "$CSV_FILE" | cut -f10 -d",")
 
-echo $CSV_FILE
 echo $CHR_SUBGROUP
-echo $CHR
-echo $INDUCED_CIGARS
 
-#time python3 /private/groups/patenlab/mira/centrolign/github/centromere-scripts/benchmarking/pairwise_consistency.py \
-#    ${INDUCED_CIGARS}/pairwise_cigar_ \
-#    /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2_QC_v2/all_pairs/${CHR}/pairwise_cigar/pairwise_cigar_ \
-#    > /private/groups/patenlab/mira/centrolign/analysis/pairwise_consistency/HPRC_r2_QCv2_${CHR_SUBGROUP}_pairwise_consistency.txt
+time python3 /private/groups/patenlab/mira/centrolign/github/centromere-scripts/benchmarking/pairwise_consistency.py \
+    ${INDUCED_CIGARS}/pairwise_cigar_ \
+    /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2_QC_v2/all_pairs/${CHR}/pairwise_cigar/pairwise_cigar_ \
+    > /private/groups/patenlab/mira/centrolign/analysis/pairwise_consistency/HPRC_r2_QCv2_${CHR_SUBGROUP}_pairwise_consistency.txt
