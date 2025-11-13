@@ -12,9 +12,9 @@
 #SBATCH --array=[23-26]%5
 
 CSV_FILE=/private/groups/patenlab/mira/centrolign/analysis/pairwise_consistency/centrolign_results.csv
-CHR_SUBGROUP=$(awk "NR==$SLURM_ARRAY_TASK_ID" "$CSV_FILE" | cut -f1)
-CHR=$(awk "NR==$SLURM_ARRAY_TASK_ID" "$CSV_FILE" | cut -f1 | cut -f1 -d"_")
-INDUCED_CIGARS=$(awk "NR==$SLURM_ARRAY_TASK_ID" "$CSV_FILE" | cut -f10)
+CHR_SUBGROUP=$(awk "NR==$SLURM_ARRAY_TASK_ID" "$CSV_FILE" | cut -f1 -d",")
+CHR=$(awk "NR==$SLURM_ARRAY_TASK_ID" "$CSV_FILE" | cut -f1 -d"," | cut -f1 -d"_")
+INDUCED_CIGARS=$(awk "NR==$SLURM_ARRAY_TASK_ID" "$CSV_FILE" | cut -f10 -d",")
 
 echo $CSV_FILE
 echo $CHR_SUBGROUP
