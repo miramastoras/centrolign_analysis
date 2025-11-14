@@ -279,6 +279,18 @@ time python3 /private/groups/patenlab/mira/centrolign/github/centromere-scripts/
     > /private/groups/patenlab/mira/centrolign/analysis/pairwise_consistency/HPRC_r2_QCv2_chr7_subgroup1_pairwise_consistency.txt
 ```
 
+Submitting remainder as an SBATCH job
+
+Downloaded centrolign results tracking sheet as a csv and renamed it "centrolign_results.csv"
+
+https://docs.google.com/spreadsheets/d/1Ga6tchMckFVrvLUvVJDVDEwQNEeL7zEafn6Ms4aXrkI/edit?gid=0#gid=0
+
+```sh
+cd /private/groups/patenlab/mira/centrolign/analysis/pairwise_consistency
+
+mkdir -p logs/
+sbatch /private/groups/patenlab/mira/centrolign/github/centrolign_analysis/analysis_notes/release2_QC_v2/slurm_scripts/pairwise_consistency.sh
+```
 ### Get patristic distances from the input NJ tree
 
 ```sh

@@ -34,7 +34,7 @@ def read_sv_bed_files(clade, bed_folder):
     all_beds = []
     bed_files = [f for f in os.listdir(bed_folder) if f.endswith(".bed")]
     print(f"Found {len(bed_files)} SV bed files for clade '{clade}'")
-    
+
     # Ensure folder exists
     if not os.path.isdir(bed_folder):
         raise FileNotFoundError("Folder not found for clade '{}': {}".format(clade, bed_folder))
