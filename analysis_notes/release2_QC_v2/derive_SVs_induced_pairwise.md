@@ -177,7 +177,35 @@ time python3 /private/groups/patenlab/mira/centrolign/github/centrolign_analysis
 Transitioned to python notebook for remaining plots:
 https://github.com/miramastoras/centrolign_analysis/blob/main/analysis_notes/release2_QC_v2/notebooks/SVs_pairwise.ipynb
 
+### Running SV caller on all pairwise comparisons for all chromosomes
 
+Get lists containing all the samples in each subgroup / MSA submission
+```sh
+grep "complete" /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2_QC_v2/MSA/centrolign_MSA.csv | grep "release 2 QC v2" | cut -f1,8 -d","  | while IFS=',' read -r subgroup fastapath ; do
+  CHR=`echo $subgroup | cut -f1 -d"_"`
+  echo $CHR
+  mkdir -p /private/groups/patenlab/mira/centrolign/analysis/SVs_pairwise/${CHR}/
+
+  cut -f1 ${fastapath}.fai > /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2_QC_v2/MSA/sample_lists/${subgroup}.MSA.samples.txt
+done
+```
+Create csv file with columns clade,CIGAR_PATH,sample_names_list
+```sh
+grep "complete" /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2_QC_v2/MSA/centrolign_MSA.csv | grep "release 2 QC v2" | cut -f1,8,10 -d","  > /private/groups/patenlab/mira/centrolign/analysis/SVs_pairwise/11172025_completed_subgroups.csv
+```
+Run SV caller on all completed subgroups
+```sh
+
+```
+
+submitting
+```sh
+cd /private/groups/patenlab/mira/centrolign/analysis/SVs_pairwise
+
+mkdir -p logs
+
+sbatch /private/groups/patenlab/mira/centrolign/analysis_notes/release2_QC_v2/slurm_scripts/call_SVs_pairwise_all_chroms.sh /private/groups/patenlab/mira/centrolign/analysis/SVs_pairwise/11172025_completed_subgroups.csv
+```
 ### Benchmarking: Compare Centrolign to Fedor's HorHap SVs
 
 Starting with chr 12 cenHap 4.
@@ -297,5 +325,5 @@ Using the tool "intervene" to plot a venn diagram of bedtools intersect
 conda create -n intervene
 conda install -c bioconda intervene
 
-intervene venn -i /private/groups/patenlab/mira/centrolign/analysis/SVs_pairwise/chr12/cenHap4_benchmarking_HorHaps/centrolign_SVs_ins.bed /private/groups/patenlab/mira/centrolign/analysis/SVs_pairwise/chr12/cenHap4_benchmarking_HorHaps/horhap_SVs_ins.bed –bedtools-options -f 0.5 
+intervene venn -i /private/groups/patenlab/mira/centrolign/analysis/SVs_pairwise/chr12/cenHap4_benchmarking_HorHaps/centrolign_SVs_ins.bed /private/groups/patenlab/mira/centrolign/analysis/SVs_pairwise/chr12/cenHap4_benchmarking_HorHaps/horhap_SVs_ins.bed –bedtools-options -f 0.5
 ```
