@@ -204,7 +204,7 @@ cd /private/groups/patenlab/mira/centrolign/analysis/SVs_pairwise
 
 mkdir -p logs
 
-sbatch /private/groups/patenlab/mira/centrolign/analysis_notes/release2_QC_v2/slurm_scripts/call_SVs_pairwise_all_chroms.sh /private/groups/patenlab/mira/centrolign/analysis/SVs_pairwise/11172025_completed_subgroups.csv
+sbatch /private/groups/patenlab/mira/centrolign/github/centrolign_analysis/analysis_notes/release2_QC_v2/slurm_scripts/call_SVs_pairwise_all_chroms.sh /private/groups/patenlab/mira/centrolign/analysis/SVs_pairwise/11172025_completed_subgroups.csv
 ```
 ### Benchmarking: Compare Centrolign to Fedor's HorHap SVs
 

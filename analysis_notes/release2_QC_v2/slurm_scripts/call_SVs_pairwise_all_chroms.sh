@@ -22,9 +22,9 @@ echo $CLADE
 echo $CIGAR_PATH
 echo $SAMPLE_LIST
 
-mkdir -p /private/groups/patenlab/mira/centrolign/analysis/SVs_pairwise/${CHR}/SV_beds/${CLADE}/
+#mkdir -p /private/groups/patenlab/mira/centrolign/analysis/SVs_pairwise/${CHR}/SV_beds/${CLADE}/
 
-time python3 /private/groups/patenlab/mira/centrolign/github/centrolign_analysis/scripts/call_SVs_pairwise.py \
-  -c ${CIGAR_PATH}/pairwise_cigar_ \
-  -s ${SAMPLE_LIST} \
-  -o /private/groups/patenlab/mira/centrolign/analysis/SVs_pairwise/${CHR}/SV_beds/${CLADE}/
+#time python3 /private/groups/patenlab/mira/centrolign/github/centrolign_analysis/scripts/call_SVs_pairwise.py \
+#  -c ${CIGAR_PATH}/pairwise_cigar_ \
+#  -s ${SAMPLE_LIST} \
+#  -o /private/groups/patenlab/mira/centrolign/analysis/SVs_pairwise/${CHR}/SV_beds/${CLADE}/
