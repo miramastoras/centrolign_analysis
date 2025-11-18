@@ -61,15 +61,15 @@ def main():
     missing = all_samples - covered_samples
 
     # ---- Output ----
-    print("Selected largest non-overlapping clades:\n")
+    print("Selected largest non-overlapping clades:")
     for fname, samples in selected:
         print(f"{fname}\t{','.join(sorted(samples))}")
 
     if missing:
-        print("\nSamples NOT covered by any clade:")
+        print("Samples NOT covered by any clade:")
         print(",".join(sorted(missing)))
     else:
-        print("\nAll samples covered.")
+        print("All samples covered.")
 
 if __name__ == "__main__":
     main()
