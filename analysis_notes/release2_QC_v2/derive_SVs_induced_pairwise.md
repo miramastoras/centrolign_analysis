@@ -191,14 +191,11 @@ done
 ```
 Create csv file with columns clade,CIGAR_PATH,sample_names_list
 ```sh
-grep "complete" /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2_QC_v2/MSA/centrolign_MSA.csv | grep "release 2 QC v2" | cut -f1,8,10 -d","  > /private/groups/patenlab/mira/centrolign/analysis/SVs_pairwise/11172025_completed_subgroups.csv
+grep "complete" /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2_QC_v2/MSA/centrolign_MSA.csv | grep "release 2 QC v2" | cut -f1,10 -d","  | while IFS=',' read -r subgroup cigar ; do
+  echo ${subgroup},${cigar},/private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2_QC_v2/MSA/sample_lists/${subgroup}.MSA.samples.txt >> /private/groups/patenlab/mira/centrolign/analysis/SVs_pairwise/11172025_completed_subgroups.csv
+done
 ```
 Run SV caller on all completed subgroups
-```sh
-
-```
-
-submitting
 ```sh
 cd /private/groups/patenlab/mira/centrolign/analysis/SVs_pairwise
 
