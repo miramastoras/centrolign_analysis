@@ -7,22 +7,33 @@ def load_all_samples(path):
 
 def load_clade_file(path):
     """
-    Reads file with format:
-       filename    sample1,sample2,sample3
-    Returns list of tuples: (filename, set_of_samples)
+    Reads file with header:
+        filename    sequences
+    Followed by lines:
+        fname       s1,s2,s3
     """
     clades = []
     with open(path) as f:
+        first = True
         for line in f:
+            if first:
+                # skip header line
+                first = False
+                continue
+
             if not line.strip():
                 continue
+
             parts = line.strip().split()
             if len(parts) < 2:
                 continue
+
             filename = parts[0]
             sample_list = parts[1].split(",")
+
             clades.append((filename, set(sample_list)))
     return clades
+
 
 def choose_largest_nonoverlapping_clades(clades):
     """
