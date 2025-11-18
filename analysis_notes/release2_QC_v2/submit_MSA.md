@@ -1900,6 +1900,249 @@ time /private/home/mmastora/progs/centrolign/build/centrolign -v 4 \
   /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2_QC_v2/split_nj_trees/chr11/combine_final_subgroups/chr11.subgroup_C.fasta \
   > /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2_QC_v2/MSA/chr11/subgroup_C/chr11.subgroup_C.centrolign.gfa
 ```
+### For MSAs that didn't finish, find largest subproblems
+
+```sh
+# Get sample lists for MSA runs that DNF'd
+grep "DNF" /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2_QC_v2/MSA/centrolign_MSA.csv | grep "release 2 QC v2" | cut -f1,8 -d","  | while IFS=',' read -r subgroup fastapath ; do
+  CHR=`echo $subgroup | cut -f1 -d"_"`
+  echo $subgroup
+  mkdir -p /private/groups/patenlab/mira/centrolign/analysis/SVs_pairwise/${CHR}/
+
+  cut -f1 ${fastapath}.fai > /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2_QC_v2/MSA/sample_lists/${subgroup}.MSA.samples.txt
+done
+
+# verified script worked on chr20, which I already separated manually
+python3 /private/groups/patenlab/mira/centrolign/github/centrolign_analysis/scripts/parse_centrolign_info_file.py \
+    /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2_QC_v2/MSA/chr20/subproblems/_info.txt \
+    /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2_QC_v2/MSA/sample_lists/chr20_subgroupB.MSA.samples.txt
+
+# chrX
+python3 /private/groups/patenlab/mira/centrolign/github/centrolign_analysis/scripts/parse_centrolign_info_file.py \
+    /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2_QC_v2/MSA/chrX/subproblems/_info.txt \
+    /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2_QC_v2/MSA/sample_lists/chrX.MSA.samples.txt > /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2_QC_v2/MSA/chrX/subproblems/_info.largest_clades.txt
+
+# chr2
+python3 /private/groups/patenlab/mira/centrolign/github/centrolign_analysis/scripts/parse_centrolign_info_file.py \
+    /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2_QC_v2/MSA/chr2/subproblems/_info.txt \
+    /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2_QC_v2/MSA/sample_lists/chr2.MSA.samples.txt > /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2_QC_v2/MSA/chr2/subproblems/_info.largest_clades.txt
+
+# chr1_subgroupA
+
+python3 /private/groups/patenlab/mira/centrolign/github/centrolign_analysis/scripts/parse_centrolign_info_file.py \
+    /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2_QC_v2/MSA/chr1/subgroup_A/subproblems/_info.txt \
+    /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2_QC_v2/MSA/sample_lists/chr1_subgroup_A.MSA.samples.txt > /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2_QC_v2/MSA/chr1/subgroup_A/subproblems/_info.largest_clades.txt
+```
+
+Create new fasta files for extracting induced pairwise cigars
+```sh
+# chr 1 subgroup A
+
+MSA_LOC=/private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2_QC_v2/MSA/chr1/subgroup_A
+SUBGROUP=chr1_subgroup_A
+CHR=chr1
+
+mkdir -p ${MSA_LOC}/dnf_final_subgroups/
+
+grep "gfa" ${MSA_LOC}/subproblems/_info.largest_clades.txt | wc -l #5
+
+for i in {1..5}; do
+    grep "gfa" ${MSA_LOC}/subproblems/_info.largest_clades.txt | sed -n "${i}p" | cut -f2 | sed 's/,/\n/g' > ${MSA_LOC}/dnf_final_subgroups/${SUBGROUP}_subgroup_${i}.samples.txt
+done
+
+# create new fasta with just those samples
+for i in {1..5}; do
+  cat  ${MSA_LOC}/dnf_final_subgroups/${SUBGROUP}_subgroup_${i}.samples.txt | while read line ; do
+    cat /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2_QC_v2/extract_fastas/${CHR}/${line}_${CHR}_hor_array.fasta >> ${MSA_LOC}/dnf_final_subgroups/${SUBGROUP}_subgroup_${i}.fasta
+
+    samtools faidx ${MSA_LOC}/dnf_final_subgroups/${SUBGROUP}_subgroup_${i}.fasta
+  done
+done
+
+MSA_LOC=/private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2_QC_v2/MSA/chrX
+SUBGROUP=chrX
+CHR=chrX
+
+mkdir -p ${MSA_LOC}/dnf_final_subgroups/
+
+grep "gfa" ${MSA_LOC}/subproblems/_info.largest_clades.txt | wc -l #5
+
+for i in {1..8}; do
+    grep "gfa" ${MSA_LOC}/subproblems/_info.largest_clades.txt | sed -n "${i}p" | cut -f2 | sed 's/,/\n/g' > ${MSA_LOC}/dnf_final_subgroups/${SUBGROUP}_subgroup_${i}.samples.txt
+done
+
+# create new fasta with just those samples
+for i in {1..8}; do
+  cat ${MSA_LOC}/dnf_final_subgroups/${SUBGROUP}_subgroup_${i}.samples.txt | while read line ; do
+    cat /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2_QC_v2/extract_fastas/${CHR}/${line}_${CHR}_hor_array.fasta >> ${MSA_LOC}/dnf_final_subgroups/${SUBGROUP}_subgroup_${i}.fasta
+
+    samtools faidx ${MSA_LOC}/dnf_final_subgroups/${SUBGROUP}_subgroup_${i}.fasta
+  done
+done
+
+MSA_LOC=/private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2_QC_v2/MSA/chr2
+SUBGROUP=chr2
+CHR=chr2
+
+mkdir -p ${MSA_LOC}/dnf_final_subgroups/
+
+grep "gfa" ${MSA_LOC}/subproblems/_info.largest_clades.txt | wc -l #5
+
+for i in {1..4}; do
+    grep "gfa" ${MSA_LOC}/subproblems/_info.largest_clades.txt | sed -n "${i}p" | cut -f2 | sed 's/,/\n/g' > ${MSA_LOC}/dnf_final_subgroups/${SUBGROUP}_subgroup_${i}.samples.txt
+done
+
+# create new fasta with just those samples
+for i in {1..4}; do
+  cat ${MSA_LOC}/dnf_final_subgroups/${SUBGROUP}_subgroup_${i}.samples.txt | while read line ; do
+    cat /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2_QC_v2/extract_fastas/${CHR}/${line}_${CHR}_hor_array.fasta >> ${MSA_LOC}/dnf_final_subgroups/${SUBGROUP}_subgroup_${i}.fasta
+
+    samtools faidx ${MSA_LOC}/dnf_final_subgroups/${SUBGROUP}_subgroup_${i}.fasta
+  done
+done
+
+```
+Submit induced pairwise cigars
+
+Chr 1 subgroup A
+```sh
+#!/bin/bash
+#SBATCH --job-name=chr1_subgroup_A_MSA_induced
+#SBATCH --partition=medium
+#SBATCH --mail-user=mmastora@ucsc.edu
+#SBATCH --mail-type=ALL
+#SBATCH --nodes=1
+#SBATCH --mem=200gb
+#SBATCH --ntasks=1
+#SBATCH --cpus-per-task=32
+#SBATCH --output=logs/centrolign_%x.%j.log
+#SBATCH --time=12:00:00
+
+for i in {1..5}; do
+  time /private/home/mmastora/progs/centrolign/build/centrolign -v 4 \
+    -S /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2_QC_v2/MSA/chr1/subgroup_A/subproblems/ \
+    -T /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2_QC_v2/all_pairs/nj_trees/chr1_r2_QC_v2_centrolign_all_pairs_nj_tree.nwk \
+    -A /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2_QC_v2/MSA/chr1/subgroup_A/induced_pairwise_cigars/pairwise_cigar \
+    -R \
+    --threads 32 \
+    /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2_QC_v2/MSA/chr1/subgroup_A/dnf_final_subgroups/chr1_subgroup_A_subgroup_${i}.fasta \
+    > /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2_QC_v2/MSA/chr1/subgroup_A/chr1_subgroup_A.centrolign.gfa
+done
+```
+
+```sh
+mkdir -p /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2_QC_v2/MSA/chr1/subgroup_A/induced_pairwise_cigars/
+
+cd /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2_QC_v2/MSA/chr1/subgroup_A
+sbatch slurm_induced_pairwise.sh
+```
+
+Chr X
+
+```sh
+#!/bin/bash
+#SBATCH --job-name=chrX_MSA_induced_pairwise
+#SBATCH --partition=medium
+#SBATCH --mail-user=mmastora@ucsc.edu
+#SBATCH --mail-type=ALL
+#SBATCH --nodes=1
+#SBATCH --mem=200gb
+#SBATCH --ntasks=1
+#SBATCH --cpus-per-task=32
+#SBATCH --output=logs/centrolign_%x.%j.log
+#SBATCH --time=12:00:00
+
+for i in {1..8}; do
+  time /private/home/mmastora/progs/centrolign/build/centrolign -v 4 \
+    -S /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2_QC_v2/MSA/chrX/subproblems/ \
+    -T /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2_QC_v2/all_pairs/nj_trees/chrX_r2_QC_v2_centrolign_all_pairs_nj_tree.nwk \
+    -A /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2_QC_v2/MSA/chrX/induced_pairwise_cigars/pairwise_cigar \
+    -R \
+    --threads 32 \
+    /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2_QC_v2/MSA/chrX/dnf_final_subgroups/chrX_subgroup_${i}.fasta \
+    > /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2_QC_v2/MSA/chrX/chrX.centrolign.gfa
+done
+```
+Submit
+
+```sh
+mkdir -p /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2_QC_v2/MSA/chrX/induced_pairwise_cigars/
+
+cd /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2_QC_v2/MSA/chrX
+sbatch slurm_induced_pairwise.sh
+```
+Chr 2
+```sh
+#!/bin/bash
+#SBATCH --job-name=chr2_MSA_induced_pairwise
+#SBATCH --partition=medium
+#SBATCH --mail-user=mmastora@ucsc.edu
+#SBATCH --mail-type=ALL
+#SBATCH --nodes=1
+#SBATCH --mem=200gb
+#SBATCH --ntasks=1
+#SBATCH --cpus-per-task=32
+#SBATCH --output=logs/centrolign_%x.%j.log
+#SBATCH --time=12:00:00
+
+for i in {1..4}; do
+  time /private/home/mmastora/progs/centrolign/build/centrolign -v 4 \
+    -S /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2_QC_v2/MSA/chr2/subproblems/ \
+    -T /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2_QC_v2/all_pairs/nj_trees/chr2_r2_QC_v2_centrolign_all_pairs_nj_tree.nwk \
+    -A /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2_QC_v2/MSA/chr2/induced_pairwise_cigars/pairwise_cigar \
+    -R \
+    --threads 32 \
+    /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2_QC_v2/MSA/chr2/dnf_final_subgroups/chr2_subgroup_${i}.fasta \
+    > /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2_QC_v2/MSA/chr2/chr2.centrolign.gfa
+done
+```
+```sh
+mkdir -p /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2_QC_v2/MSA/chr2/induced_pairwise_cigars/
+
+cd /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2_QC_v2/MSA/chr2
+sbatch slurm_induced_pairwise.sh
+```
+
+Plot the heatmaps for these to show the different subgroups we have complete.
+```sh
+chr=chrX
+python3 /Users/miramastoras/Desktop/github_repos/centrolign_analysis/scripts/pairwise_tree_heatmap_v2.py \
+  -t /Users/miramastoras/Desktop/HPRC_release2_QCv2_all_pairs_heatmaps/${chr}_r2_QC_v2_centrolign_all_pairs_nj_tree.format5.nwk \
+  -s /Users/miramastoras/Desktop/HPRC_release2_QCv2_all_pairs_heatmaps/${chr}.samples.txt \
+  -p /Users/miramastoras/Desktop/HPRC_release2_QCv2_all_pairs_heatmaps/${chr}_r2_QC_v2_centrolign_pairwise_distance.csv \
+  -m "Centrolign all pairs distances" \
+  -n "${chr} NJ tree" \
+  -d "All pairs Distances" \
+  -o /Users/miramastoras/Desktop/color_subgroups_heatmap/${chr}_dnf_ --no_labels \
+  --highlight_samples /Users/miramastoras/Desktop/color_subgroups_heatmap/chrX_subgroup_1.samples.txt /Users/miramastoras/Desktop/color_subgroups_heatmap/chrX_subgroup_2.samples.txt /Users/miramastoras/Desktop/color_subgroups_heatmap/chrX_subgroup_3.samples.txt /Users/miramastoras/Desktop/color_subgroups_heatmap/chrX_subgroup_4.samples.txt /Users/miramastoras/Desktop/color_subgroups_heatmap/chrX_subgroup_5.samples.txt /Users/miramastoras/Desktop/color_subgroups_heatmap/chrX_subgroup_6.samples.txt /Users/miramastoras/Desktop/color_subgroups_heatmap/chrX_subgroup_7.samples.txt /Users/miramastoras/Desktop/color_subgroups_heatmap/chrX_subgroup_8.samples.txt
+```
+
+Plot the heatmaps for these to show the different subgroups we have complete.
+```sh
+chr=chr2
+python3 /Users/miramastoras/Desktop/github_repos/centrolign_analysis/scripts/pairwise_tree_heatmap_v2.py \
+  -t /Users/miramastoras/Desktop/HPRC_release2_QCv2_all_pairs_heatmaps/${chr}_r2_QC_v2_centrolign_all_pairs_nj_tree.format5.nwk \
+  -s /Users/miramastoras/Desktop/HPRC_release2_QCv2_all_pairs_heatmaps/${chr}.samples.txt \
+  -p /Users/miramastoras/Desktop/HPRC_release2_QCv2_all_pairs_heatmaps/${chr}_r2_QC_v2_centrolign_pairwise_distance.csv \
+  -m "Centrolign all pairs distances" \
+  -n "${chr} NJ tree" \
+  -d "All pairs Distances" \
+  -o /Users/miramastoras/Desktop/color_subgroups_heatmap/${chr}_dnf_ --no_labels \
+  --highlight_samples /Users/miramastoras/Desktop/color_subgroups_heatmap/chr2_subgroup_1.samples.txt /Users/miramastoras/Desktop/color_subgroups_heatmap/chr2_subgroup_2.samples.txt /Users/miramastoras/Desktop/color_subgroups_heatmap/chr2_subgroup_3.samples.txt /Users/miramastoras/Desktop/color_subgroups_heatmap/chr2_subgroup_4.samples.txt
+```
+
+```sh
+chr=chr1
+python3 /Users/miramastoras/Desktop/github_repos/centrolign_analysis/scripts/pairwise_tree_heatmap_v2.py \
+  -t /Users/miramastoras/Desktop/HPRC_release2_QCv2_all_pairs_heatmaps/${chr}_r2_QC_v2_centrolign_all_pairs_nj_tree.format5.nwk \
+  -s /Users/miramastoras/Desktop/HPRC_release2_QCv2_all_pairs_heatmaps/${chr}.samples.txt \
+  -p /Users/miramastoras/Desktop/HPRC_release2_QCv2_all_pairs_heatmaps/${chr}_r2_QC_v2_centrolign_pairwise_distance.csv \
+  -m "Centrolign all pairs distances" \
+  -n "${chr} NJ tree" \
+  -d "All pairs Distances" \
+  -o /Users/miramastoras/Desktop/color_subgroups_heatmap/${chr}_dnf_ --no_labels \
+  --highlight_samples /Users/miramastoras/Desktop/color_subgroups_heatmap/chr1_subgroup_A_subgroup_1.samples.txt /Users/miramastoras/Desktop/color_subgroups_heatmap/chr1_subgroup_A_subgroup_2.samples.txt /Users/miramastoras/Desktop/color_subgroups_heatmap/chr1_subgroup_A_subgroup_3.samples.txt /Users/miramastoras/Desktop/color_subgroups_heatmap/chr1_subgroup_A_subgroup_4.samples.txt /Users/miramastoras/Desktop/color_subgroups_heatmap/chr1_subgroup_A_subgroup_5.samples.txt
+```
 ### Backing up the MSAs
 
 Copy to new folder then tar them up
@@ -1915,4 +2158,4 @@ cd
 tar -zcvf centrolign_MSAs_r2_QC_v2.tar.gz centrolign_MSAs_r2_QC_v2/
 ```
 
-Uploaded to my personal google drive: https://drive.google.com/file/d/1YGObICA_RHaKWkR7UID7rY8GXZzC2FHf/view?usp=drive_link 
+Uploaded to my personal google drive: https://drive.google.com/file/d/1YGObICA_RHaKWkR7UID7rY8GXZzC2FHf/view?usp=drive_link

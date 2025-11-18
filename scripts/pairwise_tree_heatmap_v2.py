@@ -58,9 +58,9 @@ def arg_parser():
                         required=True,
                         help="directory path to write output files to")
     parser.add_argument("--highlight_samples",
-                        required=False,
-                        help="List of samples for which all pairwise values will be colored red in the heatmap")
-
+                        nargs='*',
+                        help="One or more files, each containing a list of samples. "
+                             "Each group will be highlighted in a distinct color.")
 
     return parser.parse_args()
 
@@ -155,10 +155,18 @@ def main():
             value = float(row[2])  # Column 3 as the value
             pairwise_vals[key] = value
 
-    highlight_samples = set()
+    highlight_groups = []  # list of (set_of_samples, assigned_color)
+
     if args.highlight_samples:
-        with open(args.highlight_samples, 'r') as file:
-            highlight_samples = set(line.strip() for line in file)
+        # Use a qualitative colormap with many distinct colors
+        color_map = get_cmap("tab10")  # gives 10 distinct colors
+
+        for i, list_path in enumerate(args.highlight_samples):
+            with open(list_path, "r") as f:
+                group = set(line.strip() for line in f if line.strip())
+
+            color = color_map(i % 10)  # choose a color for this group
+            highlight_groups.append((group, color))
 
     min_pairwise = min(pairwise_vals.values())  # 10
     max_pairwise = max(pairwise_vals.values())
@@ -291,11 +299,14 @@ def main():
             # draw diamond for current pair
             diamond_xy=[bottom,left,top,right]
 
-            # Check if both samples are in the highlight list
-            if id_map[pos1] in highlight_samples and id_map[pos2] in highlight_samples:
-                facecolor = 'red'  # Highlight color
-            else:
-                facecolor = cmap(val)
+            # Default heatmap color
+            facecolor = cmap(val)
+
+            # Check sample groups in order
+            for group_samples, group_color in highlight_groups:
+                if id_map[pos1] in group_samples and id_map[pos2] in group_samples:
+                    facecolor = group_color
+                    break  # stop at the first matching group
 
             diamond = patches.Polygon(diamond_xy, fill=True, facecolor=facecolor)
 
