@@ -34,40 +34,40 @@ def calculate_pairwise_proportion(samples, distances, max_dist):
     return count_below / total
 
 
-def traverse_tree(node, distances, max_dist, min_prop, clade_results, clade_counter, assigned):
-    samples = get_clade_samples(node)
+def bottom_up_clades(node, distances, max_dist, min_prop):
+    """
+    Bottom-up dynamic programming approach:
+    Returns a list of non-overlapping clades (each clade is a set of samples)
+    representing the best partition of the subtree rooted at `node`.
+    """
 
-    # Rule 1 — If ANY of these samples are already assigned, you cannot use this node as a clade.
-    # But you MUST still recurse into children to collect unassigned samples there.
-    if any(s in assigned for s in samples):
-        for child in node.children:
-            traverse_tree(child, distances, max_dist, min_prop, clade_results, clade_counter, assigned)
-        return
+    # ----- Case 1: Leaf node → singleton clade -----
+    if node.is_leaf():
+        return [set([node.name])]
 
-    # Now we know NONE of these samples have been assigned yet.
-    prop_below = calculate_pairwise_proportion(samples, distances, max_dist)
+    # ----- Case 2: Get clades from children first (post-order traversal) -----
+    child_clades = []
+    all_samples = []
 
-    # Rule 2 — If cohesive, assign the clade and stop.
-    if prop_below >= min_prop:
-        clade_name = f"Clade_{clade_counter[0]}"
-        clade_results[clade_name] = samples
-        assigned.update(samples)
-        node.add_feature("clade_name", clade_name)
-        clade_counter[0] += 1
-        return
-
-    # Rule 3 — Otherwise recurse into children
     for child in node.children:
-        traverse_tree(child, distances, max_dist, min_prop, clade_results, clade_counter, assigned)
+        child_result = bottom_up_clades(child, distances, max_dist, min_prop)
+        child_clades.extend(child_result)
+        # collect samples inside all child clades
+        for c in child_result:
+            all_samples.extend(list(c))
 
-    # Rule 4 — After recursion, assign any remaining samples as singleton clades
-    for s in samples:
-        if s not in assigned:
-            clade_name = f"Clade_{clade_counter[0]}"
-            clade_results[clade_name] = [s]
-            assigned.add(s)
-            clade_counter[0] += 1
+    # Remove duplicates
+    all_samples = list(set(all_samples))
 
+    # ----- Case 3: Decide whether this node should form a clade -----
+    prop_below = calculate_pairwise_proportion(all_samples, distances, max_dist)
+
+    if prop_below >= min_prop:
+        # Accept this node as a single large clade
+        return [set(all_samples)]
+    else:
+        # Use children clades as-is
+        return child_clades
 
 
 
@@ -104,14 +104,16 @@ def main():
     clade_results = {}
     clade_counter = [1]
 
-    assigned = set()
-    traverse_tree(tree,
-                  distances,
-                  args.max_pairwise_dist,
-                  args.min_pairwise_below_thresh,
-                  clade_results,
-                  clade_counter,
-                  assigned)
+    # Compute all clades bottom-up
+    clade_sets = bottom_up_clades(tree,
+                                  distances,
+                                  args.max_pairwise_dist,
+                                  args.min_pairwise_below_thresh)
+
+    # Convert clade sets into your Clade_1, Clade_2, ... output
+    clade_results = {}
+    for i, cset in enumerate(clade_sets, start=1):
+        clade_results[f"Clade_{i}"] = sorted(cset)
 
     write_clade_csv(clade_results, args.output_prefix)
     write_annotated_newick(tree, args.output_prefix)
