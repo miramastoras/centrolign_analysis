@@ -34,18 +34,38 @@ def calculate_pairwise_proportion(samples, distances, max_dist):
     return count_below / total
 
 
-def traverse_tree(node, distances, max_dist, min_prop, clade_results, clade_counter):
+def traverse_tree(node, distances, max_dist, min_prop, clade_results, clade_counter, assigned):
     samples = get_clade_samples(node)
+
+    # If ALL samples in this node are already assigned → skip
+    if all(s in assigned for s in samples):
+        return
+
+    # Compute proportion of distances below threshold
     prop_below = calculate_pairwise_proportion(samples, distances, max_dist)
 
+    # Case 1: Accept this node as a clade
     if prop_below >= min_prop:
         clade_name = f"Clade_{clade_counter[0]}"
         clade_results[clade_name] = samples
+        assigned.update(samples)
         node.add_feature("clade_name", clade_name)
         clade_counter[0] += 1
-    else:
-        for child in node.children:
-            traverse_tree(child, distances, max_dist, min_prop, clade_results, clade_counter)
+        return  # IMPORTANT: stop recursion downward
+
+    # Case 2: Not cohesive → recurse into children
+    for child in node.children:
+        traverse_tree(child, distances, max_dist, min_prop, clade_results, clade_counter, assigned)
+
+    # Case 3: After children processed: some samples may remain unassigned (leaf or mixed)
+    # Assign remaining as single-sample clades
+    for s in samples:
+        if s not in assigned:
+            clade_name = f"Clade_{clade_counter[0]}"
+            clade_results[clade_name] = [s]
+            assigned.add(s)
+            clade_counter[0] += 1
+
 
 
 def write_clade_csv(clade_results, output_prefix):
@@ -81,7 +101,14 @@ def main():
     clade_results = {}
     clade_counter = [1]
 
-    traverse_tree(tree, distances, args.max_pairwise_dist, args.min_pairwise_below_thresh, clade_results, clade_counter)
+    assigned = set()
+    traverse_tree(tree,
+                  distances,
+                  args.max_pairwise_dist,
+                  args.min_pairwise_below_thresh,
+                  clade_results,
+                  clade_counter,
+                  assigned)
 
     write_clade_csv(clade_results, args.output_prefix)
     write_annotated_newick(tree, args.output_prefix)
