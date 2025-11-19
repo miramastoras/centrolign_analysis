@@ -34,40 +34,35 @@ def calculate_pairwise_proportion(samples, distances, max_dist):
     return count_below / total
 
 
-def bottom_up_clades(node, distances, max_dist, min_prop):
+def traverse_tree_partition(node, distances, max_dist, min_prop):
     """
-    Bottom-up dynamic programming approach:
-    Returns a list of non-overlapping clades (each clade is a set of samples)
-    representing the best partition of the subtree rooted at `node`.
+    Returns a list of clades (each is a set of samples),
+    covering all leaves under node, no overlaps.
     """
-
-    # ----- Case 1: Leaf node → singleton clade -----
+    # Leaf → singleton clade
     if node.is_leaf():
         return [set([node.name])]
 
-    # ----- Case 2: Get clades from children first (post-order traversal) -----
+    # Collect clades from children
     child_clades = []
     all_samples = []
-
     for child in node.children:
-        child_result = bottom_up_clades(child, distances, max_dist, min_prop)
+        child_result = traverse_tree_partition(child, distances, max_dist, min_prop)
         child_clades.extend(child_result)
-        # collect samples inside all child clades
         for c in child_result:
-            all_samples.extend(list(c))
+            all_samples.extend(c)
 
-    # Remove duplicates
     all_samples = list(set(all_samples))
 
-    # ----- Case 3: Decide whether this node should form a clade -----
+    # Check if the **entire node** can form a clade
     prop_below = calculate_pairwise_proportion(all_samples, distances, max_dist)
-
     if prop_below >= min_prop:
-        # Accept this node as a single large clade
+        # Take all samples in this node as one clade → discard child clades
         return [set(all_samples)]
     else:
-        # Use children clades as-is
+        # Cannot merge → keep children clades as partition
         return child_clades
+
 
 
 
@@ -104,13 +99,11 @@ def main():
     clade_results = {}
     clade_counter = [1]
 
-    # Compute all clades bottom-up
-    clade_sets = bottom_up_clades(tree,
-                                  distances,
-                                  args.max_pairwise_dist,
-                                  args.min_pairwise_below_thresh)
+    clade_sets = traverse_tree_partition(tree,
+                                         distances,
+                                         args.max_pairwise_dist,
+                                         args.min_pairwise_below_thresh)
 
-    # Convert clade sets into your Clade_1, Clade_2, ... output
     clade_results = {}
     for i, cset in enumerate(clade_sets, start=1):
         clade_results[f"Clade_{i}"] = sorted(cset)
