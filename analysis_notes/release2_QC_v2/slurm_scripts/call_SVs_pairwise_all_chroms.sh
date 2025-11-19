@@ -12,6 +12,7 @@
 #SBATCH --array=[1-28]%28
 
 CLADE_NAMES=$1
+OUTDIR=$2
 CLADE=$(awk -F"," "NR==$SLURM_ARRAY_TASK_ID" "$CLADE_NAMES" | cut -f1 -d",")
 CIGAR_PATH=$(awk -F"," "NR==$SLURM_ARRAY_TASK_ID" "$CLADE_NAMES" | cut -f2 -d",")
 SAMPLE_LIST=$(awk -F"," "NR==$SLURM_ARRAY_TASK_ID" "$CLADE_NAMES" | cut -f3 -d",")
@@ -22,9 +23,9 @@ echo $CLADE
 echo $CIGAR_PATH
 echo $SAMPLE_LIST
 
-mkdir -p /private/groups/patenlab/mira/centrolign/analysis/SVs_pairwise/${CHR}/SV_beds/${CLADE}/
+mkdir -p ${OUTDIR}/${CHR}/SV_beds/${CLADE}/
 
 time python3 /private/groups/patenlab/mira/centrolign/github/centrolign_analysis/scripts/call_SVs_pairwise.py \
   -c ${CIGAR_PATH}/pairwise_cigar_ \
   -s ${SAMPLE_LIST} \
-  -o /private/groups/patenlab/mira/centrolign/analysis/SVs_pairwise/${CHR}/SV_beds/${CLADE}/
+  -o ${OUTDIR}/${CHR}/SV_beds/${CLADE}/

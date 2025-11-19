@@ -201,7 +201,7 @@ cd /private/groups/patenlab/mira/centrolign/analysis/SVs_pairwise
 
 mkdir -p logs
 
-sbatch /private/groups/patenlab/mira/centrolign/github/centrolign_analysis/analysis_notes/release2_QC_v2/slurm_scripts/call_SVs_pairwise_all_chroms.sh /private/groups/patenlab/mira/centrolign/analysis/SVs_pairwise/11172025_completed_subgroups.csv
+sbatch /private/groups/patenlab/mira/centrolign/github/centrolign_analysis/analysis_notes/release2_QC_v2/slurm_scripts/call_SVs_pairwise_all_chroms.sh /private/groups/patenlab/mira/centrolign/analysis/SVs_pairwise/11172025_completed_subgroups.csv /private/groups/patenlab/mira/centrolign/analysis/SVs_pairwise
 ```
 
 Create csv file formatted as clade,chr,path_to_SV_beds
@@ -243,6 +243,32 @@ do
     --highlight_samples /Users/miramastoras/Desktop/color_subgroups_heatmap/_B68D67B1DDE9835E.gfa.samples.txt
 done
 ```
+
+### Run SV caller on direct pairwise alignments
+
+Just running this on completed subgroups from MSA for now - using sample lists from above
+```sh
+/private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2_QC_v2/MSA/sample_lists/${subgroup}.MSA.samples.txt
+```
+Create csv file with columns clade,CIGAR_PATH,sample_names_list
+```sh
+mkdir -p /private/groups/patenlab/mira/centrolign/analysis/SVs_direct_pairwise
+
+grep "complete" /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2_QC_v2/MSA/centrolign_MSA.csv | grep "release 2 QC v2" | cut -f1,10 -d","  | while IFS=',' read -r subgroup cigar ; do
+  CHR=`echo ${subgroup} | cut -f1 -d"_"`
+  echo ${subgroup},/private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2_QC_v2/all_pairs/${CHR}/pairwise_cigar,/private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2_QC_v2/MSA/sample_lists/${subgroup}.MSA.samples.txt >> /private/groups/patenlab/mira/centrolign/analysis/SVs_direct_pairwise/11172025_completed_subgroups.csv
+done
+```
+Run SV caller on all completed subgroups
+```sh
+cd /private/groups/patenlab/mira/centrolign/analysis/SVs_direct_pairwise
+
+mkdir -p logs
+
+sbatch /private/groups/patenlab/mira/centrolign/github/centrolign_analysis/analysis_notes/release2_QC_v2/slurm_scripts/call_SVs_pairwise_all_chroms.sh /private/groups/patenlab/mira/centrolign/analysis/SVs_direct_pairwise/11172025_completed_subgroups.csv /private/groups/patenlab/mira/centrolign/analysis/SVs_direct_pairwise
+```
+
+
 ### Benchmarking: Compare Centrolign to Fedor's HorHap SVs
 
 Starting with chr 12 cenHap 4.
