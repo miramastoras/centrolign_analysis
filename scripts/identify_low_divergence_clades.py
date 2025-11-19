@@ -37,34 +37,37 @@ def calculate_pairwise_proportion(samples, distances, max_dist):
 def traverse_tree(node, distances, max_dist, min_prop, clade_results, clade_counter, assigned):
     samples = get_clade_samples(node)
 
-    # If ALL samples in this node are already assigned → skip
-    if all(s in assigned for s in samples):
+    # Rule 1 — If ANY of these samples are already assigned, you cannot use this node as a clade.
+    # But you MUST still recurse into children to collect unassigned samples there.
+    if any(s in assigned for s in samples):
+        for child in node.children:
+            traverse_tree(child, distances, max_dist, min_prop, clade_results, clade_counter, assigned)
         return
 
-    # Compute proportion of distances below threshold
+    # Now we know NONE of these samples have been assigned yet.
     prop_below = calculate_pairwise_proportion(samples, distances, max_dist)
 
-    # Case 1: Accept this node as a clade
+    # Rule 2 — If cohesive, assign the clade and stop.
     if prop_below >= min_prop:
         clade_name = f"Clade_{clade_counter[0]}"
         clade_results[clade_name] = samples
         assigned.update(samples)
         node.add_feature("clade_name", clade_name)
         clade_counter[0] += 1
-        return  # IMPORTANT: stop recursion downward
+        return
 
-    # Case 2: Not cohesive → recurse into children
+    # Rule 3 — Otherwise recurse into children
     for child in node.children:
         traverse_tree(child, distances, max_dist, min_prop, clade_results, clade_counter, assigned)
 
-    # Case 3: After children processed: some samples may remain unassigned (leaf or mixed)
-    # Assign remaining as single-sample clades
+    # Rule 4 — After recursion, assign any remaining samples as singleton clades
     for s in samples:
         if s not in assigned:
             clade_name = f"Clade_{clade_counter[0]}"
             clade_results[clade_name] = [s]
             assigned.add(s)
             clade_counter[0] += 1
+
 
 
 
