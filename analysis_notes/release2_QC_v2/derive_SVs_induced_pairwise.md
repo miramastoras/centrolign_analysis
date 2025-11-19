@@ -203,6 +203,46 @@ mkdir -p logs
 
 sbatch /private/groups/patenlab/mira/centrolign/github/centrolign_analysis/analysis_notes/release2_QC_v2/slurm_scripts/call_SVs_pairwise_all_chroms.sh /private/groups/patenlab/mira/centrolign/analysis/SVs_pairwise/11172025_completed_subgroups.csv
 ```
+
+Create csv file formatted as clade,chr,path_to_SV_beds
+```sh
+cd /private/groups/patenlab/mira/centrolign/analysis/SVs_pairwise
+
+echo "clade,chr,path_to_SV_beds" > 11172025_clade_chr_sv_beds.csv
+cat /private/groups/patenlab/mira/centrolign/analysis/SVs_pairwise/11172025_completed_subgroups.csv | while IFS=',' read -r clade cigars sample_lists ; do
+  CHR=$(echo $clade | cut -f1 -d"_")
+  echo $clade,$CHR,/private/groups/patenlab/mira/centrolign/analysis/SVs_pairwise/${CHR}/SV_beds/${clade}/ >> 11172025_clade_chr_sv_beds.csv
+done
+```
+
+Get lists of all samples with pairwise distance less than 0.4
+```sh
+cd /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2_QC_v2/all_pairs/distance_matrices
+
+ls | while read line ; do
+    CHR=`echo $line | cut -f1 -d"_"`
+    echo $CHR
+    awk -F',' '$3 <= 0.4' $line | cut -f1-2 -d"," >> /private/groups/patenlab/mira/centrolign/analysis/SVs_pairwise/pairwise_cutoffs/${CHR}_pairwise_dist.0.4.csv
+done
+```
+
+Plot the sample comparisons that would be made
+```sh
+chromosomes=("chr1" "chr3" "chr4" "chr5" "chr6" "chr7" "chr8" "chr9" "chr10" "chr11" "chr12" "chr13" "chr14" "chr15" "chr16" "chr17" "chr18" "chr19" "chr20" "chr21" "chr22" "chrY")
+
+for chr in "${chromosomes[@]}"
+do
+  python3 /Users/miramastoras/Desktop/github_repos/centrolign_analysis/scripts/pairwise_tree_heatmap_v2.py \
+    -t /Users/miramastoras/Desktop/HPRC_release2_QCv2_all_pairs_heatmaps/${chr}_r2_QC_v2_centrolign_all_pairs_nj_tree.format5.nwk \
+    -s /Users/miramastoras/Desktop/HPRC_release2_QCv2_all_pairs_heatmaps/${chr}.samples.txt \
+    -p /Users/miramastoras/Desktop/HPRC_release2_QCv2_all_pairs_heatmaps/${chr}_r2_QC_v2_centrolign_pairwise_distance.csv \
+    -m "Centrolign all pairs distances" \
+    -n "${chr} NJ tree" \
+    -d "All pairs Distances" \
+    -o /Users/miramastoras/Desktop/color_subgroups_heatmap/${chr}_B68D67B1DDE9835Egfa --no_labels \
+    --highlight_samples /Users/miramastoras/Desktop/color_subgroups_heatmap/_B68D67B1DDE9835E.gfa.samples.txt
+done
+```
 ### Benchmarking: Compare Centrolign to Fedor's HorHap SVs
 
 Starting with chr 12 cenHap 4.
@@ -323,4 +363,16 @@ conda create -n intervene
 conda install -c bioconda intervene
 
 intervene venn -i /private/groups/patenlab/mira/centrolign/analysis/SVs_pairwise/chr12/cenHap4_benchmarking_HorHaps/centrolign_SVs_ins.bed /private/groups/patenlab/mira/centrolign/analysis/SVs_pairwise/chr12/cenHap4_benchmarking_HorHaps/horhap_SVs_ins.bed –bedtools-options -f 0.5
+```
+
+### identify low divergence clades for chr 1 for Karen:
+
+```sh
+docker run -u `id -u`:`id -g` -v /private/groups:/private/groups/ \
+    miramastoras/centromere_scripts:v0.1.4 \
+    python3 /private/groups/patenlab/mira/centrolign/github/centrolign_analysis/scripts/identify_low_divergence_clades.py \
+  --newick /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2_QC_v2/all_pairs/nj_trees/chr1_r2_QC_v2_centrolign_all_pairs_nj_tree.nwk \
+  --distance_csv /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2_QC_v2/all_pairs/distance_matrices/chr1_r2_QC_v2_centrolign_pairwise_distance.csv \
+  --max_pairwise_dist 0.8 \
+  --output_prefix /private/groups/patenlab/mira/chr1_low_divergence_clades
 ```

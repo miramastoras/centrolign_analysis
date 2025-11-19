@@ -60,9 +60,18 @@ def arg_parser():
     parser.add_argument("--highlight_samples",
                         nargs='*',
                         help="One or more files, each containing a list of samples. "
-                             "Each group will be highlighted in a distinct color.")
+                             "Pairwise boxes between all samples in each group will be highlighted in a distinct color.")
+    parser.add_argument("--highlight_pairs",
+                        help="File containing sample pairs to highlight in red. "
+                             "Each line should contain two sample names separated by space or comma.")
+    # Parse args
+    args = parser.parse_args()
 
-    return parser.parse_args()
+    # Enforce mutual exclusivity
+    if args.highlight_samples and args.highlight_pairs:
+        parser.error("--highlight_pairs cannot be used together with --highlight_samples")
+
+    return args
 
 def check_values_in_range(lst):
     # Check if all values are between 0 and 1
@@ -167,6 +176,20 @@ def main():
 
             color = color_map(i % 10)  # choose a color for this group
             highlight_groups.append((group, color))
+
+    highlight_pairs = set()
+
+    if args.highlight_pairs:
+        with open(args.highlight_pairs, "r") as f:
+            for line in f:
+                line = line.strip().replace(",", " ")
+                if not line:
+                    continue
+                parts = line.split()
+                if len(parts) != 2:
+                    raise ValueError(f"Invalid line in --highlight_pairs: {line}")
+                s1, s2 = parts
+                highlight_pairs.add("_".join(sorted([s1, s2])))
 
     min_pairwise = min(pairwise_vals.values())  # 10
     max_pairwise = max(pairwise_vals.values())
@@ -302,11 +325,17 @@ def main():
             # Default heatmap color
             facecolor = cmap(val)
 
-            # Check sample groups in order
-            for group_samples, group_color in highlight_groups:
-                if id_map[pos1] in group_samples and id_map[pos2] in group_samples:
-                    facecolor = group_color
-                    break  # stop at the first matching group
+            # Override with highlight_samples color
+            if highlight_groups:
+                for group_samples, group_color in highlight_groups:
+                    if id_map[pos1] in group_samples and id_map[pos2] in group_samples:
+                        facecolor = group_color
+                        break
+
+            # Override with highlight_pairs color (takes priority over highlight_samples)
+            if args.highlight_pairs:
+                if dict_key in highlight_pairs:
+                    facecolor = "red"
 
             diamond = patches.Polygon(diamond_xy, fill=True, facecolor=facecolor)
 
