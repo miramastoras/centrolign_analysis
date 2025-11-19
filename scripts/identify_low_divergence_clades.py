@@ -34,35 +34,23 @@ def calculate_pairwise_proportion(samples, distances, max_dist):
     return count_below / total
 
 
-def traverse_tree_partition(node, distances, max_dist, min_prop):
+def traverse_tree_strict(node, distances, max_dist, min_prop):
     """
-    Returns a list of clades (each is a set of samples),
-    covering all leaves under node, no overlaps.
+    Returns a list of clades (as sets of samples) with no overlaps,
+    covering all leaves under the tree.
     """
-    # Leaf → singleton clade
-    if node.is_leaf():
-        return [set([node.name])]
+    samples = [leaf.name for leaf in node.iter_leaves()]
+    prop_below = calculate_pairwise_proportion(samples, distances, max_dist)
 
-    # Collect clades from children
-    child_clades = []
-    all_samples = []
-    for child in node.children:
-        child_result = traverse_tree_partition(child, distances, max_dist, min_prop)
-        child_clades.extend(child_result)
-        for c in child_result:
-            all_samples.extend(c)
-
-    all_samples = list(set(all_samples))
-
-    # Check if the **entire node** can form a clade
-    prop_below = calculate_pairwise_proportion(all_samples, distances, max_dist)
     if prop_below >= min_prop:
-        # Take all samples in this node as one clade → discard child clades
-        return [set(all_samples)]
+        # Node itself is cohesive → one clade, stop recursion
+        return [set(samples)]
     else:
-        # Cannot merge → keep children clades as partition
-        return child_clades
-
+        # Not cohesive → recurse into children
+        clades = []
+        for child in node.children:
+            clades.extend(traverse_tree_strict(child, distances, max_dist, min_prop))
+        return clades
 
 
 
@@ -99,10 +87,10 @@ def main():
     clade_results = {}
     clade_counter = [1]
 
-    clade_sets = traverse_tree_partition(tree,
-                                         distances,
-                                         args.max_pairwise_dist,
-                                         args.min_pairwise_below_thresh)
+    clade_sets = traverse_tree_strict(tree,
+                                      distances,
+                                      args.max_pairwise_dist,
+                                      args.min_pairwise_below_thresh)
 
     clade_results = {}
     for i, cset in enumerate(clade_sets, start=1):
