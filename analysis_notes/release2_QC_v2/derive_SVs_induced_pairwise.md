@@ -226,10 +226,19 @@ ls | while read line ; do
 done
 ```
 
+Used python notebook to get CSV files from comparisons that would be made from the MSA not direct pairwise
+
+
 Plot the sample comparisons that would be made
 ```sh
-chromosomes=("chr1" "chr3" "chr4" "chr5" "chr6" "chr7" "chr8" "chr9" "chr10" "chr11" "chr12" "chr13" "chr14" "chr15" "chr16" "chr17" "chr18" "chr19" "chr20" "chr21" "chr22" "chrY")
+chromosomes=("chr1" "chr3" "chr4" "chr5" "chr6" "chr7" "chr8" "chr9" "chr10" "chr11" "chr12" "chr17" "chr18" "chr19" "chr20" "chr21" "chr22" "chrY")
 
+for chr in "${chromosomes[@]}" ; do
+    { echo "sample1,sample2,dist"; cat "/Users/miramastoras/Desktop/HPRC_release2_QCv2_all_pairs_heatmaps/${chr}_r2_QC_v2_centrolign_pairwise_distance.csv"; } > tmp && mv tmp "/Users/miramastoras/Desktop/HPRC_release2_QCv2_all_pairs_heatmaps/${chr}_r2_QC_v2_centrolign_pairwise_distance.csv"
+    echo "Added header to /Users/miramastoras/Desktop/HPRC_release2_QCv2_all_pairs_heatmaps/${chr}_r2_QC_v2_centrolign_pairwise_distance.csv"
+done
+
+# 0.4
 for chr in "${chromosomes[@]}"
 do
   python3 /Users/miramastoras/Desktop/github_repos/centrolign_analysis/scripts/pairwise_tree_heatmap_v2.py \
@@ -239,8 +248,22 @@ do
     -m "Centrolign all pairs distances" \
     -n "${chr} NJ tree" \
     -d "All pairs Distances" \
-    -o /Users/miramastoras/Desktop/color_subgroups_heatmap/${chr}_B68D67B1DDE9835Egfa --no_labels \
-    --highlight_samples /Users/miramastoras/Desktop/color_subgroups_heatmap/_B68D67B1DDE9835E.gfa.samples.txt
+    -o /Users/miramastoras/Desktop/github_repos/centrolign_analysis/analysis_notes/release2_QC_v2/plots/${chr}.induced_MSA.dist_0.4_ --no_labels \
+    --highlight_pairs /Users/miramastoras/Desktop/pairwise_cutoffs/${chr}.induced_MSA.dist_0.4.csv
+done
+
+# 0.6
+for chr in "${chromosomes[@]}"
+do
+  python3 /Users/miramastoras/Desktop/github_repos/centrolign_analysis/scripts/pairwise_tree_heatmap_v2.py \
+    -t /Users/miramastoras/Desktop/HPRC_release2_QCv2_all_pairs_heatmaps/${chr}_r2_QC_v2_centrolign_all_pairs_nj_tree.format5.nwk \
+    -s /Users/miramastoras/Desktop/HPRC_release2_QCv2_all_pairs_heatmaps/${chr}.samples.txt \
+    -p /Users/miramastoras/Desktop/HPRC_release2_QCv2_all_pairs_heatmaps/${chr}_r2_QC_v2_centrolign_pairwise_distance.csv \
+    -m "Centrolign all pairs distances" \
+    -n "${chr} NJ tree" \
+    -d "All pairs Distances" \
+    -o /Users/miramastoras/Desktop/github_repos/centrolign_analysis/analysis_notes/release2_QC_v2/plots/${chr}.induced_MSA.dist_0.6_ --no_labels \
+    --highlight_pairs /Users/miramastoras/Desktop/pairwise_cutoffs/${chr}.induced_MSA.dist_0.6.csv
 done
 ```
 
@@ -268,7 +291,16 @@ mkdir -p logs
 sbatch /private/groups/patenlab/mira/centrolign/github/centrolign_analysis/analysis_notes/release2_QC_v2/slurm_scripts/call_SVs_pairwise_all_chroms.sh /private/groups/patenlab/mira/centrolign/analysis/SVs_direct_pairwise/11172025_completed_subgroups.csv /private/groups/patenlab/mira/centrolign/analysis/SVs_direct_pairwise
 ```
 
+Create csv file formatted as clade,chr,path_to_SV_beds
+```sh
+cd /private/groups/patenlab/mira/centrolign/analysis/SVs_direct_pairwise
 
+echo "clade,chr,path_to_SV_beds" > 11172025_clade_chr_sv_beds.csv
+cat /private/groups/patenlab/mira/centrolign/analysis/SVs_direct_pairwise/11172025_completed_subgroups.csv | while IFS=',' read -r clade cigars sample_lists ; do
+  CHR=$(echo $clade | cut -f1 -d"_")
+  echo $clade,$CHR,/private/groups/patenlab/mira/centrolign/analysis/SVs_direct_pairwise/${CHR}/SV_beds/${clade}/ >> 11172025_clade_chr_sv_beds.csv
+done
+```
 ### Benchmarking: Compare Centrolign to Fedor's HorHap SVs
 
 Starting with chr 12 cenHap 4.

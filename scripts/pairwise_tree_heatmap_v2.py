@@ -91,9 +91,7 @@ def tree_to_linkage_matrix(biopython_tree):
     # map labels used in linkage matrix to sample names:
     id_map = {}
     for i, c in enumerate(tree.find_clades(terminal=True)):
-        #print(c.name)
         c.comment = (i, 1)
-        #print(c.comment)
         id_map[i] = c.name
 
     #Phylo.draw(tree)
@@ -102,28 +100,16 @@ def tree_to_linkage_matrix(biopython_tree):
     for c in tree.find_clades(terminal=False):
         d = tree.distance(c)
         anc_lst.append((c, list(c), d))
-        #print(c[0].comment,c[1].comment)
     anc_lst.sort(key=lambda x: x[2], reverse=True)
 
     # running number of node
     nodes = len(list(tree.find_clades(terminal=True)))
-    #print(len(anc_lst))
     lnk_lst = []
     for anc, children, anc_d in anc_lst:
-        #print(anc)
-        #print(len(children))
-        #print(children[0].name, children[1].name)
-        #print(anc_d)
         n_children = len(children)
         assert n_children >= 2
         child1 = children[0]
-        #print(children)
-        #print(children[1:])
-        #print(type(child1))
         for child2 in children[1:]:
-            print(child2.comment)
-            #print("anc.name")
-            #print(anc.name)
             id1, n_leaves1 = child1.comment
             id2, n_leaves2 = child2.comment
             total_leaves = n_leaves1 + n_leaves2
@@ -209,7 +195,6 @@ def main():
 
             # reverse min-max scaling to get the original data values for the y axes labels
         heatmap_y_labels = [((scaled * (max_pairwise - min_pairwise + epsilon)) + min_pairwise) for scaled in heatmap_y_labels]
-        print(heatmap_y_labels)
     # Plot two matplotlib grids side by side
     # scale width ratio for middle axes (containing labels) by number of samples
     axes1_width_ratio = max((-0.00356 * len(samples)) + 0.52492, 0.05)
