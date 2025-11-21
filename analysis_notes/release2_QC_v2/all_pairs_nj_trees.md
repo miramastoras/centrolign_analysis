@@ -1044,8 +1044,7 @@ do
 done
 ```
 
-### Chr 14
-
+### Chr 14, 15 ,16
 Combine all fasta files first:
 ```sh
 chromosomes=("chr14" "chr15" "chr16")
@@ -1202,6 +1201,108 @@ done
 Here are the plot by 5 groups:
 ![chr14_final_subgroups_pairwise_tree_heatmap.png](plots/chr14_final_subgroups_pairwise_tree_heatmap.png)
 
+
+### Chr 15
+
+Color samples from split 1
+```sh
+cut -f1 subgroup_1_seqs.fasta.fai > /private/groups/patenlab/mira/chr15_subgroup1.split1.txt
+sed -i 's/^/subgroup_1,/g' /private/groups/patenlab/mira/chr15_subgroup1.split1.txt
+```
+
+```sh
+chr=chr15
+python3 /Users/miramastoras/Desktop/github_repos/centrolign_analysis/scripts/pairwise_tree_heatmap_v2.py \
+    -t /Users/miramastoras/Desktop/HPRC_release2_QCv2_all_pairs_heatmaps/${chr}_r2_QC_v2_centrolign_all_pairs_nj_tree.format5.nwk \
+    -s /Users/miramastoras/Desktop/HPRC_release2_QCv2_all_pairs_heatmaps/${chr}.samples.txt \
+    -p /Users/miramastoras/Desktop/HPRC_release2_QCv2_all_pairs_heatmaps/${chr}_r2_QC_v2_centrolign_pairwise_distance.csv \
+    -m "Centrolign all pairs distances" \
+    -n "${chr} NJ tree" \
+    -d "All pairs Distances" \
+    -o /Users/miramastoras/Desktop/github_repos/centrolign_analysis/analysis_notes/release2_QC_v2/plots/chr15_split_by_2_subgroup_1_ --no_labels \
+    --highlight_samples /Users/miramastoras/Desktop/chr15_subgroup1.split1.txt
+```
+![chr15 subgroup 0](plots/chr15_split_by_2_subgroup_1_pairwise_tree_heatmap.png)
+
+Need to split subgroup 0 by 2 and add the smaller subset to subgroup 1.
+```sh
+docker run -u `id -u`:`id -g` -v /private/groups:/private/groups/ \
+      miramastoras/centromere_scripts:v0.1.4 \
+      python3 /private/groups/patenlab/mira/centrolign/github/centromere-scripts/benchmarking/split_fasta_by_tree.py \
+      -t /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2_QC_v2/split_nj_trees/chr15/split_by_2/subgroup_0_tree.nwk \
+      -f /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2_QC_v2/split_nj_trees/chr15/split_by_2/subgroup_0_seqs.fasta \
+      -n 2 \
+      -o /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2_QC_v2/split_nj_trees/chr15/split_by_2/split_subgroup_0_by_2/
+
+```
+Add smaller subset to subgroup 1
+```sh
+mkdir -p /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2_QC_v2/split_nj_trees/chr15/combine_final_subgroups/
+
+cat /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2_QC_v2/split_nj_trees/chr15/split_by_2/subgroup_1_seqs.fasta > /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2_QC_v2/split_nj_trees/chr15/combine_final_subgroups/chr15.subgroup_A.fasta
+
+cat /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2_QC_v2/split_nj_trees/chr15/split_by_2/split_subgroup_0_by_2/subgroup_0_seqs.fasta >> /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2_QC_v2/split_nj_trees/chr15/combine_final_subgroups/chr15.subgroup_A.fasta
+```
+
+Subgroup 0 - subgroup 1 will become subgroup B
+```sh
+cp /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2_QC_v2/split_nj_trees/chr15/split_by_2/split_subgroup_0_by_2/subgroup_1_seqs.fasta /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2_QC_v2/split_nj_trees/chr15/combine_final_subgroups/chr15.subgroup_B.fasta
+```
+
+
+
+### CHr 16
+
+split subgroup 1 by 3
+```sh
+docker run -u `id -u`:`id -g` -v /private/groups:/private/groups/ \
+      miramastoras/centromere_scripts:v0.1.4 \
+      python3 /private/groups/patenlab/mira/centrolign/github/centromere-scripts/benchmarking/split_fasta_by_tree.py \
+      -t /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2_QC_v2/split_nj_trees/chr16/split_by_2/subgroup_1_tree.nwk \
+      -f /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2_QC_v2/split_nj_trees/chr16/split_by_2/subgroup_1_seqs.fasta \
+      -n 3 \
+      -o /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2_QC_v2/split_nj_trees/chr16/split_by_2/split_subgroup_1_by_3/
+```
+
+```sh
+cut -f1 subgroup_0_seqs.fasta.fai | sed 's/^/subgroup_0,/g'  >/private/groups/patenlab/mira/chr16_split_subgroup1_by_3.samples.txt
+cut -f1 subgroup_1_seqs.fasta.fai | sed 's/^/subgroup_1,/g'  >>/private/groups/patenlab/mira/chr16_split_subgroup1_by_3.samples.txt
+cut -f1 subgroup_2_seqs.fasta.fai | sed 's/^/subgroup_2,/g'  >>/private/groups/patenlab/mira/chr16_split_subgroup1_by_3.samples.txt
+```
+
+Plot
+```sh
+chr=chr16
+python3 /Users/miramastoras/Desktop/github_repos/centrolign_analysis/scripts/pairwise_tree_heatmap_v2.py \
+    -t /Users/miramastoras/Desktop/HPRC_release2_QCv2_all_pairs_heatmaps/${chr}_r2_QC_v2_centrolign_all_pairs_nj_tree.format5.nwk \
+    -s /Users/miramastoras/Desktop/HPRC_release2_QCv2_all_pairs_heatmaps/${chr}.samples.txt \
+    -p /Users/miramastoras/Desktop/HPRC_release2_QCv2_all_pairs_heatmaps/${chr}_r2_QC_v2_centrolign_pairwise_distance.csv \
+    -m "Centrolign all pairs distances" \
+    -n "${chr} NJ tree" \
+    -d "All pairs Distances" \
+    -o /Users/miramastoras/Desktop/github_repos/centrolign_analysis/analysis_notes/release2_QC_v2/plots/chr16_split_by_2_subgroup_1_split_by_3_ --no_labels \
+    --highlight_samples /Users/miramastoras/Desktop/chr16_split_subgroup1_by_3.samples.txt
+```
+
+![chr16 subgroup 1](plots/chr16_split_by_2_subgroup_1_split_by_3_pairwise_tree_heatmap.png)
+
+Final subgroups:
+```sh
+Subgroup A - subgroup 0
+Subgroup B - subgroup 1 - subgroup 0
+Subgroup C - subgroup 1 - subgroup 0 and 2
+```
+```sh
+mkdir /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2_QC_v2/split_nj_trees/chr16/combine_final_subgroups/
+
+cp /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2_QC_v2/split_nj_trees/chr16/split_by_2/subgroup_0_seqs.fasta /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2_QC_v2/split_nj_trees/chr16/combine_final_subgroups/chr16.subgroup_A.fasta
+
+cp /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2_QC_v2/split_nj_trees/chr16/split_by_2/split_subgroup_1_by_3/subgroup_0_seqs.fasta /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2_QC_v2/split_nj_trees/chr16/combine_final_subgroups/chr16.subgroup_B.fasta
+
+cat /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2_QC_v2/split_nj_trees/chr16/split_by_2/split_subgroup_1_by_3/subgroup_1_seqs.fasta >> /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2_QC_v2/split_nj_trees/chr16/combine_final_subgroups/chr16.subgroup_C.fasta
+
+cat /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2_QC_v2/split_nj_trees/chr16/split_by_2/split_subgroup_1_by_3/subgroup_2_seqs.fasta >> /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2_QC_v2/split_nj_trees/chr16/combine_final_subgroups/chr16.subgroup_C.fasta
+```
 ### Chr 14, 15, 16
 
 
@@ -1218,40 +1319,20 @@ do
   mkdir -p /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2_QC_v2/split_nj_trees/${chr}/
   docker run -u `id -u`:`id -g` -v /private/groups:/private/groups/ \
     miramastoras/centromere_scripts:v0.1.4 \
-    python3 /private/groups/patenlab/mira/centrolign/github/centrolign_analysis/scripts/identify_low_divergence_clades.py \
+    python3 /private/groups/patenlab/mira/centrolign/github/censat_paper/scripts/centrolign_result_parsing/identify_low_divergence_clades.py \
   --newick /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2_QC_v2/all_pairs/nj_trees/${chr}_r2_QC_v2_centrolign_all_pairs_nj_tree.nwk \
   --distance_csv /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2_QC_v2/all_pairs/distance_matrices/${chr}_r2_QC_v2_centrolign_pairwise_distance.csv \
   --max_pairwise_dist 0.8 \
   --min_pairwise_below_thresh 0.7 \
   --output_prefix /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2_QC_v2/split_nj_trees/${chr}/${chr}_LDC
 done
-```
-
-2. Plot in heatmap to confirm groupings
-
-```sh
 
 for chr in "${chromosomes[@]}"
 do
-  tail -n +2 /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2_QC_v2/split_nj_trees/${chr}/${chr}_LDC_clades.csv | cut -f1 -d"," | sort | uniq -c
-done
-
-mkdir -p /private/groups/patenlab/mira/chr14_15_16_clade_lists/
-for chr in "${chromosomes[@]}"
-do
-  tail -n +2 /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2_QC_v2/split_nj_trees/${chr}/${chr}_LDC_clades.csv | cut -f1 -d"," | sort | uniq | while read line ; do
-    grep $line /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2_QC_v2/split_nj_trees/${chr}/${chr}_LDC_clades.csv | cut -f2 -d"," > /private/groups/patenlab/mira/chr14_15_16_clade_lists/${chr}_${line}.samples.txt
-  done
-done
-
-cd /private/groups/patenlab/mira/chr14_15_16_clade_lists/
-chromosomes=("chr14" "chr15" "chr16")
-for chr in "${chromosomes[@]}"
-do
-  ls | grep ${chr} | tr '\n' ' '
-  echo "done"
+  cp /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2_QC_v2/split_nj_trees/${chr}/${chr}_LDC_clades.csv /private/groups/patenlab/mira/
 done
 ```
+Plot in heatmap
 
 Local
 ```sh
@@ -1277,7 +1358,7 @@ python3 /Users/miramastoras/Desktop/github_repos/centrolign_analysis/scripts/pai
     -n "${chr} NJ tree" \
     -d "All pairs Distances" \
     -o /Users/miramastoras/Desktop/color_subgroups_heatmap/${chr}_r2_QC_v2_clade_2_subgroup0 --no_labels \
-    --highlight_samples chr15_Clade_10.samples.txt chr15_Clade_11.samples.txt chr15_Clade_12.samples.txt chr15_Clade_13.samples.txt chr15_Clade_14.samples.txt chr15_Clade_15.samples.txt chr15_Clade_1.samples.txt chr15_Clade_2.samples.txt chr15_Clade_3.samples.txt chr15_Clade_4.samples.txt chr15_Clade_5.samples.txt chr15_Clade_6.samples.txt chr15_Clade_7.samples.txt chr15_Clade_8.samples.txt chr15_Clade_9.samples.txt
+    --highlight_samples /Users/miramastoras/Desktop/chr15_LDC_clades.csv
 
 chr=chr16
 python3 /Users/miramastoras/Desktop/github_repos/centrolign_analysis/scripts/pairwise_tree_heatmap_v2.py \
@@ -1288,7 +1369,11 @@ python3 /Users/miramastoras/Desktop/github_repos/centrolign_analysis/scripts/pai
     -n "${chr} NJ tree" \
     -d "All pairs Distances" \
     -o /Users/miramastoras/Desktop/color_subgroups_heatmap/${chr}_r2_QC_v2_clade_2_subgroup0 --no_labels \
-    --highlight_samples chr16_Clade_10.samples.txt chr16_Clade_11.samples.txt chr16_Clade_12.samples.txt chr16_Clade_13.samples.txt chr16_Clade_1.samples.txt chr16_Clade_2.samples.txt chr16_Clade_3.samples.txt chr16_Clade_4.samples.txt chr16_Clade_5.samples.txt chr16_Clade_6.samples.txt chr16_Clade_7.samples.txt chr16_Clade_8.samples.txt chr16_Clade_9.samples.txt
+    --highlight_samples /Users/miramastoras/Desktop/chr16_LDC_clades.csv
 
 ```
 3. Combine into 3 groups each
+
+```
+/private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2_QC_v2/MSA/chr12/subgroup_1/induced_pairwise_cigars/pairwise_cigar_HG02257.2_HG03470.1.txt
+```

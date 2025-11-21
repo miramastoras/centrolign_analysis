@@ -15,6 +15,9 @@ import matplotlib.pyplot as plt
 from ete3 import Tree, TreeStyle
 from Bio import Phylo
 import numpy as np
+import csv
+from collections import defaultdict
+from matplotlib.cm import get_cmap
 from scipy.cluster.hierarchy import dendrogram
 from matplotlib.patches import Rectangle
 import matplotlib.patches as patches
@@ -58,9 +61,8 @@ def arg_parser():
                         required=True,
                         help="directory path to write output files to")
     parser.add_argument("--highlight_samples",
-                        nargs='*',
-                        help="One or more files, each containing a list of samples. "
-                             "Pairwise boxes between all samples in each group will be highlighted in a distinct color.")
+                        help="CSV file with clade, sample."
+                             "Pairwise boxes between all samples in each clade will be highlighted in a distinct color.")
     parser.add_argument("--highlight_pairs",
                         help="File containing sample pairs to highlight in red. "
                              "Each line should contain two sample names separated by space or comma.")
@@ -153,15 +155,25 @@ def main():
     highlight_groups = []  # list of (set_of_samples, assigned_color)
 
     if args.highlight_samples:
+        # Load group → set(samples) from CSV
+        group_to_samples = defaultdict(set)
+
+        with open(args.highlight_samples, "r", newline="") as f:
+            reader = csv.reader(f)
+            for row in reader:
+                if len(row) < 2:
+                    continue  # skip malformed rows
+                group, sample = row[0].strip(), row[1].strip()
+                if group and sample:
+                    group_to_samples[group].add(sample)
+
         # Use a qualitative colormap with many distinct colors
-        color_map = get_cmap("tab10")  # gives 10 distinct colors
+        color_map = get_cmap("tab10")
 
-        for i, list_path in enumerate(args.highlight_samples):
-            with open(list_path, "r") as f:
-                group = set(line.strip() for line in f if line.strip())
-
-            color = color_map(i % 10)  # choose a color for this group
-            highlight_groups.append((group, color))
+        # Assign a color to each group and store
+        for i, (group, samples) in enumerate(group_to_samples.items()):
+            color = color_map(i % 10)
+            highlight_groups.append((samples, color))
 
     highlight_pairs = set()
 
