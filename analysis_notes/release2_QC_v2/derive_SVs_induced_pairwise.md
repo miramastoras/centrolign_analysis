@@ -423,6 +423,67 @@ conda install -c bioconda intervene
 intervene venn -i /private/groups/patenlab/mira/centrolign/analysis/SVs_pairwise/chr12/cenHap4_benchmarking_HorHaps/centrolign_SVs_ins.bed /private/groups/patenlab/mira/centrolign/analysis/SVs_pairwise/chr12/cenHap4_benchmarking_HorHaps/horhap_SVs_ins.bed –bedtools-options -f 0.5
 ```
 
+#### Creating synteny plot with fedor's annotations overlaid
+
+Convert fedor's SV beds to array coordinates
+```sh
+# get start coord of alpha sat sequence
+grep chr12 /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2_QC_v2/per_smp_asat_beds/HG00232.2_asat_arrays.bed
+# HG00232#2#CM090029.1	34750702	37285438	chr12
+
+grep chr12 /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2_QC_v2/per_smp_asat_beds/HG01175.1_asat_arrays.bed
+# HG01175#1#CM087931.1	34773369	37339781	chr12
+
+# create HG00232.2 bed file
+#  select Deletions
+awk -F'\t' -v OFS='\t' -v n=34750702 '{ $2 -= n; $3 -= n }1' /private/groups/patenlab/mira/centrolign/analysis/SVs_pairwise/chr12/cenHap4_benchmarking_HorHaps/fedor_horHap_SV_beds/HG00232.2_HG01175.1.bed | cut -f1-3,7,8 | awk -F'\t' -v OFS='\t' '{ print $0, "+", "0", "0", "0,0,0" }' | grep "D" > /private/groups/patenlab/mira/centrolign/analysis/SVs_pairwise/chr12/cenHap4_benchmarking_HorHaps/synteny_plots/HG00232.2_horHap_SVs.array_coords.bed
+
+# create HG01175.1 bed file
+#  select Insertions
+awk -F'\t' -v OFS='\t' -v n=34773369 '{ $5 -= n; $6 -= n }1' /private/groups/patenlab/mira/centrolign/analysis/SVs_pairwise/chr12/cenHap4_benchmarking_HorHaps/fedor_horHap_SV_beds/HG00232.2_HG01175.1.bed | cut -f4-6,7,8 | awk -F'\t' -v OFS='\t' '{ print $0, "+", "0", "0", "0,0,0" }' | grep "I" > /private/groups/patenlab/mira/centrolign/analysis/SVs_pairwise/chr12/cenHap4_benchmarking_HorHaps/synteny_plots/HG01175.1_horHap_SVs.array_coords.bed
+```
+
+Run synteny plots
+```sh
+conda activate synteny
+
+python /private/groups/migalab/juklucas/centrolign/chr12_test125/synteny_plot_bokeh.py   \
+    --beds \
+        /private/groups/patenlab/mira/centrolign/analysis/SVs_pairwise/chr12/cenHap4_benchmarking_HorHaps/synteny_plots/HG00232.2_horHap_SVs.array_coords.bed \
+        /private/groups/patenlab/mira/centrolign/analysis/SVs_pairwise/chr12/cenHap4_benchmarking_HorHaps/synteny_plots/HG01175.1_horHap_SVs.array_coords.bed \
+    --cigars \
+        /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2_QC_v2/MSA/chr12/subgroup_1/induced_pairwise_cigars/pairwise_cigar_HG00232.2_HG01175.1.txt \
+    --output /private/groups/patenlab/mira/centrolign/analysis/SVs_pairwise/chr12/cenHap4_benchmarking_HorHaps/synteny_plots/chr12_cenhap4_HG00232.2_HG01175.1_synteny.html \
+    --show-mismatches \
+    --web
+```
+
+Include horHap annotations as well.
+```sh
+awk -F'\t' -v OFS='\t' -v n=34750702 '{ $1="HG00232.2" ; $2 -= n; $3 -= n }1' /private/groups/migalab/fryabov/AS_annotation/cen12/horhap_annotation_align/bed/HG00232.2.bed | tail -n +4 > /private/groups/patenlab/mira/centrolign/analysis/SVs_pairwise/chr12/cenHap4_benchmarking_HorHaps/synteny_plots/HG00232.2_horhap_annotation_array_coords.bed
+
+awk -F'\t' -v OFS='\t' -v n=34773369 '{ $1="HG01175.1" ; $2 -= n; $3 -= n }1' /private/groups/migalab/fryabov/AS_annotation/cen12/horhap_annotation_align/bed/HG01175.1.bed | tail -n +4 > /private/groups/patenlab/mira/centrolign/analysis/SVs_pairwise/chr12/cenHap4_benchmarking_HorHaps/synteny_plots/HG01175.1_horhap_annotation_array_coords.bed
+
+cat /private/groups/patenlab/mira/centrolign/analysis/SVs_pairwise/chr12/cenHap4_benchmarking_HorHaps/synteny_plots/HG00232.2_horhap_annotation_array_coords.bed /private/groups/patenlab/mira/centrolign/analysis/SVs_pairwise/chr12/cenHap4_benchmarking_HorHaps/synteny_plots/HG00232.2_horHap_SVs.array_coords.bed > /private/groups/patenlab/mira/centrolign/analysis/SVs_pairwise/chr12/cenHap4_benchmarking_HorHaps/synteny_plots/HG00232.2_horhap_SVs_annotations.bed
+
+cat /private/groups/patenlab/mira/centrolign/analysis/SVs_pairwise/chr12/cenHap4_benchmarking_HorHaps/synteny_plots/HG01175.1_horhap_annotation_array_coords.bed /private/groups/patenlab/mira/centrolign/analysis/SVs_pairwise/chr12/cenHap4_benchmarking_HorHaps/synteny_plots/HG01175.1_horHap_SVs.array_coords.bed > /private/groups/patenlab/mira/centrolign/analysis/SVs_pairwise/chr12/cenHap4_benchmarking_HorHaps/synteny_plots/HG01175.1_horhap_SVs_annotations.bed
+```
+
+Run synteny plots
+```sh
+conda activate synteny
+
+python /private/groups/migalab/juklucas/centrolign/chr12_test125/synteny_plot_bokeh.py   \
+    --beds \
+        /private/groups/patenlab/mira/centrolign/analysis/SVs_pairwise/chr12/cenHap4_benchmarking_HorHaps/synteny_plots/HG00232.2_horhap_SVs_annotations.bed \
+        /private/groups/patenlab/mira/centrolign/analysis/SVs_pairwise/chr12/cenHap4_benchmarking_HorHaps/synteny_plots/HG01175.1_horhap_SVs_annotations.bed \
+    --cigars \
+        /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2_QC_v2/MSA/chr12/subgroup_1/induced_pairwise_cigars/pairwise_cigar_HG00232.2_HG01175.1.txt \
+    --output /private/groups/patenlab/mira/centrolign/analysis/SVs_pairwise/chr12/cenHap4_benchmarking_HorHaps/synteny_plots/chr12_cenhap4_HG00232.2_HG01175.1_synteny.with_horhaps.html \
+    --show-mismatches \
+    --web
+```
+
 ### identify low divergence clades for chr 1 for Karen:
 
 ```sh
