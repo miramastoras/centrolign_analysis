@@ -495,3 +495,19 @@ docker run -u `id -u`:`id -g` -v /private/groups:/private/groups/ \
   --max_pairwise_dist 0.8 \
   --output_prefix /private/groups/patenlab/mira/chr1_low_divergence_clades
 ```
+
+### Chromosome 12 case study
+
+Stratifying SV calls by local identity
+- histogram of number of bases in parallelograms,traps,triangles overlapping with different local identity bins
+
+
+1. convert bedpe into bed file, then separate by triangle, trap, parallelogram.
+
+2. for each pair, merge local identity tracks for both samples
+
+3. bedtools intersect, return the identity track with the count of bases overlapping each window
+
+4. Read in bed files into pandas df
+
+5. Plot histogram of number of bases in parallelograms,traps,triangles overlapping with different local identity bins
