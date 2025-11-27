@@ -290,6 +290,9 @@ cd /private/groups/patenlab/mira/centrolign/analysis/pairwise_consistency
 
 mkdir -p logs/
 sbatch /private/groups/patenlab/mira/centrolign/github/centrolign_analysis/analysis_notes/release2_QC_v2/slurm_scripts/pairwise_consistency.sh
+
+#SBATCH --array=[22,26,27,32-39,41,43,44]%10
+
 ```
 ### Get patristic distances from the input NJ tree
 
