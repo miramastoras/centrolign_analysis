@@ -13,6 +13,9 @@ AS_HOR bed from Hailey for CHM13: https://public.gi.ucsc.edu/~hloucks/CenSat/CHM
 
 Extract HOR from chm13 for each chromosome
 ```sh
+
+chromosomes=("chr1" "chr5" "chr8" "chr9" "chr13" "chr18" "chr19")
+
 chromosomes=("chr2" "chr3" "chr4" "chr6" "chr7" "chr10" "chr11" "chr12" "chr14" "chr15" "chr16" "chr17" "chr20" "chr21" "chr22" "chrX" "chrY")
 
 mkdir -p per_chrom/work
