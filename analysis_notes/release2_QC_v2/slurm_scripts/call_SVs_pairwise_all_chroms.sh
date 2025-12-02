@@ -9,7 +9,7 @@
 #SBATCH --cpus-per-task=1
 #SBATCH --output=logs/call_SVs_%x.%j.log
 #SBATCH --time=7-00:00
-#SBATCH --array=[1-28]%28
+#SBATCH --array=[29-43]%40
 
 CLADE_NAMES=$1
 OUTDIR=$2

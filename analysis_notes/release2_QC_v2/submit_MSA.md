@@ -2739,10 +2739,9 @@ Copy to new folder then tar them up
 ```sh
 mkdir -p /private/groups/patenlab/mira/centrolign_MSAs_r2_QC_v2/
 
-tail -n 34 /private/groups/patenlab/mira/centrolign/analysis/pairwise_consistency/centrolign_results.csv | cut -f 9 -d"," | sort | tail -n 31 | while read line ; do
+tail -n 44 /private/groups/patenlab/mira/centrolign/analysis/pairwise_consistency/centrolign_results.csv | grep "complete" | cut -f 9 -d"," | sort | while read line ; do
     cp $line /private/groups/patenlab/mira/centrolign_MSAs_r2_QC_v2/
   done
-
 ```
 
 For DNF chroms, saving the largest subproblems:
