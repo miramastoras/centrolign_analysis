@@ -181,7 +181,7 @@ https://github.com/miramastoras/centrolign_analysis/blob/main/analysis_notes/rel
 
 Get lists containing all the samples in each subgroup / MSA submission
 ```sh
-grep "complete" /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2_QC_v2/MSA/centrolign_MSA.csv | grep "release 2 QC v2" | cut -f1,8 -d","  | while IFS=',' read -r subgroup fastapath ; do
+grep "release 2 QC v2" /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2_QC_v2/MSA/centrolign_results.csv | cut -f1,8 -d","  | grep -v "chr20," | while IFS=',' read -r subgroup fastapath ; do
   CHR=`echo $subgroup | cut -f1 -d"_"`
   echo $CHR
   mkdir -p /private/groups/patenlab/mira/centrolign/analysis/SVs_pairwise/${CHR}/
@@ -191,8 +191,8 @@ done
 ```
 Create csv file with columns clade,CIGAR_PATH,sample_names_list
 ```sh
-grep "complete" /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2_QC_v2/MSA/centrolign_MSA.csv | grep "release 2 QC v2" | cut -f1,10 -d","  | while IFS=',' read -r subgroup cigar ; do
-  echo ${subgroup},${cigar},/private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2_QC_v2/MSA/sample_lists/${subgroup}.MSA.samples.txt >> /private/groups/patenlab/mira/centrolign/analysis/SVs_pairwise/11172025_completed_subgroups.csv
+grep "release 2 QC v2" /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2_QC_v2/MSA/centrolign_results.csv | grep -v "chr20," | cut -f1,10 -d","  | while IFS=',' read -r subgroup cigar ; do
+  echo ${subgroup},${cigar},/private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2_QC_v2/MSA/sample_lists/${subgroup}.MSA.samples.txt >> /private/groups/patenlab/mira/centrolign/analysis/SVs_pairwise/12012025_completed_subgroups.csv
 done
 ```
 Run SV caller on all completed subgroups
@@ -201,7 +201,7 @@ cd /private/groups/patenlab/mira/centrolign/analysis/SVs_pairwise
 
 mkdir -p logs
 
-sbatch /private/groups/patenlab/mira/centrolign/github/centrolign_analysis/analysis_notes/release2_QC_v2/slurm_scripts/call_SVs_pairwise_all_chroms.sh /private/groups/patenlab/mira/centrolign/analysis/SVs_pairwise/11172025_completed_subgroups.csv /private/groups/patenlab/mira/centrolign/analysis/SVs_pairwise
+sbatch /private/groups/patenlab/mira/centrolign/github/centrolign_analysis/analysis_notes/release2_QC_v2/slurm_scripts/call_SVs_pairwise_all_chroms.sh /private/groups/patenlab/mira/centrolign/analysis/SVs_pairwise/12012025_completed_subgroups.csv /private/groups/patenlab/mira/centrolign/analysis/SVs_pairwise
 ```
 
 Create csv file formatted as clade,chr,path_to_SV_beds
@@ -277,7 +277,7 @@ Create csv file with columns clade,CIGAR_PATH,sample_names_list
 ```sh
 mkdir -p /private/groups/patenlab/mira/centrolign/analysis/SVs_direct_pairwise
 
-grep "complete" /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2_QC_v2/MSA/centrolign_MSA.csv | grep "release 2 QC v2" | cut -f1,10 -d","  | while IFS=',' read -r subgroup cigar ; do
+grep "complete" /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2_QC_v2/MSA/centrolign_results.csv | grep "release 2 QC v2" | cut -f1,10 -d","  | while IFS=',' read -r subgroup cigar ; do
   CHR=`echo ${subgroup} | cut -f1 -d"_"`
   echo ${subgroup},/private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2_QC_v2/all_pairs/${CHR}/pairwise_cigar,/private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2_QC_v2/MSA/sample_lists/${subgroup}.MSA.samples.txt >> /private/groups/patenlab/mira/centrolign/analysis/SVs_direct_pairwise/11172025_completed_subgroups.csv
 done
@@ -502,6 +502,16 @@ Stratifying SV calls by local identity
 
 Make histogram of number of bases in parallelograms,traps,triangles overlapping with different local identity bins, at different pairwise distances
 
+1. convert bedpe into bed file, then separate by triangle, trap, parallelogram.
+
+2. for each pair, merge local identity tracks for both samples
+
+3. bedtools intersect, return the identity track with the count of bases overlapping each window
+
+4. Read in bed files into pandas df
+
+5. Plot histogram of number of bases in parallelograms,traps,triangles overlapping with different local identity bins
+
 #### Intersect SV calls with local identity annotations
 
 ```sh
@@ -611,18 +621,5 @@ sbatch local_identity_intersect.sh \
     /private/groups/migalab/juklucas/censat_paper/local_identity/2025_11_13/chr12/chr12_local_id_launch_outputs.csv
 ```
 
-1. convert bedpe into bed file, then separate by triangle, trap, parallelogram.
 
-2. for each pair, merge local identity tracks for both samples
-
-3. bedtools intersect, return the identity track with the count of bases overlapping each window
-
-4. Read in bed files into pandas df
-
-5. Plot histogram of number of bases in parallelograms,traps,triangles overlapping with different local identity bins
-
-
-Plotting SV length by local identity
-
-Alignment breakpoints by HORHap for cenhap4
-count of SV breakpoints by HORHAP broken by the categories
+### Plot the sizes of triangles versus local identity

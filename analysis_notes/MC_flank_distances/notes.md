@@ -308,6 +308,4 @@ svg(filename="/Users/miramastoras/Desktop/MC_vcf_heatmaps_0402225/tanglegrams/ch
 plot(obj, pts=FALSE,fsize=c(0.15,0.15),link.type="curved",link.lty="solid",link.col=make.transparent("blue",0.25),part=0.44)
 dev.off()
 ```
-Tree from distances from just MC vs sasha's cenhap tree
-
-sasha's cenhap tree vs MC distances 
+Results: https://docs.google.com/presentation/d/1W1mYr0Ynfh-4KdYUvVgK05qbKCLB5DoPFc6X_nvfqHE/edit?slide=id.p#slide=id.p 
