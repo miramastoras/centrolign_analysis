@@ -293,50 +293,57 @@ def main():
     axes[3].set_yticks([0,.2,.4,.6,.8,1])
 
 
-    def scientific_formatter(x):
-        return f"{x:.2e}"  # Convert to scientific notation with 2 decimal places
+    #def scientific_formatter(x):
+        #return f"{x:.2e}"  # Convert to scientific notation with 2 decimal places
 
     # Apply the custom formatter to the y-axis ticks
-    formatted_labels = [scientific_formatter(val) for val in heatmap_y_labels]
+    #formatted_labels = [scientific_formatter(val) for val in heatmap_y_labels]
+    #axes[3].set_yticklabels(formatted_labels)
+
+    # Format color scale labels as plain decimals
+    formatted_labels = [f"{val:.2f}" for val in heatmap_y_labels]
     axes[3].set_yticklabels(formatted_labels)
 
     # loop through id_map position labels (0 to num samples - 1)
     positions = list(id_map.keys())
 
     # plot heatmap!
+    # plot heatmap!
     for pos1 in range(len(positions)):
         for pos2 in range(pos1 + 1, len(positions)):
-            dict_key="_".join(sorted([id_map[pos1],id_map[pos2]]))
-            val=pairwise_vals[dict_key]
+            dict_key = "_".join(sorted([id_map[pos1], id_map[pos2]]))
+            val = pairwise_vals.get(dict_key, None)  # returns None if key is missing
 
-            y_pos1=leaf_label_y_map[id_map[pos1]]
-            y_pos2=leaf_label_y_map[id_map[pos2]]
-            bottom=[((diagonal/2)*(pos2-pos1-1)),((y_pos1+y_pos2)/2)-(diagonal/2)]
-            top=[bottom[0],bottom[1]+diagonal]
-            left=[(bottom[0]-(diagonal/2)),(bottom[1]+(diagonal/2))]
-            right=[(bottom[0]+(diagonal/2)),(bottom[1]+(diagonal/2))]
+            y_pos1 = leaf_label_y_map[id_map[pos1]]
+            y_pos2 = leaf_label_y_map[id_map[pos2]]
+            bottom = [((diagonal/2)*(pos2-pos1-1)), ((y_pos1+y_pos2)/2)-(diagonal/2)]
+            top = [bottom[0], bottom[1]+diagonal]
+            left = [bottom[0]-(diagonal/2), bottom[1]+(diagonal/2)]
+            right = [bottom[0]+(diagonal/2), bottom[1]+(diagonal/2)]
 
-            # draw diamond for current pair
-            diamond_xy=[bottom,left,top,right]
+            diamond_xy = [bottom, left, top, right]
 
-            # Default heatmap color
-            facecolor = cmap(val)
+            # Default: if missing value, color white
+            if val is None:
+                facecolor = "white"
+            else:
+                facecolor = cmap(val)
 
             # Override with highlight_samples color
-            if highlight_groups:
+            if highlight_groups and val is not None:
                 for group_samples, group_color in highlight_groups:
                     if id_map[pos1] in group_samples and id_map[pos2] in group_samples:
                         facecolor = group_color
                         break
 
             # Override with highlight_pairs color (takes priority over highlight_samples)
-            if args.highlight_pairs:
+            if args.highlight_pairs and val is not None:
                 if dict_key in highlight_pairs:
                     facecolor = "red"
 
             diamond = patches.Polygon(diamond_xy, fill=True, facecolor=facecolor)
-
             axes[2].add_patch(diamond)
+
 
     # hide y axis labels for dendogram
     axes[0].set_yticklabels([])

@@ -77,3 +77,18 @@ do
         -o /Users/miramastoras/Desktop/mutation_rates/${chr}.triangles --no_labels
 done
 ```
+
+#### Testing using a distance thats just based off the SNPs in the array - this will only work for very short distances
+
+Run cigar to dist conversion for all chromosomes
+
+```sh
+chromosomes=("chr1" "chr2" "chr3" "chr4" "chr5" "chr6" "chr7" "chr8" "chr9" "chr10" "chr11" "chr12" "chr13" "chr14" "chr15" "chr16" "chr17" "chr18" "chr19" "chr20" "chr21" "chr22" "chrX" "chrY")
+
+for chr in "${chromosomes[@]}"
+do
+    python3 /private/groups/patenlab/mira/centrolign/github/centrolign_analysis/scripts/cigar_to_distance.py -d 3 \
+    -a /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2_QC_v2/all_pairs/${chr}/pairwise_cigar/ \
+    -o private/groups/patenlab/mira/centrolign/analysis/SVs_pairwise/SNP_based_distances/${chr}_r2_QC_v2_centrolign_
+done
+```

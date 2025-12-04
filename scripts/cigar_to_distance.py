@@ -36,8 +36,10 @@ def cigar_to_dist_method3(cigar):
             matches+= op_len
         else:
             mismatches += 1
-    print(mismatches, matches)
-    return mismatches / (matches + mismatches)
+    if mismatches==0:
+        return "NA"
+    else:
+        return mismatches / (matches + mismatches)
 
 def cigar_to_dist_method2(cigar):
     '''
