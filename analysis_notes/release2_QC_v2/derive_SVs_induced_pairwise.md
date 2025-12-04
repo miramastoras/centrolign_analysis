@@ -208,10 +208,10 @@ Create csv file formatted as clade,chr,path_to_SV_beds
 ```sh
 cd /private/groups/patenlab/mira/centrolign/analysis/SVs_pairwise
 
-echo "clade,chr,path_to_SV_beds" > 11172025_clade_chr_sv_beds.csv
-cat /private/groups/patenlab/mira/centrolign/analysis/SVs_pairwise/11172025_completed_subgroups.csv | while IFS=',' read -r clade cigars sample_lists ; do
+echo "clade,chr,path_to_SV_beds" > 12012025_clade_chr_sv_beds.csv
+cat /private/groups/patenlab/mira/centrolign/analysis/SVs_pairwise/12012025_completed_subgroups.csv | while IFS=',' read -r clade cigars sample_lists ; do
   CHR=$(echo $clade | cut -f1 -d"_")
-  echo $clade,$CHR,/private/groups/patenlab/mira/centrolign/analysis/SVs_pairwise/${CHR}/SV_beds/${clade}/ >> 11172025_clade_chr_sv_beds.csv
+  echo $clade,$CHR,/private/groups/patenlab/mira/centrolign/analysis/SVs_pairwise/${CHR}/SV_beds/${clade}/ >> 12012025_clade_chr_sv_beds.csv
 done
 ```
 
@@ -277,9 +277,9 @@ Create csv file with columns clade,CIGAR_PATH,sample_names_list
 ```sh
 mkdir -p /private/groups/patenlab/mira/centrolign/analysis/SVs_direct_pairwise
 
-grep "complete" /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2_QC_v2/MSA/centrolign_results.csv | grep "release 2 QC v2" | cut -f1,10 -d","  | while IFS=',' read -r subgroup cigar ; do
+grep "release 2 QC v2" /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2_QC_v2/MSA/centrolign_results.csv | cut -f1,10 -d","  | grep -v "chr20," | while IFS=',' read -r subgroup cigar ; do
   CHR=`echo ${subgroup} | cut -f1 -d"_"`
-  echo ${subgroup},/private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2_QC_v2/all_pairs/${CHR}/pairwise_cigar,/private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2_QC_v2/MSA/sample_lists/${subgroup}.MSA.samples.txt >> /private/groups/patenlab/mira/centrolign/analysis/SVs_direct_pairwise/11172025_completed_subgroups.csv
+  echo ${subgroup},/private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2_QC_v2/all_pairs/${CHR}/pairwise_cigar,/private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2_QC_v2/MSA/sample_lists/${subgroup}.MSA.samples.txt >> /private/groups/patenlab/mira/centrolign/analysis/SVs_direct_pairwise/12022025_completed_subgroups.csv
 done
 ```
 Run SV caller on all completed subgroups
@@ -288,7 +288,10 @@ cd /private/groups/patenlab/mira/centrolign/analysis/SVs_direct_pairwise
 
 mkdir -p logs
 
-sbatch /private/groups/patenlab/mira/centrolign/github/centrolign_analysis/analysis_notes/release2_QC_v2/slurm_scripts/call_SVs_pairwise_all_chroms.sh /private/groups/patenlab/mira/centrolign/analysis/SVs_direct_pairwise/11172025_completed_subgroups.csv /private/groups/patenlab/mira/centrolign/analysis/SVs_direct_pairwise
+sbatch --array=[1-43]%43 \
+    /private/groups/patenlab/mira/centrolign/github/centrolign_analysis/analysis_notes/release2_QC_v2/slurm_scripts/call_SVs_pairwise_all_chroms.sh \
+    /private/groups/patenlab/mira/centrolign/analysis/SVs_direct_pairwise/12022025_completed_subgroups.csv \
+    /private/groups/patenlab/mira/centrolign/analysis/SVs_direct_pairwise
 ```
 
 Create csv file formatted as clade,chr,path_to_SV_beds
@@ -623,3 +626,11 @@ sbatch local_identity_intersect.sh \
 
 
 ### Plot the sizes of triangles versus local identity
+
+1. extract all chr 12 triangles
+
+2. read in local identity bed files
+
+3. if triangle overlaps two local identity bed regions, average them
+
+4. scatter plot of size vs local identity value 
