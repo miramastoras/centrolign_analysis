@@ -298,10 +298,10 @@ Create csv file formatted as clade,chr,path_to_SV_beds
 ```sh
 cd /private/groups/patenlab/mira/centrolign/analysis/SVs_direct_pairwise
 
-echo "clade,chr,path_to_SV_beds" > 11172025_clade_chr_sv_beds.csv
-cat /private/groups/patenlab/mira/centrolign/analysis/SVs_direct_pairwise/11172025_completed_subgroups.csv | while IFS=',' read -r clade cigars sample_lists ; do
+echo "clade,chr,path_to_SV_beds" > 12022025_clade_chr_sv_beds.csv
+cat /private/groups/patenlab/mira/centrolign/analysis/SVs_direct_pairwise/12022025_completed_subgroups.csv | while IFS=',' read -r clade cigars sample_lists ; do
   CHR=$(echo $clade | cut -f1 -d"_")
-  echo $clade,$CHR,/private/groups/patenlab/mira/centrolign/analysis/SVs_direct_pairwise/${CHR}/SV_beds/${clade}/ >> 11172025_clade_chr_sv_beds.csv
+  echo $clade,$CHR,/private/groups/patenlab/mira/centrolign/analysis/SVs_direct_pairwise/${CHR}/SV_beds/${clade}/ >> 12022025_clade_chr_sv_beds.csv
 done
 ```
 ### Benchmarking: Compare Centrolign to Fedor's HorHap SVs
@@ -623,7 +623,41 @@ sbatch local_identity_intersect.sh \
     /private/groups/patenlab/mira/centrolign/analysis/SVs_pairwise/chr12/SV_beds/local_identity/chr12_subgroup_1 \
     /private/groups/migalab/juklucas/censat_paper/local_identity/2025_11_13/chr12/chr12_local_id_launch_outputs.csv
 ```
+### Get list of expected HOR sizes from STV beds, for use in SV length distributions
 
+```sh
+chromosomes=("chr1" "chr2" "chr3" "chr4" "chr5" "chr6" "chr7" "chr8" "chr9" "chr10" "chr11" "chr12" "chr13" "chr14" "chr15" "chr16" "chr17" "chr18" "chr19" "chr20" "chr21" "chr22" "chrX" "chrY")
+
+chromosomes=("chr1")
+
+for chr in "${chromosomes[@]}"; do
+  wc -l /private/groups/migalab/juklucas/censat_regions/active_arrays/asat_arrays_${chr}.tsv
+  cut -f3 /private/groups/migalab/juklucas/censat_regions/active_arrays/asat_arrays_${chr}.tsv | while read line ; do
+    ls /private/groups/migalab/hloucks/DeepLineage/DeepLineage_censat/STV/${line}/analysis/HOR-StV_outputs/*/*HOR_StV_stats.txt
+  done
+done
+```
+
+```
+- initialize two dictionaries: stv_counts and stv_lengths
+- loop through all stats files in Hailey's STV beds location /private/groups/migalab/hloucks/DeepLineage/DeepLineage_censat/STV/${sample}/analysis/HOR-StV_outputs/*/*HOR_StV_stats.txt. But skip first two rows
+    save sample as a variable
+-   for each line in file,
+      stv=column 1
+      counts=column 2
+      if stv not in stv_counts.keys():
+        stv_counts[stv]=counts
+      else:
+        stv_counts[stv]+=counts
+
+      if stv not in stv_lengths.keys():
+        grep first occurrence of stv from  /private/groups/migalab/hloucks/DeepLineage/DeepLineage_censat/STV/NA18565_hap1_hprc_r2_v.0.1/analysis/HOR-StV_outputs/6a3e91e1-1e27-417f-b682-27a98a42bbc3/*HOR_StV_row.bed
+
+- add each StV to dictionary of counts, and create StV monomer:length dict
+- group all dictionary keys by chromosome
+- within each chrom, calculate frequency of StV across entire hprc sample set
+- if freq > 5%, get monomer and its length and write to TSV file
+```
 
 ### Plot the sizes of triangles versus local identity
 
@@ -633,4 +667,4 @@ sbatch local_identity_intersect.sh \
 
 3. if triangle overlaps two local identity bed regions, average them
 
-4. scatter plot of size vs local identity value 
+4. scatter plot of size vs local identity value

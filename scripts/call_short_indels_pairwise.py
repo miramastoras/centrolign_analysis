@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 """
-Call SVs from centrolign pairwise cigar strings.
+Call short indels from centrolign pairwise cigar strings.
 """
 
 import sys
@@ -19,8 +19,8 @@ def arg_parser():
     Parses command line arguments with argparse
     '''
     parser = argparse.ArgumentParser(
-        prog='call_SVs_pairwise.py',
-        description="""Call SVs from centrolign pairwise cigar strings. Returns bedPE file of SVs.""")
+        prog='call_short_indels_pairwise.py',
+        description="""Call short indels from centrolign pairwise cigar strings. Returns bedPE file of short indels.""")
 
     parser.add_argument("-c", "--cigars",
                         required=True,
@@ -46,14 +46,10 @@ def map_to_samples(fps):
 
     return sample_map
 
-def cigar_to_sv_positions(cigar_ops, bedfile_prefix, min_len=49,ref_name="ref",query_name="query"):
+def cigar_to_indel_positions(cigar_ops, bedfile_prefix, max_len=49,ref_name="ref",query_name="query"):
     """
     Iterate through CIGAR operations and return (ref, query) position pairs
-    for insertions/deletions > 50 bp (or meeting adjacency rules).
-
-    Adjacency Rules:
-    - Include SV if I/D > 50 bp AND flanked by M on both sides.
-    - Include SV if I/D adjacent to D/I AND (EITHER adjacent op is > 50bp
+    for insertions/deletions < 50 bp 
     """
     bedfile=bedfile_prefix+ref_name+"_"+query_name+".bed"
     #positions = []
@@ -80,7 +76,7 @@ def cigar_to_sv_positions(cigar_ops, bedfile_prefix, min_len=49,ref_name="ref",q
 
         elif op in "IHS":
 
-            if length > min_len: # only write SVs >= 50 bp
+            if length <= max_len: # only write short indels < 50 bp
                 adj_id_diff = ""
 
                 # Case 1: flanked by matches on both sides
@@ -101,14 +97,14 @@ def cigar_to_sv_positions(cigar_ops, bedfile_prefix, min_len=49,ref_name="ref",q
 
         elif op == 'D':
 
-            if length > min_len:
+            if length <= max_len:
 
                 adj_id_diff=""
                 # Case 1: flanked by matches on both sides and >= 50 bp
                 if prev_op in "MX=" and next_op in "MX=":
                     adj_id_diff = -1
 
-                # Case 2: adjacent to I, EITHER is > min_len, and large diff
+                # Case 2: adjacent to I, EITHER is <= max_len, and large diff
                 elif next_op in 'IHS' :
                     adj_id_diff = percent_diff(length,next_len)
 
@@ -164,7 +160,7 @@ def main():
 
     print(f"Running on {len(filtered_pairs)} pairwise combinations:",file=sys.stderr)
 
-    # for each cigar string, call SVs and write to bedfile
+    # for each cigar string, call short indels and write to bedfile
     for pair in sorted(filtered_pairs, key=lambda k: sorted(k)):
         # parse cigar string
         cigar = parse_cigar(open(filtered_pairs[pair]).read())
@@ -173,8 +169,8 @@ def main():
         ref=pair[0]
         query=pair[1]
 
-        # call SVs
-        cigar_to_sv_positions(cigar,args.bed_prefix,ref_name=ref,query_name=query)
+        # call short indels
+        cigar_to_indel_positions(cigar,args.bed_prefix,ref_name=ref,query_name=query)
 
     # skipping write to bed file for now
 

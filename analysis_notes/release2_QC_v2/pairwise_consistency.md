@@ -289,7 +289,8 @@ https://docs.google.com/spreadsheets/d/1Ga6tchMckFVrvLUvVJDVDEwQNEeL7zEafn6Ms4aX
 cd /private/groups/patenlab/mira/centrolign/analysis/pairwise_consistency
 
 mkdir -p logs/
-sbatch /private/groups/patenlab/mira/centrolign/github/centrolign_analysis/analysis_notes/release2_QC_v2/slurm_scripts/pairwise_consistency.sh
+
+sbatch --array=50 /private/groups/patenlab/mira/centrolign/github/centrolign_analysis/analysis_notes/release2_QC_v2/slurm_scripts/pairwise_consistency.sh
 
 #SBATCH --array=[22,26,27,32-39,41,43,44]%10
 
@@ -322,13 +323,13 @@ done
 
 #### Synteny plots for sanity check
 
-cd /private/groups/patenlab/mira/centrolign/analysis/chr3_chr4_interspersed_hsat_r2
-
 synteny plot
 ```sh
 cd /private/groups/patenlab/mira/centrolign/analysis/pairwise_consistency/chr6_examples
 
 samples=("HG00290.1" "HG06807.1")
+samples=("HG00253.1" "HG02486.2") # jaccard = 0.541325
+samples=("HG01258.1" "HG02083.2") # jaccard = 0.472087
 
 # Process each line in the fai file
 for smp in "${samples[@]}"; do
@@ -340,6 +341,47 @@ for smp in "${samples[@]}"; do
       echo "Created bed file for ${seqid}"
   done < /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2_QC_v2/extract_fastas/chr6/${smp}_chr6_hor_array.fasta.fai
 done
+
+
+python /private/groups/migalab/juklucas/centrolign/chr12_test125/synteny_plot_bokeh.py   \
+    --beds \
+      /private/groups/patenlab/mira/centrolign/analysis/pairwise_consistency/chr6_examples/dummy_beds/HG01258.1.bed \
+      /private/groups/patenlab/mira/centrolign/analysis/pairwise_consistency/chr6_examples/dummy_beds/HG02083.2.bed \
+    --cigars \
+        /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2_QC_v2/all_pairs/chr6/pairwise_cigar/pairwise_cigar_HG01258.1_HG02083.2.txt \
+    --output /private/groups/patenlab/mira/centrolign/analysis/pairwise_consistency/chr6_examples/plots/synteny_direct_HG01258.1_HG02486.2.html \
+    --web
+
+#!/bin/sh
+python /private/groups/migalab/juklucas/centrolign/chr12_test125/synteny_plot_bokeh.py   \
+    --beds \
+    /private/groups/patenlab/mira/centrolign/analysis/pairwise_consistency/chr6_examples/dummy_beds/HG01258.1.bed \
+    /private/groups/patenlab/mira/centrolign/analysis/pairwise_consistency/chr6_examples/dummy_beds/HG02083.2.bed \
+    --cigars \
+        /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2_QC_v2/MSA/chr6/induced_pairwise_cigars/pairwise_cigar_HG01258.1_HG02083.2.txt \
+    --output /private/groups/patenlab/mira/centrolign/analysis/pairwise_consistency/chr6_examples/plots/synteny_induced_HG01258.1_HG02083.2.html \
+    --web
+
+
+
+python /private/groups/migalab/juklucas/centrolign/chr12_test125/synteny_plot_bokeh.py   \
+    --beds \
+      /private/groups/patenlab/mira/centrolign/analysis/pairwise_consistency/chr6_examples/dummy_beds/HG00253.1.bed \
+      /private/groups/patenlab/mira/centrolign/analysis/pairwise_consistency/chr6_examples/dummy_beds/HG02486.2.bed \
+    --cigars \
+        /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2_QC_v2/all_pairs/chr6/pairwise_cigar/pairwise_cigar_HG00253.1_HG02486.2.txt \
+    --output /private/groups/patenlab/mira/centrolign/analysis/pairwise_consistency/chr6_examples/plots/synteny_direct_HG00253.1_HG02486.2.html \
+    --web
+
+#!/bin/sh
+python /private/groups/migalab/juklucas/centrolign/chr12_test125/synteny_plot_bokeh.py   \
+    --beds \
+    /private/groups/patenlab/mira/centrolign/analysis/pairwise_consistency/chr6_examples/dummy_beds/HG00253.1.bed \
+    /private/groups/patenlab/mira/centrolign/analysis/pairwise_consistency/chr6_examples/dummy_beds/HG02486.2.bed \
+    --cigars \
+        /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2_QC_v2/MSA/chr6/induced_pairwise_cigars/pairwise_cigar_HG00253.1_HG02486.2.txt \
+    --output /private/groups/patenlab/mira/centrolign/analysis/pairwise_consistency/chr6_examples/plots/synteny_induced_HG00253.1_HG02486.2.html \
+    --web
 
 
 python /private/groups/migalab/juklucas/centrolign/chr12_test125/synteny_plot_bokeh.py   \
