@@ -9,7 +9,7 @@
 #SBATCH --cpus-per-task=1
 #SBATCH --output=logs/call_SVs_%x.%j.log
 #SBATCH --time=7-00:00
-#SBATCH --array=[1-43]%40
+#SBATCH --array=[2-43]%40
 
 CLADE_NAMES=$1
 OUTDIR=$2
@@ -23,9 +23,9 @@ echo $CLADE
 echo $CIGAR_PATH
 echo $SAMPLE_LIST
 
-mkdir -p ${OUTDIR}/${CHR}/SV_beds/${CLADE}/
+mkdir -p ${OUTDIR}/${CHR}/short_indel_beds/${CLADE}/
 
 time python3 /private/groups/patenlab/mira/centrolign/github/centrolign_analysis/scripts/call_short_indels_pairwise.py \
   -c ${CIGAR_PATH}/pairwise_cigar_ \
   -s ${SAMPLE_LIST} \
-  -o ${OUTDIR}/${CHR}/SV_beds/${CLADE}/
+  -o ${OUTDIR}/${CHR}/short_indel_beds/${CLADE}/

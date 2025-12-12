@@ -49,7 +49,7 @@ def map_to_samples(fps):
 def cigar_to_indel_positions(cigar_ops, bedfile_prefix, max_len=49,ref_name="ref",query_name="query"):
     """
     Iterate through CIGAR operations and return (ref, query) position pairs
-    for insertions/deletions < 50 bp 
+    for insertions/deletions < 50 bp
     """
     bedfile=bedfile_prefix+ref_name+"_"+query_name+".bed"
     #positions = []
