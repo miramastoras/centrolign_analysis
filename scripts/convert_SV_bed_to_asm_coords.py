@@ -1,40 +1,56 @@
 #!/usr/bin/env python3
 """
-Convert SV bed pe files to assembly coordinates. 
+Convert SV bed pe files to assembly coordinates.
 """
 
 import argparse
 import os
 
-def process_bedpe_file(input_path, asat_dict, output_path):
-    """Reads a BEDPE file line by line and writes it to a new file."""
-    with open(input_path, 'r') as infile, open(output_path, 'w') as outfile:
-        for line in infile:
-            line = line.strip().split("\t")
-            smp1 = line[0]
-            smp2 = line[3]
+def process_bed_file(input_path, asat_dict, output_path, fmt):
+    """
+    Convert coordinates in BED or BEDPE files while preserving all columns.
 
-            # start coord of asat array for each sample
-            smp1_offset = int(asat_dict[smp1][1])
-            smp2_offset = int(asat_dict[smp2][1])
+    BED:
+      cols[0], cols[1], cols[2]
 
-            # print contig instead of asm name
-            smp1_contig = asat_dict[smp1][0]
-            smp2_contig = asat_dict[smp2][0]
+    BEDPE:
+      cols[0], cols[1], cols[2], cols[3], cols[4], cols[5]
+    """
 
-            # add asat start coord to convert to asm coords
-            smp1_start = int(line[1])+ smp1_offset
-            smp1_end = int(line[2]) + smp1_offset
+    with open(input_path, "r") as infile, open(output_path, "w") as outfile:
+        for raw_line in infile:
+            if raw_line.startswith("#") or not raw_line.strip():
+                outfile.write(raw_line)
+                continue
 
-            smp2_start = int(line[4]) + smp2_offset
-            smp2_end = int(line[5]) + smp2_offset
+            cols = raw_line.rstrip("\n").split("\t")
 
-            # this line prints the contig ID in the assembly instead of the sample name
-            #print(smp1_contig, smp1_start, smp1_end, smp2_contig, smp2_start, smp2_end, line[6], line[7], sep="\t", file=outfile)
+            if fmt == "bed":
+                if len(cols) < 3:
+                    raise ValueError(f"Invalid BED line (<3 columns): {raw_line}")
 
-            # this line just prints the sample name
-            print(smp1, smp1_start, smp1_end, smp2, smp2_start, smp2_end, line[6], line[7], sep="\t",
-                  file=outfile)
+                smp = cols[0]
+                offset = int(asat_dict[smp][1])
+                cols[1] = str(int(cols[1]) + offset)
+                cols[2] = str(int(cols[2]) + offset)
+
+            elif fmt == "bedpe":
+                if len(cols) < 6:
+                    raise ValueError(f"Invalid BEDPE line (<6 columns): {raw_line}")
+
+                smp1 = cols[0]
+                smp2 = cols[3]
+
+                offset1 = int(asat_dict[smp1][1])
+                offset2 = int(asat_dict[smp2][1])
+
+                cols[1] = str(int(cols[1]) + offset1)
+                cols[2] = str(int(cols[2]) + offset1)
+                cols[4] = str(int(cols[4]) + offset2)
+                cols[5] = str(int(cols[5]) + offset2)
+
+            outfile.write("\t".join(cols) + "\n")
+
 
 def load_bed_files(bed_folder, chrom):
     """
@@ -90,6 +106,13 @@ def main():
         help="Chromosome to filter BED files by (e.g., chr12)."
     )
     parser.add_argument(
+        "--format",
+        choices=["bed", "bedpe"],
+        required=True,
+        help="Input file format: bed or bedpe"
+)
+
+    parser.add_argument(
         "-o", "--output",
         required=True,
         help="Output folder for processed BEDPE files."
@@ -118,7 +141,8 @@ def main():
             input_path = os.path.join(sv_beds_folder, filename)
             output_path = os.path.join(output_folder, filename)
 
-            process_bedpe_file(input_path, asat_dict,output_path)
+            process_bed_file(input_path, asat_dict, output_path, args.format)
+
 
 if __name__ == "__main__":
     main()
