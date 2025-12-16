@@ -9,12 +9,7 @@ import os
 def process_bed_file(input_path, asat_dict, output_path, fmt):
     """
     Convert coordinates in BED or BEDPE files while preserving all columns.
-
-    BED:
-      cols[0], cols[1], cols[2]
-
-    BEDPE:
-      cols[0], cols[1], cols[2], cols[3], cols[4], cols[5]
+    Replace contig names with contigs from asat BEDs.
     """
 
     with open(input_path, "r") as infile, open(output_path, "w") as outfile:
@@ -30,9 +25,15 @@ def process_bed_file(input_path, asat_dict, output_path, fmt):
                     raise ValueError(f"Invalid BED line (<3 columns): {raw_line}")
 
                 smp = cols[0]
-                offset = int(asat_dict[smp][1])
-                cols[1] = str(int(cols[1]) + offset)
-                cols[2] = str(int(cols[2]) + offset)
+
+                asat_contig, asat_start = asat_dict[smp][0], int(asat_dict[smp][1])
+
+                # replace contig
+                cols[0] = asat_contig
+
+                # shift coordinates
+                cols[1] = str(int(cols[1]) + asat_start)
+                cols[2] = str(int(cols[2]) + asat_start)
 
             elif fmt == "bedpe":
                 if len(cols) < 6:
@@ -41,13 +42,18 @@ def process_bed_file(input_path, asat_dict, output_path, fmt):
                 smp1 = cols[0]
                 smp2 = cols[3]
 
-                offset1 = int(asat_dict[smp1][1])
-                offset2 = int(asat_dict[smp2][1])
+                contig1, start1 = asat_dict[smp1][0], int(asat_dict[smp1][1])
+                contig2, start2 = asat_dict[smp2][0], int(asat_dict[smp2][1])
 
-                cols[1] = str(int(cols[1]) + offset1)
-                cols[2] = str(int(cols[2]) + offset1)
-                cols[4] = str(int(cols[4]) + offset2)
-                cols[5] = str(int(cols[5]) + offset2)
+                # replace contigs
+                cols[0] = contig1
+                cols[3] = contig2
+
+                # shift coordinates
+                cols[1] = str(int(cols[1]) + start1)
+                cols[2] = str(int(cols[2]) + start1)
+                cols[4] = str(int(cols[4]) + start2)
+                cols[5] = str(int(cols[5]) + start2)
 
             outfile.write("\t".join(cols) + "\n")
 

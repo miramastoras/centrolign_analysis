@@ -153,7 +153,7 @@ plt.title("Per-base alignment proportion across samples")
 plt.tight_layout()
 
 # ---- SAVE THE FIGURE ----
-output_file = "/private/groups/patenlab/mira/centrolign/github/centrolign_analysis/analysis_notes/release2_QC_v2/notebooks/alignment_proportion_plot.png"
+output_file = "/private/groups/patenlab/mira/centrolign/github/centrolign_analysis/analysis_notes/release2_QC_v2/plots/alignment_proportion_plot.png"
 plt.savefig(output_file, dpi=300)
 print("Saved plot to:", output_file)
 
