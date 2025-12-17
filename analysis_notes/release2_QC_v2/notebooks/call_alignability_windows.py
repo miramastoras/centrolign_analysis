@@ -8,13 +8,59 @@ This script
 import os
 import pandas as pd
 import matplotlib.pyplot as plt
-import numpy as np
 import glob
 import re
 from collections import defaultdict
 import matplotlib.pyplot as plt
 import matplotlib.cm as cm
 import numpy as np
+
+import argparse
+
+def parse_args():
+    parser = argparse.ArgumentParser(
+        description="Compute windowed alignment proportions from pairwise CIGAR files"
+    )
+
+    parser.add_argument(
+        "--cigar-path",
+        required=True,
+        help="Directory containing pairwise CIGAR files"
+    )
+
+    parser.add_argument(
+        "--fai",
+        required=True,
+        help="FASTA index (.fai) file for reference lengths"
+    )
+
+    parser.add_argument(
+        "--distance-csv",
+        required=True,
+        help="CSV file containing pairwise sample distances"
+    )
+
+    parser.add_argument(
+        "--distance-threshold",
+        type=float,
+        default=0.4,
+        help="Maximum pairwise distance to include (default: 0.4)"
+    )
+
+    parser.add_argument(
+        "--window-size",
+        type=int,
+        default=50,
+        help="Window size in reference bases (default: 50)"
+    )
+
+    parser.add_argument(
+        "--outdir",
+        required=True,
+        help="Output directory for BED files"
+    )
+
+    return parser.parse_args()
 
 
 ## Functions to parse cigar, and reverse cigar
@@ -100,8 +146,16 @@ def windowed_alignment_proportion(cigars, win, ref_len):
 
 
 def main():
-    cigar_path="/private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2_QC_v2/MSA/chr11/subgroup_C/induced_pairwise_cigars/"
-    fai="/private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2_QC_v2/split_nj_trees/chr11/combine_final_subgroups/chr11.subgroup_C.fasta.fai"
+    args = parse_args()
+
+    cigar_path = args.cigar_path
+    fai = args.fai
+    DISTANCE_CSV = args.distance_csv
+    DISTANCE_THRESHOLD = args.distance_threshold
+    WINDOW_SIZE = args.window_size
+    outdir = args.outdir
+
+    os.makedirs(outdir, exist_ok=True)
 
     # Parse fai file into a dataframe of sample, asat length
     smp_lengths = pd.read_csv(
@@ -111,12 +165,6 @@ def main():
         usecols=[0, 1],       # only contig and length
         names=["sample", "length"]
     )
-
-
-    WINDOW_SIZE = 50  # change as needed
-    outdir = "/private/groups/patenlab/mira/windowed_alignment_beds"
-    os.makedirs(outdir, exist_ok=True)
-
 
     # get list of cigar strings for chr 11 subgroup C 
     cigar_files = [os.path.join(cigar_path, f) for f in os.listdir(cigar_path) if f.startswith("pairwise_cigar")]
@@ -129,6 +177,21 @@ def main():
     # Convert sample lengths to dict for fast lookup
     sample_len_dict = dict(zip(smp_lengths["sample"], smp_lengths["length"]))
 
+
+    # Load sample pair distances (symmetric)
+    dist_df = pd.read_csv(
+        DISTANCE_CSV,
+        header=None,
+        names=["sample1", "sample2", "distance"],
+        sep=","
+    )
+
+    # Use sorted tuple so (A,B) == (B,A)
+    distance_dict = {
+        tuple(sorted((row.sample1, row.sample2))): row.distance
+        for _, row in dist_df.iterrows()
+    }
+
     proportions=[]
 
     for sample in sample_list:
@@ -139,8 +202,20 @@ def main():
         sample_cigars = []
 
         for pair in pairs:
+            
+            # Look up symmetric distance
+            pair_key = tuple(sorted(pair))
 
-            if pair not in existing_cigar_sample_map: # if required pair ordering doesn't exist, we need to reverse the cigar so sample is ref
+            # Skip if distance not available
+            if pair_key not in distance_dict:
+                continue
+
+            # Skip samples pairs > dist threshold
+            if distance_dict[pair_key] >= DISTANCE_THRESHOLD:
+                continue
+
+            # if required pair ordering doesn't exist, we need to reverse the cigar so sample is ref
+            if pair not in existing_cigar_sample_map: 
                 rev_pair = (pair[1], pair[0])
 
                 assert rev_pair in existing_cigar_sample_map, f"{rev_pair} not in map!" # if reverse cigar doesn't exit, throw error
@@ -152,6 +227,13 @@ def main():
                     direct_cigar = parse_cigar(f.read())
 
             sample_cigars.append(direct_cigar)
+
+        n_pairs = len(sample_cigars)
+
+        # if sample doesn't have any other pairs below threshold, skip it
+        if len(sample_cigars) == 0:
+            print(f"Skipping {sample}: no pairs below distance threshold")
+            continue
 
         # -----------------------------
         # Compute windowed proportions
@@ -171,9 +253,11 @@ def main():
             for i, prop in enumerate(window_props):
                 start = i * WINDOW_SIZE
                 end = min((i + 1) * WINDOW_SIZE, ref_len)
-                out.write(f"{sample}\t{start}\t{end}\t{prop:.6f}\n")
+                out.write(
+                    f"{sample}\t{start}\t{end}\t{prop:.6f}\t{n_pairs}\n"
+                )
 
-        print(f"Wrote {bed_path}")
+        print(f"Wrote {bed_path} (n_pairs={n_pairs})")
 
 
 if __name__ == '__main__':
