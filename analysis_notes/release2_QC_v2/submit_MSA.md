@@ -1118,6 +1118,7 @@ time /private/home/mmastora/progs/centrolign/build/centrolign -v 4 \
   > /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2_QC_v2/MSA/chr20/chr20.centrolign.gfa
 ```
 
+
 ### Chr 1
 
 Working directory:
