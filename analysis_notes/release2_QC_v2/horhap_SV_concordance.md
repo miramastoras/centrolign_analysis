@@ -250,6 +250,7 @@ python3 /private/groups/patenlab/mira/centrolign/github/centrolign_analysis/scri
 
 #### Implementing windows of 100bp and 1000 bp for all cenhap 4 samples, calculating ratio of concordance
 
+
 ```sh
 #!/bin/bash
 #SBATCH --job-name=horhap_SV_concordance
@@ -269,7 +270,7 @@ conda activate base
 OUTDIR=/private/groups/patenlab/mira/centrolign/analysis/horhap_SV_concordance/chr12/cenhap4/
 mkdir -p $OUTDIR
 
-HORHAP_BED_DIR=/private/groups/patenlab/mira/centrolign/analysis/SVs_pairwise/chr12/cenHap4_benchmarking_HorHaps/fedor_horHap_SV_beds
+HORHAP_BEDPE_DIR=/private/groups/patenlab/mira/centrolign/analysis/SVs_pairwise/chr12/cenHap4_benchmarking_HorHaps/fedor_horHap_SV_beds
 CENTROLIGN_BEDS=/private/groups/patenlab/mira/centrolign/analysis/SVs_pairwise/chr12/cenHap4_benchmarking_HorHaps/SV_beds_asm_coords
 
 cd ${CENTROLIGN_BEDS}
@@ -284,29 +285,37 @@ ls *.bed | while read -r bed ; do
   QUERY_SMP=`echo $bed | basename $bed | cut -f2 -d"_" | cut -f1-2 -d"."`
 
   # make sure horhap bed exists for the pair, and figure out which is ref and which is query
-  REV="${HORHAP_BED_DIR}/${QUERY_SMP}_${REF_SMP}.bed"
-  MATCH="${HORHAP_BED_DIR}/${bed}"
+  REV="${HORHAP_BEDPE_DIR}/${QUERY_SMP}_${REF_SMP}.bed"
+  MATCH="${HORHAP_BEDPE_DIR}/${bed}"
 
   if [[ -f "$MATCH" ]]; then
-        HORHAP_BED="$MATCH"
+        HORHAP_BEDPE="$MATCH"
     elif [[ -f "$REV" ]]; then
-        HORHAP_BED="$REV"
+        HORHAP_BEDPE="$REV"
     else
         echo "Skipping ${REF_SMP}, ${QUERY_SMP}, missing beds"
         continue
     fi
 
-  # subset centrolign bed to just triangles
+  # convert centrolign and horhap bed into bed pe files
+  CEN_BEDPE=${LOCAL_FOLDER}/${REF_SMP}_${QUERY_SMP}.triangles.bedpe
+  awk '$8 == -1' $bed > $CEN_BEDPE
+
   CEN_BED=${LOCAL_FOLDER}/${REF_SMP}_${QUERY_SMP}.triangles.bed
-  awk '$5 == -1' $bed > $CEN_BED
+  grep "I" ${CEN_BEDPE} | cut -f 4,5,6 > $CEN_BED
+  grep "D" ${CEN_BEDPE} | cut -f 1,2,3 >> $CEN_BED
+
+  HORHAP_BED=${LOCAL_FOLDER}/${REF_SMP}_${QUERY_SMP}.horhap.bed
+  grep "I" ${HORHAP_BEDPE} | cut -f 4,5,6 > $HORHAP_BED
+  grep "D" ${HORHAP_BEDPE} | cut -f 1,2,3 >> $HORHAP_BED
 
   ### Create 100bp windows around both sets of SVs ###
   # Separate centrolign SVs by insertions and deletions, add 100 bp slop
-  grep "I" ${CEN_BED} | cut -f 4,5,6 | awk -v OFS="\t" '{print $1,$2-100,$3+100}' > ${LOCAL_FOLDER}/${REF_SMP}_${QUERY_SMP}.100bp.bed
-  grep "D" ${CEN_BED} | cut -f 1,2,3 | awk -v OFS="\t" '{print $1,$2-100,$3+100}' >> ${LOCAL_FOLDER}/${REF_SMP}_${QUERY_SMP}.100bp.bed
+  grep "I" ${CEN_BEDPE} | cut -f 4,5,6 | awk -v OFS="\t" '{print $1,$2-100,$3+100}' > ${LOCAL_FOLDER}/${REF_SMP}_${QUERY_SMP}.100bp.bed
+  grep "D" ${CEN_BEDPE} | cut -f 1,2,3 | awk -v OFS="\t" '{print $1,$2-100,$3+100}' >> ${LOCAL_FOLDER}/${REF_SMP}_${QUERY_SMP}.100bp.bed
 
-  grep "I" ${HORHAP_BED} | cut -f 4,5,6 | awk -v OFS="\t" '{print $1,$2-100,$3+100}' >> ${LOCAL_FOLDER}/${REF_SMP}_${QUERY_SMP}.100bp.bed
-  grep "D" ${HORHAP_BED} | cut -f 1,2,3 | awk -v OFS="\t" '{print $1,$2-100,$3+100}' >> ${LOCAL_FOLDER}/${REF_SMP}_${QUERY_SMP}.100bp.bed
+  grep "I" ${HORHAP_BEDPE} | cut -f 4,5,6 | awk -v OFS="\t" '{print $1,$2-100,$3+100}' >> ${LOCAL_FOLDER}/${REF_SMP}_${QUERY_SMP}.100bp.bed
+  grep "D" ${HORHAP_BEDPE} | cut -f 1,2,3 | awk -v OFS="\t" '{print $1,$2-100,$3+100}' >> ${LOCAL_FOLDER}/${REF_SMP}_${QUERY_SMP}.100bp.bed
 
   # Merge windows for horhap and centrolign SVs
   bedtools sort -i ${LOCAL_FOLDER}/${REF_SMP}_${QUERY_SMP}.100bp.bed | bedtools merge -i - > ${LOCAL_FOLDER}/${REF_SMP}_${QUERY_SMP}.100bp.windows.bed
@@ -329,6 +338,287 @@ ls *.bed | while read -r bed ; do
   cut -f5 ${LOCAL_FOLDER}/${REF_SMP}_${QUERY_SMP}.horhap_cov.bed > ${LOCAL_FOLDER}/${REF_SMP}_${QUERY_SMP}.horhap_counts.bed
 
   paste -d"\t" ${LOCAL_FOLDER}/${REF_SMP}_${QUERY_SMP}.centrolign_counts.bed ${LOCAL_FOLDER}/${REF_SMP}_${QUERY_SMP}.horhap_counts.bed > ${OUTDIR}/${REF_SMP}_${QUERY_SMP}.triangles.100bp.bed
+done
+
+rm -rf ${LOCAL_FOLDER}/
+```
+
+100 bp, all SVs
+```sh
+#!/bin/bash
+#SBATCH --job-name=horhap_SV_concordance_all_svs_100bp
+#SBATCH --partition=medium
+#SBATCH --mail-user=mmastora@ucsc.edu
+#SBATCH --mail-type=END
+#SBATCH --nodes=1
+#SBATCH --mem=50gb
+#SBATCH --ntasks=1
+#SBATCH --cpus-per-task=1
+#SBATCH --output=logs/call_SVs_%x.%j.log
+#SBATCH --time=12:00:00
+
+source /private/home/mmastora/miniconda3/etc/profile.d/conda.sh
+conda activate base
+
+OUTDIR=/private/groups/patenlab/mira/centrolign/analysis/horhap_SV_concordance/chr12/cenhap4/
+mkdir -p $OUTDIR
+
+HORHAP_BEDPE_DIR=/private/groups/patenlab/mira/centrolign/analysis/SVs_pairwise/chr12/cenHap4_benchmarking_HorHaps/fedor_horHap_SV_beds
+CENTROLIGN_BEDS=/private/groups/patenlab/mira/centrolign/analysis/SVs_pairwise/chr12/cenHap4_benchmarking_HorHaps/SV_beds_asm_coords
+
+cd ${CENTROLIGN_BEDS}
+
+LOCAL_FOLDER=/data/tmp/$(whoami)/chr12_cenhap4_all_SVs_100bp/
+mkdir -p ${LOCAL_FOLDER}
+
+ls *.bed | while read -r bed ; do
+
+  # for each bed get ref and query sample ID
+  REF_SMP=`echo $bed | basename $bed | cut -f1 -d"_"`
+  QUERY_SMP=`echo $bed | basename $bed | cut -f2 -d"_" | cut -f1-2 -d"."`
+
+  # make sure horhap bed exists for the pair, and figure out which is ref and which is query
+  REV="${HORHAP_BEDPE_DIR}/${QUERY_SMP}_${REF_SMP}.bed"
+  MATCH="${HORHAP_BEDPE_DIR}/${bed}"
+
+  if [[ -f "$MATCH" ]]; then
+        HORHAP_BEDPE="$MATCH"
+    elif [[ -f "$REV" ]]; then
+        HORHAP_BEDPE="$REV"
+    else
+        echo "Skipping ${REF_SMP}, ${QUERY_SMP}, missing beds"
+        continue
+    fi
+
+  # use all SVs, not just triangles
+  # convert cenbed to bed pe
+  CEN_BEDPE=${LOCAL_FOLDER}/${REF_SMP}_${QUERY_SMP}.all_SVs.bedpe
+  cp $bed $CEN_BEDPE
+
+  CEN_BED=${LOCAL_FOLDER}/${REF_SMP}_${QUERY_SMP}.all_SVs.bed
+  grep "I" ${CEN_BEDPE} | cut -f 4,5,6 > $CEN_BED
+  grep "D" ${CEN_BEDPE} | cut -f 1,2,3 >> $CEN_BED
+
+  HORHAP_BED=${LOCAL_FOLDER}/${REF_SMP}_${QUERY_SMP}.horhap.bed
+  grep "I" ${HORHAP_BEDPE} | cut -f 4,5,6 > $HORHAP_BED
+  grep "D" ${HORHAP_BEDPE} | cut -f 1,2,3 >> $HORHAP_BED
+
+  ### Create 100bp windows around both sets of SVs ###
+  # Separate centrolign SVs by insertions and deletions, add 100 bp slop
+  grep "I" ${CEN_BEDPE} | cut -f 4,5,6 | awk -v OFS="\t" '{print $1,$2-100,$3+100}' > ${LOCAL_FOLDER}/${REF_SMP}_${QUERY_SMP}.100bp.bed
+  grep "D" ${CEN_BEDPE} | cut -f 1,2,3 | awk -v OFS="\t" '{print $1,$2-100,$3+100}' >> ${LOCAL_FOLDER}/${REF_SMP}_${QUERY_SMP}.100bp.bed
+
+  grep "I" ${HORHAP_BEDPE} | cut -f 4,5,6 | awk -v OFS="\t" '{print $1,$2-100,$3+100}' >> ${LOCAL_FOLDER}/${REF_SMP}_${QUERY_SMP}.100bp.bed
+  grep "D" ${HORHAP_BEDPE} | cut -f 1,2,3 | awk -v OFS="\t" '{print $1,$2-100,$3+100}' >> ${LOCAL_FOLDER}/${REF_SMP}_${QUERY_SMP}.100bp.bed
+
+  # Merge windows for horhap and centrolign SVs
+  bedtools sort -i ${LOCAL_FOLDER}/${REF_SMP}_${QUERY_SMP}.100bp.bed | bedtools merge -i - > ${LOCAL_FOLDER}/${REF_SMP}_${QUERY_SMP}.100bp.windows.bed
+
+  # Use bedtools coverage to calculate the number of bases in each window
+  bedtools coverage \
+    -a ${LOCAL_FOLDER}/${REF_SMP}_${QUERY_SMP}.100bp.windows.bed \
+    -b ${CEN_BED} \
+    > ${LOCAL_FOLDER}/${REF_SMP}_${QUERY_SMP}.centrolign_cov.bed
+
+  # Use bedtools coverage to calculate the number of bases in each window
+  bedtools coverage \
+    -a ${LOCAL_FOLDER}/${REF_SMP}_${QUERY_SMP}.100bp.windows.bed \
+    -b ${HORHAP_BED} \
+    > ${LOCAL_FOLDER}/${REF_SMP}_${QUERY_SMP}.horhap_cov.bed
+
+  # Combine coverage columns
+  cut -f1-3,5 ${LOCAL_FOLDER}/${REF_SMP}_${QUERY_SMP}.centrolign_cov.bed > ${LOCAL_FOLDER}/${REF_SMP}_${QUERY_SMP}.centrolign_counts.bed
+
+  cut -f5 ${LOCAL_FOLDER}/${REF_SMP}_${QUERY_SMP}.horhap_cov.bed > ${LOCAL_FOLDER}/${REF_SMP}_${QUERY_SMP}.horhap_counts.bed
+
+  paste -d"\t" ${LOCAL_FOLDER}/${REF_SMP}_${QUERY_SMP}.centrolign_counts.bed ${LOCAL_FOLDER}/${REF_SMP}_${QUERY_SMP}.horhap_counts.bed > ${OUTDIR}/${REF_SMP}_${QUERY_SMP}.all_SVs.100bp.bed
+done
+
+rm -rf ${LOCAL_FOLDER}/
+```
+
+1000 bp
+```sh
+#!/bin/bash
+#SBATCH --job-name=horhap_SV_concordance_1kb
+#SBATCH --partition=medium
+#SBATCH --mail-user=mmastora@ucsc.edu
+#SBATCH --mail-type=END
+#SBATCH --nodes=1
+#SBATCH --mem=50gb
+#SBATCH --ntasks=1
+#SBATCH --cpus-per-task=1
+#SBATCH --output=logs/call_SVs_%x.%j.log
+#SBATCH --time=12:00:00
+
+source /private/home/mmastora/miniconda3/etc/profile.d/conda.sh
+conda activate base
+
+OUTDIR=/private/groups/patenlab/mira/centrolign/analysis/horhap_SV_concordance/chr12/cenhap4/
+mkdir -p $OUTDIR
+
+HORHAP_BEDPE_DIR=/private/groups/patenlab/mira/centrolign/analysis/SVs_pairwise/chr12/cenHap4_benchmarking_HorHaps/fedor_horHap_SV_beds
+CENTROLIGN_BEDS=/private/groups/patenlab/mira/centrolign/analysis/SVs_pairwise/chr12/cenHap4_benchmarking_HorHaps/SV_beds_asm_coords
+
+cd ${CENTROLIGN_BEDS}
+
+LOCAL_FOLDER=/data/tmp/$(whoami)/chr12_cenhap4_1000bp/
+mkdir -p ${LOCAL_FOLDER}
+
+ls *.bed | while read -r bed ; do
+
+  # for each bed get ref and query sample ID
+  REF_SMP=`echo $bed | basename $bed | cut -f1 -d"_"`
+  QUERY_SMP=`echo $bed | basename $bed | cut -f2 -d"_" | cut -f1-2 -d"."`
+
+  # make sure horhap bed exists for the pair, and figure out which is ref and which is query
+  REV="${HORHAP_BEDPE_DIR}/${QUERY_SMP}_${REF_SMP}.bed"
+  MATCH="${HORHAP_BEDPE_DIR}/${bed}"
+
+  if [[ -f "$MATCH" ]]; then
+        HORHAP_BEDPE="$MATCH"
+    elif [[ -f "$REV" ]]; then
+        HORHAP_BEDPE="$REV"
+    else
+        echo "Skipping ${REF_SMP}, ${QUERY_SMP}, missing beds"
+        continue
+    fi
+
+  # convert centrolign and horhap bed into bed pe files
+  CEN_BEDPE=${LOCAL_FOLDER}/${REF_SMP}_${QUERY_SMP}.triangles.bedpe
+  awk '$8 == -1' $bed > $CEN_BEDPE
+
+  CEN_BED=${LOCAL_FOLDER}/${REF_SMP}_${QUERY_SMP}.triangles.bed
+  grep "I" ${CEN_BEDPE} | cut -f 4,5,6 > $CEN_BED
+  grep "D" ${CEN_BEDPE} | cut -f 1,2,3 >> $CEN_BED
+
+  HORHAP_BED=${LOCAL_FOLDER}/${REF_SMP}_${QUERY_SMP}.horhap.bed
+  grep "I" ${HORHAP_BEDPE} | cut -f 4,5,6 > $HORHAP_BED
+  grep "D" ${HORHAP_BEDPE} | cut -f 1,2,3 >> $HORHAP_BED
+
+  ### Create 1000bp windows around both sets of SVs ###
+  # Separate centrolign SVs by insertions and deletions, add 1000 bp slop
+  grep "I" ${CEN_BEDPE} | cut -f 4,5,6 | awk -v OFS="\t" '{print $1,$2-1000,$3+1000}' > ${LOCAL_FOLDER}/${REF_SMP}_${QUERY_SMP}.1000bp.bed
+  grep "D" ${CEN_BEDPE} | cut -f 1,2,3 | awk -v OFS="\t" '{print $1,$2-1000,$3+1000}' >> ${LOCAL_FOLDER}/${REF_SMP}_${QUERY_SMP}.1000bp.bed
+
+  grep "I" ${HORHAP_BEDPE} | cut -f 4,5,6 | awk -v OFS="\t" '{print $1,$2-1000,$3+1000}' >> ${LOCAL_FOLDER}/${REF_SMP}_${QUERY_SMP}.1000bp.bed
+  grep "D" ${HORHAP_BEDPE} | cut -f 1,2,3 | awk -v OFS="\t" '{print $1,$2-1000,$3+1000}' >> ${LOCAL_FOLDER}/${REF_SMP}_${QUERY_SMP}.1000bp.bed
+
+  # Merge windows for horhap and centrolign SVs
+  bedtools sort -i ${LOCAL_FOLDER}/${REF_SMP}_${QUERY_SMP}.1000bp.bed | bedtools merge -i - > ${LOCAL_FOLDER}/${REF_SMP}_${QUERY_SMP}.1000bp.windows.bed
+
+  # Use bedtools coverage to calculate the number of bases in each window
+  bedtools coverage \
+    -a ${LOCAL_FOLDER}/${REF_SMP}_${QUERY_SMP}.1000bp.windows.bed \
+    -b ${CEN_BED} \
+    > ${LOCAL_FOLDER}/${REF_SMP}_${QUERY_SMP}.centrolign_cov.bed
+
+  # Use bedtools coverage to calculate the number of bases in each window
+  bedtools coverage \
+    -a ${LOCAL_FOLDER}/${REF_SMP}_${QUERY_SMP}.1000bp.windows.bed \
+    -b ${HORHAP_BED} \
+    > ${LOCAL_FOLDER}/${REF_SMP}_${QUERY_SMP}.horhap_cov.bed
+
+  # Combine coverage columns
+  cut -f1-3,5 ${LOCAL_FOLDER}/${REF_SMP}_${QUERY_SMP}.centrolign_cov.bed > ${LOCAL_FOLDER}/${REF_SMP}_${QUERY_SMP}.centrolign_counts.bed
+
+  cut -f5 ${LOCAL_FOLDER}/${REF_SMP}_${QUERY_SMP}.horhap_cov.bed > ${LOCAL_FOLDER}/${REF_SMP}_${QUERY_SMP}.horhap_counts.bed
+
+  paste -d"\t" ${LOCAL_FOLDER}/${REF_SMP}_${QUERY_SMP}.centrolign_counts.bed ${LOCAL_FOLDER}/${REF_SMP}_${QUERY_SMP}.horhap_counts.bed > ${OUTDIR}/${REF_SMP}_${QUERY_SMP}.triangles.1000bp.bed
+done
+
+rm -rf ${LOCAL_FOLDER}/
+```
+
+1000 bp, all SVs
+```sh
+#!/bin/bash
+#SBATCH --job-name=horhap_SV_concordance_1kb_all_SVs
+#SBATCH --partition=medium
+#SBATCH --mail-user=mmastora@ucsc.edu
+#SBATCH --mail-type=END
+#SBATCH --nodes=1
+#SBATCH --mem=50gb
+#SBATCH --ntasks=1
+#SBATCH --cpus-per-task=1
+#SBATCH --output=logs/call_SVs_%x.%j.log
+#SBATCH --time=12:00:00
+
+source /private/home/mmastora/miniconda3/etc/profile.d/conda.sh
+conda activate base
+
+OUTDIR=/private/groups/patenlab/mira/centrolign/analysis/horhap_SV_concordance/chr12/cenhap4/
+mkdir -p $OUTDIR
+
+HORHAP_BEDPE_DIR=/private/groups/patenlab/mira/centrolign/analysis/SVs_pairwise/chr12/cenHap4_benchmarking_HorHaps/fedor_horHap_SV_beds
+CENTROLIGN_BEDS=/private/groups/patenlab/mira/centrolign/analysis/SVs_pairwise/chr12/cenHap4_benchmarking_HorHaps/SV_beds_asm_coords
+
+cd ${CENTROLIGN_BEDS}
+
+LOCAL_FOLDER=/data/tmp/$(whoami)/chr12_cenhap4_1000bp_all_SVs/
+mkdir -p ${LOCAL_FOLDER}
+
+ls *.bed | while read -r bed ; do
+
+  # for each bed get ref and query sample ID
+  REF_SMP=`echo $bed | basename $bed | cut -f1 -d"_"`
+  QUERY_SMP=`echo $bed | basename $bed | cut -f2 -d"_" | cut -f1-2 -d"."`
+
+  # make sure horhap bed exists for the pair, and figure out which is ref and which is query
+  REV="${HORHAP_BEDPE_DIR}/${QUERY_SMP}_${REF_SMP}.bed"
+  MATCH="${HORHAP_BEDPE_DIR}/${bed}"
+
+  if [[ -f "$MATCH" ]]; then
+        HORHAP_BEDPE="$MATCH"
+    elif [[ -f "$REV" ]]; then
+        HORHAP_BEDPE="$REV"
+    else
+        echo "Skipping ${REF_SMP}, ${QUERY_SMP}, missing beds"
+        continue
+    fi
+
+  # use all SVs, not just triangles
+  # convert cenbed to bed pe
+  CEN_BEDPE=${LOCAL_FOLDER}/${REF_SMP}_${QUERY_SMP}.all_SVs.bedpe
+  cp $bed $CEN_BEDPE
+
+  CEN_BED=${LOCAL_FOLDER}/${REF_SMP}_${QUERY_SMP}.all_SVs.bed
+  grep "I" ${CEN_BEDPE} | cut -f 4,5,6 > $CEN_BED
+  grep "D" ${CEN_BEDPE} | cut -f 1,2,3 >> $CEN_BED
+
+  HORHAP_BED=${LOCAL_FOLDER}/${REF_SMP}_${QUERY_SMP}.horhap.bed
+  grep "I" ${HORHAP_BEDPE} | cut -f 4,5,6 > $HORHAP_BED
+  grep "D" ${HORHAP_BEDPE} | cut -f 1,2,3 >> $HORHAP_BED
+
+  ### Create 1000bp windows around both sets of SVs ###
+  # Separate centrolign SVs by insertions and deletions, add 1000 bp slop
+  grep "I" ${CEN_BEDPE} | cut -f 4,5,6 | awk -v OFS="\t" '{print $1,$2-1000,$3+1000}' > ${LOCAL_FOLDER}/${REF_SMP}_${QUERY_SMP}.1000bp.bed
+  grep "D" ${CEN_BEDPE} | cut -f 1,2,3 | awk -v OFS="\t" '{print $1,$2-1000,$3+1000}' >> ${LOCAL_FOLDER}/${REF_SMP}_${QUERY_SMP}.1000bp.bed
+
+  grep "I" ${HORHAP_BEDPE} | cut -f 4,5,6 | awk -v OFS="\t" '{print $1,$2-1000,$3+1000}' >> ${LOCAL_FOLDER}/${REF_SMP}_${QUERY_SMP}.1000bp.bed
+  grep "D" ${HORHAP_BEDPE} | cut -f 1,2,3 | awk -v OFS="\t" '{print $1,$2-1000,$3+1000}' >> ${LOCAL_FOLDER}/${REF_SMP}_${QUERY_SMP}.1000bp.bed
+
+  # Merge windows for horhap and centrolign SVs
+  bedtools sort -i ${LOCAL_FOLDER}/${REF_SMP}_${QUERY_SMP}.1000bp.bed | bedtools merge -i - > ${LOCAL_FOLDER}/${REF_SMP}_${QUERY_SMP}.1000bp.windows.bed
+
+  # Use bedtools coverage to calculate the number of bases in each window
+  bedtools coverage \
+    -a ${LOCAL_FOLDER}/${REF_SMP}_${QUERY_SMP}.1000bp.windows.bed \
+    -b ${CEN_BED} \
+    > ${LOCAL_FOLDER}/${REF_SMP}_${QUERY_SMP}.centrolign_cov.bed
+
+  # Use bedtools coverage to calculate the number of bases in each window
+  bedtools coverage \
+    -a ${LOCAL_FOLDER}/${REF_SMP}_${QUERY_SMP}.1000bp.windows.bed \
+    -b ${HORHAP_BED} \
+    > ${LOCAL_FOLDER}/${REF_SMP}_${QUERY_SMP}.horhap_cov.bed
+
+  # Combine coverage columns
+  cut -f1-3,5 ${LOCAL_FOLDER}/${REF_SMP}_${QUERY_SMP}.centrolign_cov.bed > ${LOCAL_FOLDER}/${REF_SMP}_${QUERY_SMP}.centrolign_counts.bed
+
+  cut -f5 ${LOCAL_FOLDER}/${REF_SMP}_${QUERY_SMP}.horhap_cov.bed > ${LOCAL_FOLDER}/${REF_SMP}_${QUERY_SMP}.horhap_counts.bed
+
+  paste -d"\t" ${LOCAL_FOLDER}/${REF_SMP}_${QUERY_SMP}.centrolign_counts.bed ${LOCAL_FOLDER}/${REF_SMP}_${QUERY_SMP}.horhap_counts.bed > ${OUTDIR}/${REF_SMP}_${QUERY_SMP}.all_SVs.1000bp.bed
 done
 
 rm -rf ${LOCAL_FOLDER}/

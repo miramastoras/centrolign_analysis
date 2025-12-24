@@ -140,13 +140,13 @@ chromosomes=("chr1" "chr2" "chr3" "chr4" "chr5" "chr6" "chr7" "chr8" "chr9" "chr
 
 chr=${chromosomes[$SLURM_ARRAY_TASK_ID]}
 
-WINDOWSIZE="10kb"
+WINDOWSIZE="100kb"
 
 grep "release 2 QC v2" /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2_QC_v2/MSA/centrolign_results.csv | grep -v "chr20," | grep -E "${chr},|${chr}_" | cut -f1,8,10 -d","  | while IFS=',' read -r subgroup fasta cigar ; do
 
     LOCAL_FOLDER=/data/tmp/$(whoami)/${chr}_${subgroup}_tmp/
     mkdir -p ${LOCAL_FOLDER}
-    mkdir -p /private/groups/patenlab/mira/centrolign/analysis/variant_dist_CDR/SVs_induced_pairwise/${chr}/
+    mkdir -p /private/groups/patenlab/mira/centrolign/analysis/variant_dist_CDR/SVs_induced_pairwise/${WINDOWSIZE}/${chr}/
 
     cd /private/groups/patenlab/mira/centrolign/analysis/SVs_pairwise_asm_coords/${chr}/SV_beds/${subgroup}/
     ls *.bed | while read -r bed ; do
@@ -158,13 +158,18 @@ grep "release 2 QC v2" /private/groups/patenlab/mira/centrolign/batch_submission
         cut -f1-3,7,8 $bed > ${LOCAL_FOLDER}/${REF_SMP}_${QUERY_SMP}.all_SVs.bed
         cut -f4-8 $bed >> ${LOCAL_FOLDER}/${REF_SMP}_${QUERY_SMP}.all_SVs.bed
 
+        SMP1_contig=`cut -f1 $bed | sort | uniq`
+        SMP2_contig=`cut -f4 $bed | sort | uniq`
+
         # sep SVs by triangle, trap, parallelogram
         awk '$5 <= 0.1' ${LOCAL_FOLDER}/${REF_SMP}_${QUERY_SMP}.all_SVs.bed |  awk '$5 >= 0' > ${LOCAL_FOLDER}/${REF_SMP}_${QUERY_SMP}.parallelograms.bed
         awk '$5 > 0.1' ${LOCAL_FOLDER}/${REF_SMP}_${QUERY_SMP}.all_SVs.bed > ${LOCAL_FOLDER}/${REF_SMP}_${QUERY_SMP}.trapezoids.bed
         awk '$5 == -1' ${LOCAL_FOLDER}/${REF_SMP}_${QUERY_SMP}.all_SVs.bed > ${LOCAL_FOLDER}/${REF_SMP}_${QUERY_SMP}.triangles.bed
 
-        # concatenate window files for both samples
-        cat /private/groups/patenlab/mira/centrolign/analysis/variant_dist_CDR/per_smp_asat_beds_windows/${WINDOWSIZE}/${REF_SMP}_asat_arrays.bed /private/groups/patenlab/mira/centrolign/analysis/variant_dist_CDR/per_smp_asat_beds_windows/${WINDOWSIZE}/${QUERY_SMP}_asat_arrays.bed >> ${LOCAL_FOLDER}/${REF_SMP}_${QUERY_SMP}.w${WINDOWSIZE}.bed
+        # concatenate window files for both samples, restricting just to contigs for this chrom
+        grep $SMP1_contig /private/groups/patenlab/mira/centrolign/analysis/variant_dist_CDR/per_smp_asat_beds_windows/${WINDOWSIZE}/${REF_SMP}_asat_arrays.bed > ${LOCAL_FOLDER}/${REF_SMP}_${QUERY_SMP}.w${WINDOWSIZE}.bed
+
+        grep $SMP2_contig /private/groups/patenlab/mira/centrolign/analysis/variant_dist_CDR/per_smp_asat_beds_windows/${WINDOWSIZE}/${QUERY_SMP}_asat_arrays.bed >> ${LOCAL_FOLDER}/${REF_SMP}_${QUERY_SMP}.w${WINDOWSIZE}.bed
 
         # Use bedtools coverage to calculate number of SV bases overlapping windows
         bedtools coverage \
@@ -196,7 +201,7 @@ grep "release 2 QC v2" /private/groups/patenlab/mira/centrolign/batch_submission
           -a ${LOCAL_FOLDER}/${REF_SMP}_${QUERY_SMP}.w${WINDOWSIZE}.all_SV_counts.srt.bed \
           -b /private/groups/migalab/jmmenend/HPRC/cenSatProject/CDR_data/${chr}/${chr}.centrodip.bed \
           -D a -t first \
-          > /private/groups/patenlab/mira/centrolign/analysis/variant_dist_CDR/SVs_induced_pairwise/${chr}/${REF_SMP}_${QUERY_SMP}.CDR_dist.bed
+          > /private/groups/patenlab/mira/centrolign/analysis/variant_dist_CDR/SVs_induced_pairwise/${WINDOWSIZE}/${chr}/${REF_SMP}_${QUERY_SMP}.CDR_dist.${WINDOWSIZE}.bed
     done
 
     rm -rf ${LOCAL_FOLDER}
@@ -204,3 +209,105 @@ done
 ```
 
 ### Make sure to get count of SVs / samples excluded because there is no CDR intersection - may need to exclude the entire sample pair?
+
+### Run for short indels
+```sh
+cd /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2_QC_v2/per_smp_asat_beds
+mkdir -p /private/groups/patenlab/mira/centrolign/analysis/variant_dist_CDR/per_smp_asat_beds_windows/100bp/
+mkdir -p /private/groups/patenlab/mira/centrolign/analysis/variant_dist_CDR/per_smp_asat_beds_windows/1kb/
+
+ls *.bed | while read -r bed ; do
+  bedtools makewindows -b ${bed} -w 100 > /private/groups/patenlab/mira/centrolign/analysis/variant_dist_CDR/per_smp_asat_beds_windows/100bp/${bed}
+  bedtools makewindows -b ${bed} -w 1000 > /private/groups/patenlab/mira/centrolign/analysis/variant_dist_CDR/per_smp_asat_beds_windows/1kb/${bed}
+done
+```
+
+```sh
+#!/bin/bash
+#SBATCH --job-name=CDR_dist_short_indel_windows
+#SBATCH --partition=medium
+#SBATCH --mail-user=mmastora@ucsc.edu
+#SBATCH --mail-type=END
+#SBATCH --nodes=1
+#SBATCH --mem=50gb
+#SBATCH --ntasks=1
+#SBATCH --cpus-per-task=1
+#SBATCH --output=logs/call_SVs_%x.%j.log
+#SBATCH --time=12:00:00
+#SBATCH --array=[0-23]%24
+
+# activate environment for bedtools
+source /private/home/mmastora/miniconda3/etc/profile.d/conda.sh
+conda activate base
+
+chromosomes=("chr1" "chr2" "chr3" "chr4" "chr5" "chr6" "chr7" "chr8" "chr9" "chr10" "chr11" "chr12" "chr13" "chr14" "chr15" "chr16" "chr17" "chr18" "chr19" "chr20" "chr21" "chr22" "chrX" "chrY")
+
+chr=${chromosomes[$SLURM_ARRAY_TASK_ID]}
+
+WINDOWSIZE="1kb"
+
+grep "release 2 QC v2" /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2_QC_v2/MSA/centrolign_results.csv | grep -v "chr20," | grep -E "${chr},|${chr}_" | cut -f1,8,10 -d","  | while IFS=',' read -r subgroup fasta cigar ; do
+
+    LOCAL_FOLDER=/data/tmp/$(whoami)/${chr}_${subgroup}_short_indels_tmp/
+    mkdir -p ${LOCAL_FOLDER}
+    mkdir -p /private/groups/patenlab/mira/centrolign/analysis/variant_dist_CDR/short_indels_pairwise/${WINDOWSIZE}/${chr}/
+
+    cd /private/groups/patenlab/mira/centrolign/analysis/short_indels_pairwise/${chr}/short_indel_beds/${subgroup}/
+    ls *.bed | while read -r bed ; do
+        # for each bed get ref and query sample ID
+        REF_SMP=`echo $bed | basename $bed | cut -f1 -d"_"`
+        QUERY_SMP=`echo $bed | basename $bed | cut -f2 -d"_" | cut -f1-2 -d"."`
+
+        # convert bedPE into bed file, containing SV calls for both samples
+        cut -f1-3,7,8 $bed > ${LOCAL_FOLDER}/${REF_SMP}_${QUERY_SMP}.all_indels.bed
+        cut -f4-8 $bed >> ${LOCAL_FOLDER}/${REF_SMP}_${QUERY_SMP}.all_indels.bed
+
+        SMP1_contig=`cut -f1 $bed | sort | uniq`
+        SMP2_contig=`cut -f4 $bed | sort | uniq`
+
+        # sep SVs by triangle, trap, parallelogram
+        awk '$5 <= 0.1' ${LOCAL_FOLDER}/${REF_SMP}_${QUERY_SMP}.all_indels.bed |  awk '$5 >= 0' > ${LOCAL_FOLDER}/${REF_SMP}_${QUERY_SMP}.parallelograms.bed
+        awk '$5 > 0.1' ${LOCAL_FOLDER}/${REF_SMP}_${QUERY_SMP}.all_indels.bed > ${LOCAL_FOLDER}/${REF_SMP}_${QUERY_SMP}.trapezoids.bed
+        awk '$5 == -1' ${LOCAL_FOLDER}/${REF_SMP}_${QUERY_SMP}.all_indels.bed > ${LOCAL_FOLDER}/${REF_SMP}_${QUERY_SMP}.triangles.bed
+
+        # concatenate window files for both samples, restricting just to contigs for this chrom
+        grep $SMP1_contig /private/groups/patenlab/mira/centrolign/analysis/variant_dist_CDR/per_smp_asat_beds_windows/${WINDOWSIZE}/${REF_SMP}_asat_arrays.bed > ${LOCAL_FOLDER}/${REF_SMP}_${QUERY_SMP}.w${WINDOWSIZE}.bed
+
+        grep $SMP2_contig /private/groups/patenlab/mira/centrolign/analysis/variant_dist_CDR/per_smp_asat_beds_windows/${WINDOWSIZE}/${QUERY_SMP}_asat_arrays.bed >> ${LOCAL_FOLDER}/${REF_SMP}_${QUERY_SMP}.w${WINDOWSIZE}.bed
+
+        # Use bedtools coverage to calculate number of SV bases overlapping windows
+        bedtools coverage \
+          -a ${LOCAL_FOLDER}/${REF_SMP}_${QUERY_SMP}.w${WINDOWSIZE}.bed \
+          -b ${LOCAL_FOLDER}/${REF_SMP}_${QUERY_SMP}.parallelograms.bed \
+          > ${LOCAL_FOLDER}/${REF_SMP}_${QUERY_SMP}.w${WINDOWSIZE}.par.bed
+
+        bedtools coverage \
+          -a ${LOCAL_FOLDER}/${REF_SMP}_${QUERY_SMP}.w${WINDOWSIZE}.bed \
+          -b ${LOCAL_FOLDER}/${REF_SMP}_${QUERY_SMP}.trapezoids.bed \
+          > ${LOCAL_FOLDER}/${REF_SMP}_${QUERY_SMP}.w${WINDOWSIZE}.trap.bed
+
+        bedtools coverage \
+          -a ${LOCAL_FOLDER}/${REF_SMP}_${QUERY_SMP}.w${WINDOWSIZE}.bed \
+          -b ${LOCAL_FOLDER}/${REF_SMP}_${QUERY_SMP}.triangles.bed \
+          > ${LOCAL_FOLDER}/${REF_SMP}_${QUERY_SMP}.w${WINDOWSIZE}.tri.bed
+
+        cut -f1-3,5,7 ${LOCAL_FOLDER}/${REF_SMP}_${QUERY_SMP}.w${WINDOWSIZE}.par.bed > ${LOCAL_FOLDER}/${REF_SMP}_${QUERY_SMP}.w${WINDOWSIZE}.par_counts.bed
+        cut -f5,7 ${LOCAL_FOLDER}/${REF_SMP}_${QUERY_SMP}.w${WINDOWSIZE}.trap.bed > ${LOCAL_FOLDER}/${REF_SMP}_${QUERY_SMP}.w${WINDOWSIZE}.trap_counts.bed
+        cut -f5,7 ${LOCAL_FOLDER}/${REF_SMP}_${QUERY_SMP}.w${WINDOWSIZE}.tri.bed > ${LOCAL_FOLDER}/${REF_SMP}_${QUERY_SMP}.w${WINDOWSIZE}.tri_counts.bed
+
+        paste -d"\t" ${LOCAL_FOLDER}/${REF_SMP}_${QUERY_SMP}.w${WINDOWSIZE}.par_counts.bed ${LOCAL_FOLDER}/${REF_SMP}_${QUERY_SMP}.w${WINDOWSIZE}.trap_counts.bed ${LOCAL_FOLDER}/${REF_SMP}_${QUERY_SMP}.w${WINDOWSIZE}.tri_counts.bed > ${LOCAL_FOLDER}/${REF_SMP}_${QUERY_SMP}.w${WINDOWSIZE}.all_short_indel_counts.bed
+
+        # use bedtools closest to get distance from CDR
+        bedtools sort -i ${LOCAL_FOLDER}/${REF_SMP}_${QUERY_SMP}.w${WINDOWSIZE}.all_short_indel_counts.bed > ${LOCAL_FOLDER}/${REF_SMP}_${QUERY_SMP}.w${WINDOWSIZE}.all_short_indel_counts.srt.bed
+
+        # Get distance to CDR for every SV call
+        bedtools closest \
+          -a ${LOCAL_FOLDER}/${REF_SMP}_${QUERY_SMP}.w${WINDOWSIZE}.all_short_indel_counts.srt.bed \
+          -b /private/groups/migalab/jmmenend/HPRC/cenSatProject/CDR_data/${chr}/${chr}.centrodip.bed \
+          -D a -t first \
+          > /private/groups/patenlab/mira/centrolign/analysis/variant_dist_CDR/short_indels_pairwise/${WINDOWSIZE}/${chr}/${REF_SMP}_${QUERY_SMP}.CDR_dist.${WINDOWSIZE}.bed
+    done
+
+    rm -rf ${LOCAL_FOLDER}
+done
+```
