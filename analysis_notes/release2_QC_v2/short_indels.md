@@ -22,3 +22,4 @@ cat /private/groups/patenlab/mira/centrolign/analysis/SVs_pairwise/12012025_comp
   echo $clade,$CHR,/private/groups/patenlab/mira/centrolign/analysis/short_indels_pairwise/${CHR}/short_indel_beds/${clade}/ >>  12142025_clade_chr_short_indel_beds.csv
 done
 ```
+Get short indels in ASM coords 

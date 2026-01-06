@@ -24,6 +24,7 @@ do
     --highlight_samples /Users/miramastoras/Desktop/chr12_cenhap4_HPRC_sample_list.txt
 done
 ```
+
 Run SV calling script on cenhap 4 samples
 ```sh
 #!/bin/bash
@@ -622,4 +623,108 @@ ls *.bed | while read -r bed ; do
 done
 
 rm -rf ${LOCAL_FOLDER}/
+```
+### Plot synteny plots where concordance is the worst
+
+Convert fedor's SV beds to array coordinates
+```sh
+# get start coord of alpha sat sequence
+grep chr12 /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2_QC_v2/per_smp_asat_beds/HG00290.2_asat_arrays.bed
+# HG00290#2#CM090009.1	34720173	37437832	chr12
+
+grep chr12 /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2_QC_v2/per_smp_asat_beds/HG03710.1_asat_arrays.bed
+# HG03710#1#CM086873.1	34650988	37479323	chr12
+
+# create HG00290.2 bed file
+#  select Deletions
+awk -F'\t' -v OFS='\t' -v n=34720173 '{ $2 -= n; $3 -= n }1' /private/groups/patenlab/mira/centrolign/analysis/SVs_pairwise/chr12/cenHap4_benchmarking_HorHaps/fedor_horHap_SV_beds/HG00290.2_HG03710.1.bed | cut -f1-3,7,8 | awk -F'\t' -v OFS='\t' '{ print $0, "+", "0", "0", "0,0,0" }' | grep "D" > /private/groups/patenlab/mira/centrolign/analysis/SVs_pairwise/chr12/cenHap4_benchmarking_HorHaps/synteny_plots/HG00290.2_horHap_SVs.array_coords.bed
+
+# create HG03710.1 bed file
+#  select Insertions
+awk -F'\t' -v OFS='\t' -v n=34650988 '{ $5 -= n; $6 -= n }1' /private/groups/patenlab/mira/centrolign/analysis/SVs_pairwise/chr12/cenHap4_benchmarking_HorHaps/fedor_horHap_SV_beds/HG00290.2_HG03710.1.bed | cut -f4-6,7,8 | awk -F'\t' -v OFS='\t' '{ print $0, "+", "0", "0", "0,0,0" }' | grep "I" > /private/groups/patenlab/mira/centrolign/analysis/SVs_pairwise/chr12/cenHap4_benchmarking_HorHaps/synteny_plots/HG03710.1_horHap_SVs.array_coords.bed
+```
+
+Run synteny plots
+```sh
+conda activate synteny
+
+python /private/groups/migalab/juklucas/centrolign/chr12_test125/synteny_plot_bokeh.py   \
+    --beds \
+        /private/groups/patenlab/mira/centrolign/analysis/SVs_pairwise/chr12/cenHap4_benchmarking_HorHaps/synteny_plots/HG00290.2_horHap_SVs.array_coords.bed \
+        /private/groups/patenlab/mira/centrolign/analysis/SVs_pairwise/chr12/cenHap4_benchmarking_HorHaps/synteny_plots/HG03710.1_horHap_SVs.array_coords.bed \
+    --cigars \
+        /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2_QC_v2/MSA/chr12/subgroup_1/induced_pairwise_cigars/pairwise_cigar_HG00290.2_HG03710.1.txt \
+    --output /private/groups/patenlab/mira/centrolign/analysis/SVs_pairwise/chr12/cenHap4_benchmarking_HorHaps/synteny_plots/chr12_cenhap4_HG00290.2_HG03710.1_synteny.html \
+    --show-mismatches \
+    --web
+```
+
+### Plot synteny plots where distance is 0.5 and concordance is great
+
+Convert fedor's SV beds to array coordinates
+```sh
+# get start coord of alpha sat sequence
+grep chr12 /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2_QC_v2/per_smp_asat_beds/HG00329.2_asat_arrays.bed
+# HG00329#2#CM094244.1	34789273	37579344	chr12
+
+grep chr12 /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2_QC_v2/per_smp_asat_beds/HG03654.2_asat_arrays.bed
+# HG03654#2#CM086861.1	34643372	36478006	chr12
+
+# create HG00329.2 bed file
+#  select Deletions
+awk -F'\t' -v OFS='\t' -v n=34789273 '{ $2 -= n; $3 -= n }1' /private/groups/patenlab/mira/centrolign/analysis/SVs_pairwise/chr12/cenHap4_benchmarking_HorHaps/fedor_horHap_SV_beds/HG00329.2_HG03654.2.bed | cut -f1-3,7,8 | awk -F'\t' -v OFS='\t' '{ print $0, "+", "0", "0", "0,0,0" }' | grep "D" > /private/groups/patenlab/mira/centrolign/analysis/SVs_pairwise/chr12/cenHap4_benchmarking_HorHaps/synteny_plots/HG00329.2_horHap_SVs.array_coords.bed
+
+# create HG03654.2 bed file
+#  select Insertions
+awk -F'\t' -v OFS='\t' -v n=34643372 '{ $5 -= n; $6 -= n }1' /private/groups/patenlab/mira/centrolign/analysis/SVs_pairwise/chr12/cenHap4_benchmarking_HorHaps/fedor_horHap_SV_beds/HG00329.2_HG03654.2.bed | cut -f4-6,7,8 | awk -F'\t' -v OFS='\t' '{ print $0, "+", "0", "0", "0,0,0" }' | grep "I" > /private/groups/patenlab/mira/centrolign/analysis/SVs_pairwise/chr12/cenHap4_benchmarking_HorHaps/synteny_plots/HG03654.2_horHap_SVs.array_coords.bed
+```
+
+Run synteny plots
+```sh
+conda activate synteny
+
+python /private/groups/migalab/juklucas/centrolign/chr12_test125/synteny_plot_bokeh.py   \
+    --beds \
+        /private/groups/patenlab/mira/centrolign/analysis/SVs_pairwise/chr12/cenHap4_benchmarking_HorHaps/synteny_plots/HG00329.2_horHap_SVs.array_coords.bed \
+        /private/groups/patenlab/mira/centrolign/analysis/SVs_pairwise/chr12/cenHap4_benchmarking_HorHaps/synteny_plots/HG03654.2_horHap_SVs.array_coords.bed \
+    --cigars \
+        /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2_QC_v2/MSA/chr12/subgroup_1/induced_pairwise_cigars/pairwise_cigar_HG00329.2_HG03654.2.txt \
+    --output /private/groups/patenlab/mira/centrolign/analysis/SVs_pairwise/chr12/cenHap4_benchmarking_HorHaps/synteny_plots/chr12_cenhap4_HG00329.2_HG03654.2_synteny.html \
+    --show-mismatches \
+    --web
+```
+
+### Plot synteny plots where distance is < 0.2 and concordance is great
+
+Convert fedor's SV beds to array coordinates
+```sh
+# get start coord of alpha sat sequence
+grep chr12 /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2_QC_v2/per_smp_asat_beds/HG02698.1_asat_arrays.bed
+# HG02698#1#CM086831.1	34776248	37256955	chr12
+
+grep chr12 /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2_QC_v2/per_smp_asat_beds/HG03784.2_asat_arrays.bed
+# HG03784#2#CM094206.1	34781322	37439318	chr12
+
+# create HG00329.2 bed file
+#  select Deletions
+awk -F'\t' -v OFS='\t' -v n=34776248 '{ $2 -= n; $3 -= n }1' /private/groups/patenlab/mira/centrolign/analysis/SVs_pairwise/chr12/cenHap4_benchmarking_HorHaps/fedor_horHap_SV_beds/HG02698.1_HG03784.2.bed  | cut -f1-3,7,8 | awk -F'\t' -v OFS='\t' '{ print $0, "+", "0", "0", "0,0,0" }' | grep "D" > /private/groups/patenlab/mira/centrolign/analysis/SVs_pairwise/chr12/cenHap4_benchmarking_HorHaps/synteny_plots/HG02698.1_horHap_SVs.array_coords.bed
+
+# create HG03654.2 bed file
+#  select Insertions
+awk -F'\t' -v OFS='\t' -v n=34781322 '{ $5 -= n; $6 -= n }1' /private/groups/patenlab/mira/centrolign/analysis/SVs_pairwise/chr12/cenHap4_benchmarking_HorHaps/fedor_horHap_SV_beds/HG02698.1_HG03784.2.bed | cut -f4-6,7,8 | awk -F'\t' -v OFS='\t' '{ print $0, "+", "0", "0", "0,0,0" }' | grep "I" > /private/groups/patenlab/mira/centrolign/analysis/SVs_pairwise/chr12/cenHap4_benchmarking_HorHaps/synteny_plots/HG03784.2_horHap_SVs.array_coords.bed
+```
+
+Run synteny plots
+```sh
+conda activate synteny
+
+python /private/groups/migalab/juklucas/centrolign/chr12_test125/synteny_plot_bokeh.py   \
+    --beds \
+        /private/groups/patenlab/mira/centrolign/analysis/SVs_pairwise/chr12/cenHap4_benchmarking_HorHaps/synteny_plots/HG02698.1_horHap_SVs.array_coords.bed \
+        /private/groups/patenlab/mira/centrolign/analysis/SVs_pairwise/chr12/cenHap4_benchmarking_HorHaps/synteny_plots/HG03784.2_horHap_SVs.array_coords.bed \
+    --cigars \
+        /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2_QC_v2/MSA/chr12/subgroup_1/induced_pairwise_cigars/pairwise_cigar_HG02698.1_HG03784.2.txt \
+    --output /private/groups/patenlab/mira/centrolign/analysis/SVs_pairwise/chr12/cenHap4_benchmarking_HorHaps/synteny_plots/chr12_cenhap4_HG02698.1_HG03784.2_synteny.html \
+    --show-mismatches \
+    --web
 ```
