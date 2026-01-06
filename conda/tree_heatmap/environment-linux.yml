@@ -1,0 +1,15 @@
+name: tree_python
+channels:
+  - bioconda
+  - conda-forge
+  - defaults
+dependencies:
+  - conda-forge::ete3
+  - conda-forge::matplotlib
+  - conda-forge::biopython
+  - anaconda::scipy
+  - conda-forge::svgwrite
+  - pandas
+  - bioconda::mummer
+  - anaconda::scikit-learn
+prefix: /Users/miramastoras/opt/miniconda3/envs/tree_python
