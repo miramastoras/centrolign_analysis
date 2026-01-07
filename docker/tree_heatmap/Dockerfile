@@ -2,7 +2,15 @@ FROM ubuntu:22.04
 
 # Avoid interactive prompts during package installation
 ENV DEBIAN_FRONTEND=noninteractive
+# ENV MPLCONFIGDIR=/tmp/matplotlib
+
+# Before importing matplotlib in your script
 ENV MPLCONFIGDIR=/tmp/matplotlib
+RUN mkdir -p /tmp/matplotlib && chmod 777 /tmp/matplotlib
+
+# Fontconfig cache
+ENV FONTCONFIG_CACHE=/tmp/fontconfig
+RUN mkdir -p /tmp/fontconfig && chmod 777 /tmp/fontconfig
 
 # Update system and install essentials
 RUN apt-get update && apt-get install -y \
