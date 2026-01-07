@@ -4,6 +4,7 @@ channels:
   - conda-forge
   - defaults
 dependencies:
+  - python=3.12
   - conda-forge::ete3
   - conda-forge::matplotlib
   - conda-forge::biopython
@@ -12,4 +13,3 @@ dependencies:
   - pandas
   - bioconda::mummer
   - anaconda::scikit-learn
-prefix: /Users/miramastoras/opt/miniconda3/envs/tree_python
