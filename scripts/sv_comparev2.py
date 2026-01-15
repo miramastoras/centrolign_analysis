@@ -37,124 +37,124 @@ def breakpoint_distance(sv1, sv2):
 def size_fraction_ok(size1, size2, min_size_frac):
     return min(size1, size2) / max(size1, size2) >= min_size_frac
 
+def overlaps_window(sv, win_start, win_end):
+    return max(sv["start"], win_start) < min(sv["end"], win_end)
+
+
 # -------------------------
 # Core matching logic
 # -------------------------
 
-def match_sv(sv, candidates, max_dist, min_size_frac, debug=False):
+def match_sv_windowed(sv_rec, candidates, max_dist, min_size_frac=0.7, debug=False):
     """
-    Match a single SV against a list of candidate SVs.
-    Returns a list of candidate SVs that are matched.
-    Updates reason if debug=True.
+    Match one SV against another BED using:
+    - expanded window (+/- max_dist)
+    - contiguous subsets
+    - minimize size difference
+    - tie-break by closest breakpoint distance
+    - filter by min_size_frac after best subset selection
     """
 
-    # ---- FIX: sv is the wrapper, extract the inner SV ----
-    sv_rec = sv
-    sv = sv_rec["sv"]
+    sv1 = sv_rec["sv"]
 
-    # Step 1: overlapping SVs
-    overlapping = [c for c in candidates if sv["chrom"] == c["sv"]["chrom"] and overlaps(sv, c["sv"])]
+    # Expanded window
+    win_start = sv1["start"] - max_dist
+    win_end   = sv1["end"] + max_dist
 
-    if len(overlapping) == 1:
-        c = overlapping[0]
-        if size_fraction_ok(sv["size"], c["sv"]["size"], min_size_frac):
-            c["matched"] = True
-            sv_rec["matched"] = True
-            if debug:
-                sv_rec["reason"] = "single overlap, size fraction OK"
-                c["reason"] = "single overlap, size fraction OK"
-            return [c]
-        else:
-            if debug:
-                sv_rec["reason"] = f"single overlap, size fraction FAILED"
-            return []
+    # Collect candidates overlapping the window
+    window_hits = [
+        c for c in candidates
+        if sv1["chrom"] == c["sv"]["chrom"]
+        and overlaps_window(c["sv"], win_start, win_end)
+    ]
 
-    elif len(overlapping) > 1:
-        # Multiple overlapping SVs: find contiguous subsets with best total size
-        overlapping.sort(key=lambda x: x["sv"]["start"])
-        n = len(overlapping)
-        best_dist = float("inf")
-        best_subset = None
-        best_size = None
-        # Consider all contiguous subsets
-        for i in range(n):
-            total_size = 0
-            for j in range(i, n):
-                total_size += overlapping[j]["sv"]["size"]
-                dist = abs(total_size - sv["size"])
-                if dist < best_dist:
-                    best_dist = dist
-                    best_subset = (i, j)
-                    best_size = total_size
-        # Check size fraction
-        if size_fraction_ok(sv["size"], best_size, min_size_frac):
-            i, j = best_subset
-            matched_candidates = overlapping[i:j+1]
-            sv_rec["matched"] = True
-            if debug:
-                sv_rec["reason"] = f"multi-overlap N-way rescue, subset {i}-{j}"
-            for c in matched_candidates:
-                c["matched"] = True
-                if debug:
-                    c["reason"] = f"multi-overlap N-way rescue, subset {i}-{j}"
-            return matched_candidates
-        else:
-            if debug:
-                sv_rec["reason"] = f"multi-overlap, size fraction FAILED"
-            return []
+    if not window_hits:
+        if debug:
+            sv_rec["reason"] = "no SVs overlap expanded window"
+        return []
 
-    else:
-        # No overlaps: check SVs within max_dist
-        nearby = [
-            c for c in candidates
-            if sv["chrom"] == c["sv"]["chrom"] and breakpoint_distance(sv, c["sv"]) <= max_dist
-        ]
+    # Sort by genomic order
+    window_hits.sort(key=lambda c: c["sv"]["start"])
 
-        if not nearby:
-            if debug:
-                sv_rec["reason"] = f"no match within {max_dist}bp"
-            return []
+    best_subset = None
+    best_size_diff = float("inf")
+    best_bp_dist = float("inf")
 
-        # Filter by size fraction
-        nearby_ok = [c for c in nearby if size_fraction_ok(sv["size"], c["sv"]["size"], min_size_frac)]
+    n = len(window_hits)
 
-        if not nearby_ok:
-            if debug:
-                sv_rec["reason"] = f"nearby candidates within {max_dist}bp, but none pass size fraction"
-            return []
+    # Enumerate contiguous subsets
+    for i in range(n):
+        total_size = 0
+        subset_bp_dist = float("inf")
 
-        # ---- FIX: choose the closest candidate ----
-        closest_candidate = min(nearby_ok, key=lambda c: breakpoint_distance(sv, c["sv"]))
+        for j in range(i, n):
+            sv2 = window_hits[j]["sv"]
+            total_size += sv2["size"]
 
-        # Mark matched
-        sv_rec["matched"] = True
-        closest_candidate["matched"] = True
+            subset_bp_dist = min(
+                subset_bp_dist,
+                breakpoint_distance(sv1, sv2)
+            )
+
+            size_diff = abs(total_size - sv1["size"])
+
+            # Primary: size difference
+            # Secondary: breakpoint distance
+            if (
+                size_diff < best_size_diff or
+                (size_diff == best_size_diff and subset_bp_dist < best_bp_dist)
+            ):
+                best_size_diff = size_diff
+                best_bp_dist = subset_bp_dist
+                best_subset = (i, j, total_size)
+
+    if best_subset is None:
+        return []
+
+    i, j, total_size = best_subset
+
+    # Check min_size_frac
+    size_ratio = min(sv1["size"], total_size) / max(sv1["size"], total_size)
+    if size_ratio < min_size_frac:
         if debug:
             sv_rec["reason"] = (
-                f"no-overlap, multiple candidates within {max_dist}bp, closest chosen"
+                f"best subset size fraction failed min_size_frac"
             )
-            closest_candidate["reason"] = (
-                f"no-overlap, multiple candidates within {max_dist}bp, closest chosen"
-            )
+        return []
 
-        return [closest_candidate]
+    # Mark matches
+    matched = window_hits[i:j+1]
+    sv_rec["matched"] = True
+    if debug:
+        sv_rec["reason"] = (
+            f"windowed-contiguous match"
+        )
+
+    for c in matched:
+        c["matched"] = True
+        if debug:
+            c["reason"] = sv_rec["reason"]
+
+    return matched
+
 
 # -------------------------
 # Evaluate BED1 ↔ BED2
 # -------------------------
 
-def evaluate_beds(svs1, svs2, max_dist, min_size_frac, debug=False):
+def evaluate_beds(svs1, svs2, max_dist, min_size_frac=0.7, debug=False):
     results1 = [{"sv": sv, "matched": False, "reason": "none"} for sv in svs1]
     results2 = [{"sv": sv, "matched": False, "reason": "none"} for sv in svs2]
 
     # BED1 -> BED2
     for r1 in results1:
-        match_sv(r1, results2, max_dist, min_size_frac, debug=debug)
+        match_sv_windowed(r1, results2, max_dist, min_size_frac, debug=debug)
+
     # BED2 -> BED1 (symmetric)
     for r2 in results2:
-        match_sv(r2, results1, max_dist, min_size_frac, debug=debug)
+        match_sv_windowed(r2, results1, max_dist, min_size_frac, debug=debug)
 
-    # Assign "no match" reason if unmatched
+    # Assign final reason
     if debug:
         for r in results1 + results2:
             if not r["matched"] and r["reason"] == "none":
