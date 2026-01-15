@@ -728,3 +728,692 @@ python /private/groups/migalab/juklucas/centrolign/chr12_test125/synteny_plot_bo
     --show-mismatches \
     --web
 ```
+
+### New approach:
+
+- For every centrolign SV, check if horhap SV exists within X bp up and downstream, that is within Y% of the size. If so, its correct, if not, incorrect
+- repeat for horhap SV
+- report the harmonic mean
+
+
+```sh
+# select only insertions from query, deletions from ref coords
+grep "I" /private/groups/patenlab/mira/centrolign/analysis/SVs_pairwise/chr12/cenHap4_benchmarking_HorHaps/SV_beds_asm_coords/HG02698.1_HG03784.2.bed | cut -f4,5,6,8 > /private/groups/patenlab/mira/centrolign/analysis/SVs_pairwise/chr12/cenHap4_benchmarking_HorHaps/test_f1/HG02698.1_HG03784.2.cen.bed
+
+grep "D" /private/groups/patenlab/mira/centrolign/analysis/SVs_pairwise/chr12/cenHap4_benchmarking_HorHaps/SV_beds_asm_coords/HG02698.1_HG03784.2.bed | cut -f1-3,8 >> /private/groups/patenlab/mira/centrolign/analysis/SVs_pairwise/chr12/cenHap4_benchmarking_HorHaps/test_f1/HG02698.1_HG03784.2.cen.bed
+
+awk '$4 == -1' /private/groups/patenlab/mira/centrolign/analysis/SVs_pairwise/chr12/cenHap4_benchmarking_HorHaps/test_f1/HG02698.1_HG03784.2.cen.bed > /private/groups/patenlab/mira/centrolign/analysis/SVs_pairwise/chr12/cenHap4_benchmarking_HorHaps/test_f1/HG02698.1_HG03784.2.cen.tri.bed
+
+grep "I" /private/groups/patenlab/mira/centrolign/analysis/SVs_pairwise/chr12/cenHap4_benchmarking_HorHaps/fedor_horHap_SV_beds/HG02698.1_HG03784.2.bed | cut -f4,5,6,8 > /private/groups/patenlab/mira/centrolign/analysis/SVs_pairwise/chr12/cenHap4_benchmarking_HorHaps/test_f1/HG02698.1_HG03784.2.hor.bed
+
+grep "D" /private/groups/patenlab/mira/centrolign/analysis/SVs_pairwise/chr12/cenHap4_benchmarking_HorHaps/fedor_horHap_SV_beds/HG02698.1_HG03784.2.bed | cut -f1-3,8 >> /private/groups/patenlab/mira/centrolign/analysis/SVs_pairwise/chr12/cenHap4_benchmarking_HorHaps/test_f1/HG02698.1_HG03784.2.hor.bed
+
+python3 /private/groups/patenlab/mira/centrolign/github/centrolign_analysis/scripts/sv_compare.py \
+    /private/groups/patenlab/mira/centrolign/analysis/SVs_pairwise/chr12/cenHap4_benchmarking_HorHaps/test_f1/HG02698.1_HG03784.2.cen.bed \
+    /private/groups/patenlab/mira/centrolign/analysis/SVs_pairwise/chr12/cenHap4_benchmarking_HorHaps/test_f1/HG02698.1_HG03784.2.hor.bed \
+    --max_dist 3000 --min_size_frac 0.5 --out_prefix /private/groups/patenlab/mira/centrolign/analysis/SVs_pairwise/chr12/cenHap4_benchmarking_HorHaps/test_f1/results --bed9 --debug
+
+#!/bin/sh
+awk -F'\t' -v OFS='\t' -v n=34776248 '{ $2 -= n; $3 -= n }1' /private/groups/patenlab/mira/centrolign/analysis/SVs_pairwise/chr12/cenHap4_benchmarking_HorHaps/test_f1/results_BED2.bed9 | grep HG02698.1 > /private/groups/patenlab/mira/centrolign/analysis/SVs_pairwise/chr12/cenHap4_benchmarking_HorHaps/test_f1/results_BED2_HG02698.1.bed9.array_coords.bed
+
+awk -F'\t' -v OFS='\t' -v n=34781322 '{ $2 -= n; $3 -= n }1' /private/groups/patenlab/mira/centrolign/analysis/SVs_pairwise/chr12/cenHap4_benchmarking_HorHaps/test_f1/results_BED2.bed9 | grep HG03784.2 > /private/groups/patenlab/mira/centrolign/analysis/SVs_pairwise/chr12/cenHap4_benchmarking_HorHaps/test_f1/results_BED2_HG03784.2.bed9.array_coords.bed
+```
+
+Synteny with matches/mismatches marked:
+```sh
+python /private/groups/migalab/juklucas/centrolign/chr12_test125/synteny_plot_bokeh.py   \
+    --beds \
+        /private/groups/patenlab/mira/centrolign/analysis/SVs_pairwise/chr12/cenHap4_benchmarking_HorHaps/test_f1/results_BED2_HG02698.1.bed9.array_coords.bed \
+        /private/groups/patenlab/mira/centrolign/analysis/SVs_pairwise/chr12/cenHap4_benchmarking_HorHaps/test_f1/results_BED2_HG03784.2.bed9.array_coords.bed \
+    --cigars \
+        /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2_QC_v2/MSA/chr12/subgroup_1/induced_pairwise_cigars/pairwise_cigar_HG02698.1_HG03784.2.txt \
+    --output /private/groups/patenlab/mira/centrolign/analysis/SVs_pairwise/chr12/cenHap4_benchmarking_HorHaps/test_f1/chr12_cenhap4_HG02698.1_HG03784.2_synteny.bed9.html \
+    --show-mismatches \
+    --web
+```
+
+Centrolign :
+
+awk -F'\t' -v OFS='\t' -v n=34776248 '{ $2 -= n; $3 -= n }1' /private/groups/patenlab/mira/centrolign/analysis/SVs_pairwise/chr12/cenHap4_benchmarking_HorHaps/test_f1/results_BED1.bed9 | grep HG02698.1 > /private/groups/patenlab/mira/centrolign/analysis/SVs_pairwise/chr12/cenHap4_benchmarking_HorHaps/test_f1/results_BED2_HG02698.1.bed9.array_coords.cen.bed
+
+awk -F'\t' -v OFS='\t' -v n=34781322 '{ $2 -= n; $3 -= n }1' /private/groups/patenlab/mira/centrolign/analysis/SVs_pairwise/chr12/cenHap4_benchmarking_HorHaps/test_f1/results_BED1.bed9 | grep HG03784.2 > /private/groups/patenlab/mira/centrolign/analysis/SVs_pairwise/chr12/cenHap4_benchmarking_HorHaps/test_f1/results_BED2_HG03784.2.bed9.array_coords.cen.bed
+```
+
+Synteny with matches/mismatches marked:
+```sh
+python /private/groups/migalab/juklucas/centrolign/chr12_test125/synteny_plot_bokeh.py   \
+    --beds \
+        /private/groups/patenlab/mira/centrolign/analysis/SVs_pairwise/chr12/cenHap4_benchmarking_HorHaps/test_f1/results_BED2_HG02698.1.bed9.array_coords.cen.bed \
+        /private/groups/patenlab/mira/centrolign/analysis/SVs_pairwise/chr12/cenHap4_benchmarking_HorHaps/test_f1/results_BED2_HG03784.2.bed9.array_coords.cen.bed \
+    --cigars \
+        /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2_QC_v2/MSA/chr12/subgroup_1/induced_pairwise_cigars/pairwise_cigar_HG02698.1_HG03784.2.txt \
+    --output /private/groups/patenlab/mira/centrolign/analysis/SVs_pairwise/chr12/cenHap4_benchmarking_HorHaps/test_f1/chr12_cenhap4_HG02698.1_HG03784.2_synteny.bed9.cen.html \
+    --show-mismatches \
+    --web
+```
+
+
+Run script for all cenhap4 samples
+
+
+reverse all cigar strings in cenhap4 directory:
+```sh
+
+ls /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2_QC_v2/MSA/chr12/subgroup_1/induced_pairwise_cigars | while read line ; do
+  python3 /private/groups/patenlab/mira/centrolign/github/censat_paper/scripts/centrolign_result_parsing/reverse_cigar.py \
+  /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2_QC_v2/MSA/chr12/subgroup_1/induced_pairwise_cigars/${line}
+done
+```
+
+```sh
+#!/bin/bash
+#SBATCH --job-name=sv_compare
+#SBATCH --partition=short
+#SBATCH --mail-user=mmastora@ucsc.edu
+#SBATCH --mail-type=END
+#SBATCH --nodes=1
+#SBATCH --mem=50gb
+#SBATCH --ntasks=1
+#SBATCH --cpus-per-task=1
+#SBATCH --time=1:00:00
+#SBATCH --output=logs/sv_compare_%x.%j.log
+#SBATCH --array=[1-1485]%100
+
+BED_CSV=/private/groups/patenlab/mira/centrolign/analysis/SVs_pairwise/chr12/cenHap4_benchmarking_HorHaps/matched_beds.filt.csv
+
+CENTROLIGN_BED=$(awk -F"," "NR==$SLURM_ARRAY_TASK_ID" "$BED_CSV" | cut -f1 -d",")
+HORHAP_BED=$(awk -F"," "NR==$SLURM_ARRAY_TASK_ID" "$BED_CSV" | cut -f2 -d",")
+
+SMP_PAIR=$(basename -s .bed $CENTROLIGN_BED )
+SMP1="${SMP_PAIR%%_*}"
+SMP2="${SMP_PAIR##*_}"  
+
+echo $SMP_PAIR
+echo $CENTROLIGN_BED
+echo $HORHAP_BED
+
+LOCAL_FOLDER=/data/tmp/$(whoami)/chr12_cenhap4_${SMP_PAIR}/
+mkdir -p ${LOCAL_FOLDER}
+
+OUTDIR=/private/groups/patenlab/mira/centrolign/analysis/SVs_pairwise/chr12/cenHap4_benchmarking_HorHaps/sv_compare/md3k_msf0.5
+mkdir -p $OUTDIR/
+
+# select only insertions from query, deletions from ref coords
+grep "I" ${CENTROLIGN_BED} | cut -f4,5,6,8 > ${LOCAL_FOLDER}/${SMP_PAIR}.cen.bed
+
+grep "D" ${CENTROLIGN_BED} | cut -f1-3,8 >> ${LOCAL_FOLDER}/${SMP_PAIR}.cen.bed
+
+grep "I" ${HORHAP_BED} | cut -f4,5,6,8 > ${LOCAL_FOLDER}/${SMP_PAIR}.hor.bed
+
+grep "D" ${HORHAP_BED} | cut -f1-3,8 >> ${LOCAL_FOLDER}/${SMP_PAIR}.hor.bed
+
+# Run SV comparison
+python3 /private/groups/patenlab/mira/centrolign/github/centrolign_analysis/scripts/sv_compare.py \
+    ${LOCAL_FOLDER}/${SMP_PAIR}.cen.bed \
+    ${LOCAL_FOLDER}/${SMP_PAIR}.hor.bed \
+    --max_dist 3000 --min_size_frac 0.5 \
+    --out_prefix ${OUTDIR}/${SMP_PAIR} --bed9 --debug
+
+# Auto-generate synteny plots showing cenhap and horhap SV qualities
+# get start coord of alpha sat sequence
+SMP1_START=`grep chr12 /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2_QC_v2/per_smp_asat_beds/${SMP1}_asat_arrays.bed | cut -f2`
+
+SMP2_START=`grep chr12 /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2_QC_v2/per_smp_asat_beds/${SMP2}_asat_arrays.bed | cut -f2`
+
+echo $SMP1_START
+echo $SMP2_START
+
+# HORHAP
+awk -F'\t' -v OFS='\t' -v n=${SMP1_START} '{ $2 -= n; $3 -= n }1' ${OUTDIR}/${SMP_PAIR}_BED2.bed9 | grep ${SMP1} > ${LOCAL_FOLDER}/${SMP1}_sv_horhap.bed
+
+awk -F'\t' -v OFS='\t' -v n=${SMP2_START} '{ $2 -= n; $3 -= n }1' ${OUTDIR}/${SMP_PAIR}_BED2.bed9 | grep ${SMP2} > ${LOCAL_FOLDER}/${SMP2}_sv_horhap.bed
+
+# CENTROLIGN
+awk -F'\t' -v OFS='\t' -v n=${SMP1_START} '{ $2 -= n; $3 -= n }1' ${OUTDIR}/${SMP_PAIR}_BED1.bed9 | grep ${SMP1} > ${LOCAL_FOLDER}/${SMP1}_sv_cen.bed
+
+awk -F'\t' -v OFS='\t' -v n=${SMP2_START} '{ $2 -= n; $3 -= n }1' ${OUTDIR}/${SMP_PAIR}_BED1.bed9 | grep ${SMP2} > ${LOCAL_FOLDER}/${SMP2}_sv_cen.bed
+
+# Generate synteny plots
+source /private/home/mmastora/miniconda3/etc/profile.d/conda.sh
+conda activate synteny
+
+mkdir -p ${OUTDIR}/synteny_plots
+# horhap view
+python /private/groups/migalab/juklucas/centrolign/chr12_test125/synteny_plot_bokeh.py   \
+    --beds \
+        ${LOCAL_FOLDER}/${SMP1}_sv_horhap.bed \
+        ${LOCAL_FOLDER}/${SMP2}_sv_horhap.bed \
+    --cigars \
+        /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2_QC_v2/MSA/chr12/subgroup_1/induced_pairwise_cigars/pairwise_cigar_${SMP1}_${SMP2}.txt \
+    --output ${OUTDIR}/synteny_plots/md3k_msf0.5_${SMP1}_${SMP2}_synteny.horhap.html \
+    --show-mismatches \
+    --web
+
+# centrolign view
+python /private/groups/migalab/juklucas/centrolign/chr12_test125/synteny_plot_bokeh.py   \
+    --beds \
+        ${LOCAL_FOLDER}/${SMP1}_sv_cen.bed \
+        ${LOCAL_FOLDER}/${SMP2}_sv_cen.bed \
+    --cigars \
+        /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2_QC_v2/MSA/chr12/subgroup_1/induced_pairwise_cigars/pairwise_cigar_${SMP1}_${SMP2}.txt \
+    --output ${OUTDIR}/synteny_plots/md3k_msf0.5_${SMP1}_${SMP2}_synteny.cen.html \
+    --show-mismatches \
+    --web
+
+rm -rf ${LOCAL_FOLDER}
+```
+
+Submitting script
+```sh
+mkdir -p /private/groups/patenlab/mira/centrolign/analysis/SVs_pairwise/chr12/cenHap4_benchmarking_HorHaps/sv_compare
+cd /private/groups/patenlab/mira/centrolign/analysis/SVs_pairwise/chr12/cenHap4_benchmarking_HorHaps/sv_compare
+
+mkdir md3k_msf0.5
+mkdir -p logs
+
+sbatch sv_compare.sh
+```
+
+Look at synteny plots for samples with the worst F1 in bins 0-0.2
+
+Example 1
+```sh
+# get start coord of alpha sat sequence
+grep chr12 /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2_QC_v2/per_smp_asat_beds/HG00290.2_asat_arrays.bed
+# HG00290#2#CM090009.1	34720173	37437832	chr12
+
+grep chr12 /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2_QC_v2/per_smp_asat_beds/HG01940.1_asat_arrays.bed
+# HG01940#1#CM088637.1	34729153	37567028	chr12
+
+awk -F'\t' -v OFS='\t' -v n=34720173 '{ $2 -= n; $3 -= n }1' /private/groups/patenlab/mira/centrolign/analysis/SVs_pairwise/chr12/cenHap4_benchmarking_HorHaps/sv_compare/md3k_msf0.5/HG00290.2_HG01940.1_BED2.bed9 | grep HG00290.2 > /private/groups/patenlab/mira/centrolign/analysis/SVs_pairwise/chr12/cenHap4_benchmarking_HorHaps/sv_compare/md3k_msf0.5/HG00290.2_sv_HG01940.1_horhap.bed
+
+awk -F'\t' -v OFS='\t' -v n=34729153 '{ $2 -= n; $3 -= n }1' /private/groups/patenlab/mira/centrolign/analysis/SVs_pairwise/chr12/cenHap4_benchmarking_HorHaps/sv_compare/md3k_msf0.5/HG00290.2_HG01940.1_BED2.bed9 | grep HG01940.1 > /private/groups/patenlab/mira/centrolign/analysis/SVs_pairwise/chr12/cenHap4_benchmarking_HorHaps/sv_compare/md3k_msf0.5/HG01940.1_sv_HG00290.2_horhap.bed
+
+python /private/groups/migalab/juklucas/centrolign/chr12_test125/synteny_plot_bokeh.py   \
+    --beds \
+        /private/groups/patenlab/mira/centrolign/analysis/SVs_pairwise/chr12/cenHap4_benchmarking_HorHaps/sv_compare/md3k_msf0.5/HG00290.2_sv_HG01940.1_horhap.bed \
+         /private/groups/patenlab/mira/centrolign/analysis/SVs_pairwise/chr12/cenHap4_benchmarking_HorHaps/sv_compare/md3k_msf0.5/HG01940.1_sv_HG00290.2_horhap.bed \
+    --cigars \
+        /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2_QC_v2/MSA/chr12/subgroup_1/induced_pairwise_cigars/pairwise_cigar_HG00290.2_HG01940.1.txt \
+    --output /private/groups/patenlab/mira/centrolign/analysis/SVs_pairwise/chr12/cenHap4_benchmarking_HorHaps/sv_compare/synteny_plots/md3k_msf0.5_HG00290.2_HG01940.1_synteny.horhap.html \
+    --show-mismatches \
+    --web
+```
+Example 2
+```sh
+# get start coord of alpha sat sequence
+grep chr12 /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2_QC_v2/per_smp_asat_beds/HG00290.2_asat_arrays.bed
+# HG00290#2#CM090009.1	34720173	37437832	chr12
+
+grep chr12 /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2_QC_v2/per_smp_asat_beds/HG01940.1_asat_arrays.bed
+# HG01940#1#CM088637.1	34729153	37567028	chr12
+
+awk -F'\t' -v OFS='\t' -v n=34720173 '{ $2 -= n; $3 -= n }1' /private/groups/patenlab/mira/centrolign/analysis/SVs_pairwise/chr12/cenHap4_benchmarking_HorHaps/sv_compare/md3k_msf0.5/HG00290.2_HG01940.1_BED2.bed9 | grep HG00290.2 > /private/groups/patenlab/mira/centrolign/analysis/SVs_pairwise/chr12/cenHap4_benchmarking_HorHaps/sv_compare/md3k_msf0.5/HG00290.2_sv_HG01940.1_horhap.bed
+
+awk -F'\t' -v OFS='\t' -v n=34729153 '{ $2 -= n; $3 -= n }1' /private/groups/patenlab/mira/centrolign/analysis/SVs_pairwise/chr12/cenHap4_benchmarking_HorHaps/sv_compare/md3k_msf0.5/HG00290.2_HG01940.1_BED2.bed9 | grep HG01940.1 > /private/groups/patenlab/mira/centrolign/analysis/SVs_pairwise/chr12/cenHap4_benchmarking_HorHaps/sv_compare/md3k_msf0.5/HG01940.1_sv_HG00290.2_horhap.bed
+
+python /private/groups/migalab/juklucas/centrolign/chr12_test125/synteny_plot_bokeh.py   \
+    --beds \
+        /private/groups/patenlab/mira/centrolign/analysis/SVs_pairwise/chr12/cenHap4_benchmarking_HorHaps/sv_compare/md3k_msf0.5/HG00290.2_sv_HG01940.1_horhap.bed \
+         /private/groups/patenlab/mira/centrolign/analysis/SVs_pairwise/chr12/cenHap4_benchmarking_HorHaps/sv_compare/md3k_msf0.5/HG01940.1_sv_HG00290.2_horhap.bed \
+    --cigars \
+        /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2_QC_v2/MSA/chr12/subgroup_1/induced_pairwise_cigars/pairwise_cigar_HG00290.2_HG01940.1.txt \
+    --output /private/groups/patenlab/mira/centrolign/analysis/SVs_pairwise/chr12/cenHap4_benchmarking_HorHaps/sv_compare/synteny_plots/md3k_msf0.5_HG00290.2_HG01940.1_synteny.horhap.html \
+    --show-mismatches \
+    --web
+```
+
+
+### Get list of all sample pairs with distances < 0.4 for all chroms
+
+```sh
+cd /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2_QC_v2/all_pairs/distance_matrices
+
+ls | while read line ; do
+    awk -F',' '$3 <= 0.4' $line > /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2_QC_v2/all_pairs/distance_matrices_lt0.4/$line
+done
+```
+### Chr X horHap SV concordance
+
+
+```sh
+#!/bin/bash
+#SBATCH --job-name=sv_compare_chrX
+#SBATCH --partition=short
+#SBATCH --mail-user=mmastora@ucsc.edu
+#SBATCH --mail-type=END
+#SBATCH --nodes=1
+#SBATCH --mem=50gb
+#SBATCH --ntasks=1
+#SBATCH --cpus-per-task=1
+#SBATCH --time=1:00:00
+#SBATCH --output=logs/sv_compare_%x.%j.log
+#SBATCH --array=[1-6991]%100
+
+BED_CSV=/private/groups/patenlab/mira/centrolign/analysis/horhap_SV_concordance/f1_scores/chrX/matched_beds.filt.csv
+
+CENTROLIGN_BED=$(awk -F"," "NR==$SLURM_ARRAY_TASK_ID" "$BED_CSV" | cut -f1 -d",")
+HORHAP_BED=$(awk -F"," "NR==$SLURM_ARRAY_TASK_ID" "$BED_CSV" | cut -f2 -d",")
+
+SMP_PAIR=$(basename -s .bed $CENTROLIGN_BED )
+SMP1="${SMP_PAIR%%_*}"
+SMP2="${SMP_PAIR##*_}"  
+
+echo $SMP_PAIR
+echo $CENTROLIGN_BED
+echo $HORHAP_BED
+
+LOCAL_FOLDER=/data/tmp/$(whoami)/chrX_${SMP_PAIR}/
+mkdir -p ${LOCAL_FOLDER}
+
+OUTDIR=/private/groups/patenlab/mira/centrolign/analysis/horhap_SV_concordance/f1_scores/chrX/sv_compare/md3k_msf0.5
+mkdir -p $OUTDIR/
+
+# select only insertions from query, deletions from ref coords
+grep "I" ${CENTROLIGN_BED} | cut -f4,5,6,8 > ${LOCAL_FOLDER}/${SMP_PAIR}.cen.bed
+
+grep "D" ${CENTROLIGN_BED} | cut -f1-3,8 >> ${LOCAL_FOLDER}/${SMP_PAIR}.cen.bed
+
+grep "I" ${HORHAP_BED} | cut -f4,5,6,8 > ${LOCAL_FOLDER}/${SMP_PAIR}.hor.bed
+
+grep "D" ${HORHAP_BED} | cut -f1-3,8 >> ${LOCAL_FOLDER}/${SMP_PAIR}.hor.bed
+
+# Run SV comparison
+python3 /private/groups/patenlab/mira/centrolign/github/centrolign_analysis/scripts/sv_compare.py \
+    ${LOCAL_FOLDER}/${SMP_PAIR}.cen.bed \
+    ${LOCAL_FOLDER}/${SMP_PAIR}.hor.bed \
+    --max_dist 3000 --min_size_frac 0.5 \
+    --out_prefix ${OUTDIR}/${SMP_PAIR} --bed9 --debug
+
+# Auto-generate synteny plots showing cenhap and horhap SV qualities
+# get start coord of alpha sat sequence
+SMP1_START=`grep chrX /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2_QC_v2/per_smp_asat_beds/${SMP1}_asat_arrays.bed | cut -f2`
+
+SMP2_START=`grep chrX /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2_QC_v2/per_smp_asat_beds/${SMP2}_asat_arrays.bed | cut -f2`
+
+echo $SMP1_START
+echo $SMP2_START
+
+# HORHAP
+awk -F'\t' -v OFS='\t' -v n=${SMP1_START} '{ $2 -= n; $3 -= n }1' ${OUTDIR}/${SMP_PAIR}_BED2.bed9 | grep ${SMP1} > ${LOCAL_FOLDER}/${SMP1}_sv_horhap.bed
+
+awk -F'\t' -v OFS='\t' -v n=${SMP2_START} '{ $2 -= n; $3 -= n }1' ${OUTDIR}/${SMP_PAIR}_BED2.bed9 | grep ${SMP2} > ${LOCAL_FOLDER}/${SMP2}_sv_horhap.bed
+
+# CENTROLIGN
+awk -F'\t' -v OFS='\t' -v n=${SMP1_START} '{ $2 -= n; $3 -= n }1' ${OUTDIR}/${SMP_PAIR}_BED1.bed9 | grep ${SMP1} > ${LOCAL_FOLDER}/${SMP1}_sv_cen.bed
+
+awk -F'\t' -v OFS='\t' -v n=${SMP2_START} '{ $2 -= n; $3 -= n }1' ${OUTDIR}/${SMP_PAIR}_BED1.bed9 | grep ${SMP2} > ${LOCAL_FOLDER}/${SMP2}_sv_cen.bed
+
+# Generate synteny plots
+source /private/home/mmastora/miniconda3/etc/profile.d/conda.sh
+conda activate synteny
+
+mkdir -p ${OUTDIR}/synteny_plots
+# horhap view
+python /private/groups/migalab/juklucas/centrolign/chr12_test125/synteny_plot_bokeh.py   \
+    --beds \
+        ${LOCAL_FOLDER}/${SMP1}_sv_horhap.bed \
+        ${LOCAL_FOLDER}/${SMP2}_sv_horhap.bed \
+    --cigars \
+        /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2_QC_v2/MSA/chrX/induced_pairwise_cigars/pairwise_cigar_${SMP1}_${SMP2}.txt \
+    --output ${OUTDIR}/synteny_plots/md3k_msf0.5_${SMP1}_${SMP2}_synteny.horhap.html \
+    --show-mismatches \
+    --web
+
+# centrolign view
+python /private/groups/migalab/juklucas/centrolign/chr12_test125/synteny_plot_bokeh.py   \
+    --beds \
+        ${LOCAL_FOLDER}/${SMP1}_sv_cen.bed \
+        ${LOCAL_FOLDER}/${SMP2}_sv_cen.bed \
+    --cigars \
+        /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2_QC_v2/MSA/chrX/induced_pairwise_cigars/pairwise_cigar_${SMP1}_${SMP2}.txt \
+    --output ${OUTDIR}/synteny_plots/md3k_msf0.5_${SMP1}_${SMP2}_synteny.cen.html \
+    --show-mismatches \
+    --web
+
+rm -rf ${LOCAL_FOLDER}
+```
+
+Submitting script
+```sh
+mkdir -p /private/groups/patenlab/mira/centrolign/analysis/SVs_pairwise/chr12/cenHap4_benchmarking_HorHaps/sv_compare
+cd /private/groups/patenlab/mira/centrolign/analysis/SVs_pairwise/chr12/cenHap4_benchmarking_HorHaps/sv_compare
+
+mkdir md3k_msf0.5
+mkdir -p logs
+
+sbatch sv_compare.sh
+```
+
+#### SV compare 2 - windows
+
+Submitting script
+```sh
+mkdir -p /private/groups/patenlab/mira/centrolign/analysis/SVs_pairwise/chr12/cenHap4_benchmarking_HorHaps/sv_compare2
+cd /private/groups/patenlab/mira/centrolign/analysis/SVs_pairwise/chr12/cenHap4_benchmarking_HorHaps/sv_compare2
+
+mkdir md3k_msf0.5
+mkdir -p logs
+
+sbatch sv_compare.sh
+```
+
+```sh
+#!/bin/bash
+#SBATCH --job-name=sv_compare
+#SBATCH --partition=short
+#SBATCH --mail-user=mmastora@ucsc.edu
+#SBATCH --mail-type=END
+#SBATCH --nodes=1
+#SBATCH --mem=50gb
+#SBATCH --ntasks=1
+#SBATCH --cpus-per-task=1
+#SBATCH --time=1:00:00
+#SBATCH --output=logs/sv_compare_%x.%j.log
+#SBATCH --array=[1-1485]%100
+
+BED_CSV=/private/groups/patenlab/mira/centrolign/analysis/SVs_pairwise/chr12/cenHap4_benchmarking_HorHaps/matched_beds.filt.csv
+
+CENTROLIGN_BED=$(awk -F"," "NR==$SLURM_ARRAY_TASK_ID" "$BED_CSV" | cut -f1 -d",")
+HORHAP_BED=$(awk -F"," "NR==$SLURM_ARRAY_TASK_ID" "$BED_CSV" | cut -f2 -d",")
+
+SMP_PAIR=$(basename -s .bed $CENTROLIGN_BED )
+SMP1="${SMP_PAIR%%_*}"
+SMP2="${SMP_PAIR##*_}"  
+
+echo $SMP_PAIR
+echo $CENTROLIGN_BED
+echo $HORHAP_BED
+
+LOCAL_FOLDER=/data/tmp/$(whoami)/chr12_cenhap4_${SMP_PAIR}/
+mkdir -p ${LOCAL_FOLDER}
+
+OUTDIR=/private/groups/patenlab/mira/centrolign/analysis/horhap_SV_concordance/f1_scores/chr12/sv_compare2/md3k_msf0.5
+mkdir -p $OUTDIR/
+
+# select only insertions from query, deletions from ref coords
+grep "I" ${CENTROLIGN_BED} | cut -f4,5,6,8 > ${LOCAL_FOLDER}/${SMP_PAIR}.cen.bed
+
+grep "D" ${CENTROLIGN_BED} | cut -f1-3,8 >> ${LOCAL_FOLDER}/${SMP_PAIR}.cen.bed
+
+grep "I" ${HORHAP_BED} | cut -f4,5,6,8 > ${LOCAL_FOLDER}/${SMP_PAIR}.hor.bed
+
+grep "D" ${HORHAP_BED} | cut -f1-3,8 >> ${LOCAL_FOLDER}/${SMP_PAIR}.hor.bed
+
+# Run SV comparison
+python3 /private/groups/patenlab/mira/centrolign/github/centrolign_analysis/scripts/sv_compare2.py \
+    ${LOCAL_FOLDER}/${SMP_PAIR}.cen.bed \
+    ${LOCAL_FOLDER}/${SMP_PAIR}.hor.bed \
+    --max_dist 3000 --min_size_frac 0.5 \
+    --out_prefix ${OUTDIR}/${SMP_PAIR} --bed9 --debug
+
+# Auto-generate synteny plots showing cenhap and horhap SV qualities
+# get start coord of alpha sat sequence
+SMP1_START=`grep chr12 /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2_QC_v2/per_smp_asat_beds/${SMP1}_asat_arrays.bed | cut -f2`
+
+SMP2_START=`grep chr12 /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2_QC_v2/per_smp_asat_beds/${SMP2}_asat_arrays.bed | cut -f2`
+
+echo $SMP1_START
+echo $SMP2_START
+
+# HORHAP
+awk -F'\t' -v OFS='\t' -v n=${SMP1_START} '{ $2 -= n; $3 -= n }1' ${OUTDIR}/${SMP_PAIR}_BED2.bed9 | grep ${SMP1} > ${LOCAL_FOLDER}/${SMP1}_sv_horhap.bed
+
+awk -F'\t' -v OFS='\t' -v n=${SMP2_START} '{ $2 -= n; $3 -= n }1' ${OUTDIR}/${SMP_PAIR}_BED2.bed9 | grep ${SMP2} > ${LOCAL_FOLDER}/${SMP2}_sv_horhap.bed
+
+# CENTROLIGN
+awk -F'\t' -v OFS='\t' -v n=${SMP1_START} '{ $2 -= n; $3 -= n }1' ${OUTDIR}/${SMP_PAIR}_BED1.bed9 | grep ${SMP1} > ${LOCAL_FOLDER}/${SMP1}_sv_cen.bed
+
+awk -F'\t' -v OFS='\t' -v n=${SMP2_START} '{ $2 -= n; $3 -= n }1' ${OUTDIR}/${SMP_PAIR}_BED1.bed9 | grep ${SMP2} > ${LOCAL_FOLDER}/${SMP2}_sv_cen.bed
+
+# Generate synteny plots
+source /private/home/mmastora/miniconda3/etc/profile.d/conda.sh
+conda activate synteny
+
+mkdir -p ${OUTDIR}/synteny_plots
+# horhap view
+python /private/groups/migalab/juklucas/centrolign/chr12_test125/synteny_plot_bokeh.py   \
+    --beds \
+        ${LOCAL_FOLDER}/${SMP1}_sv_horhap.bed \
+        ${LOCAL_FOLDER}/${SMP2}_sv_horhap.bed \
+    --cigars \
+        /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2_QC_v2/MSA/chr12/subgroup_1/induced_pairwise_cigars/pairwise_cigar_${SMP1}_${SMP2}.txt \
+    --output ${OUTDIR}/synteny_plots/md3k_msf0.5_${SMP1}_${SMP2}_synteny.horhap.html \
+    --show-mismatches \
+    --web
+
+# centrolign view
+python /private/groups/migalab/juklucas/centrolign/chr12_test125/synteny_plot_bokeh.py   \
+    --beds \
+        ${LOCAL_FOLDER}/${SMP1}_sv_cen.bed \
+        ${LOCAL_FOLDER}/${SMP2}_sv_cen.bed \
+    --cigars \
+        /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2_QC_v2/MSA/chr12/subgroup_1/induced_pairwise_cigars/pairwise_cigar_${SMP1}_${SMP2}.txt \
+    --output ${OUTDIR}/synteny_plots/md3k_msf0.5_${SMP1}_${SMP2}_synteny.cen.html \
+    --show-mismatches \
+    --web
+
+rm -rf ${LOCAL_FOLDER}
+```
+
+
+Chr X SVcompare2
+
+```sh
+#!/bin/bash
+#SBATCH --job-name=sv_compare2_chrX
+#SBATCH --partition=short
+#SBATCH --mail-user=mmastora@ucsc.edu
+#SBATCH --mail-type=END
+#SBATCH --nodes=1
+#SBATCH --mem=50gb
+#SBATCH --ntasks=1
+#SBATCH --cpus-per-task=1
+#SBATCH --time=1:00:00
+#SBATCH --output=logs/sv_compare_%x.%j.log
+#SBATCH --array=[1-6991]%100
+
+BED_CSV=/private/groups/patenlab/mira/centrolign/analysis/horhap_SV_concordance/f1_scores/chrX/matched_beds.filt.csv
+
+CENTROLIGN_BED=$(awk -F"," "NR==$SLURM_ARRAY_TASK_ID" "$BED_CSV" | cut -f1 -d",")
+HORHAP_BED=$(awk -F"," "NR==$SLURM_ARRAY_TASK_ID" "$BED_CSV" | cut -f2 -d",")
+
+SMP_PAIR=$(basename -s .bed $CENTROLIGN_BED )
+SMP1="${SMP_PAIR%%_*}"
+SMP2="${SMP_PAIR##*_}"  
+
+echo $SMP_PAIR
+echo $CENTROLIGN_BED
+echo $HORHAP_BED
+
+LOCAL_FOLDER=/data/tmp/$(whoami)/chrX_${SMP_PAIR}/
+mkdir -p ${LOCAL_FOLDER}
+
+OUTDIR=/private/groups/patenlab/mira/centrolign/analysis/horhap_SV_concordance/f1_scores/chrX/sv_compare2/md3k_msf0.5
+mkdir -p $OUTDIR/
+
+# select only insertions from query, deletions from ref coords
+grep "I" ${CENTROLIGN_BED} | cut -f4,5,6,8 > ${LOCAL_FOLDER}/${SMP_PAIR}.cen.bed
+
+grep "D" ${CENTROLIGN_BED} | cut -f1-3,8 >> ${LOCAL_FOLDER}/${SMP_PAIR}.cen.bed
+
+grep "I" ${HORHAP_BED} | cut -f4,5,6,8 > ${LOCAL_FOLDER}/${SMP_PAIR}.hor.bed
+
+grep "D" ${HORHAP_BED} | cut -f1-3,8 >> ${LOCAL_FOLDER}/${SMP_PAIR}.hor.bed
+
+# Run SV comparison
+python3 /private/groups/patenlab/mira/centrolign/github/centrolign_analysis/scripts/sv_comparev2.py \
+    ${LOCAL_FOLDER}/${SMP_PAIR}.cen.bed \
+    ${LOCAL_FOLDER}/${SMP_PAIR}.hor.bed \
+    --max_dist 3000 --min_size_frac 0.5 \
+    --out_prefix ${OUTDIR}/${SMP_PAIR} --bed9 --debug
+
+# Auto-generate synteny plots showing cenhap and horhap SV qualities
+# get start coord of alpha sat sequence
+SMP1_START=`grep chrX /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2_QC_v2/per_smp_asat_beds/${SMP1}_asat_arrays.bed | cut -f2`
+
+SMP2_START=`grep chrX /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2_QC_v2/per_smp_asat_beds/${SMP2}_asat_arrays.bed | cut -f2`
+
+echo $SMP1_START
+echo $SMP2_START
+
+# HORHAP
+awk -F'\t' -v OFS='\t' -v n=${SMP1_START} '{ $2 -= n; $3 -= n }1' ${OUTDIR}/${SMP_PAIR}_BED2.bed9 | grep ${SMP1} > ${LOCAL_FOLDER}/${SMP1}_sv_horhap.bed
+
+awk -F'\t' -v OFS='\t' -v n=${SMP2_START} '{ $2 -= n; $3 -= n }1' ${OUTDIR}/${SMP_PAIR}_BED2.bed9 | grep ${SMP2} > ${LOCAL_FOLDER}/${SMP2}_sv_horhap.bed
+
+# CENTROLIGN
+awk -F'\t' -v OFS='\t' -v n=${SMP1_START} '{ $2 -= n; $3 -= n }1' ${OUTDIR}/${SMP_PAIR}_BED1.bed9 | grep ${SMP1} > ${LOCAL_FOLDER}/${SMP1}_sv_cen.bed
+
+awk -F'\t' -v OFS='\t' -v n=${SMP2_START} '{ $2 -= n; $3 -= n }1' ${OUTDIR}/${SMP_PAIR}_BED1.bed9 | grep ${SMP2} > ${LOCAL_FOLDER}/${SMP2}_sv_cen.bed
+
+# Generate synteny plots
+source /private/home/mmastora/miniconda3/etc/profile.d/conda.sh
+conda activate synteny
+
+mkdir -p ${OUTDIR}/synteny_plots
+# horhap view
+python /private/groups/migalab/juklucas/centrolign/chr12_test125/synteny_plot_bokeh.py   \
+    --beds \
+        ${LOCAL_FOLDER}/${SMP1}_sv_horhap.bed \
+        ${LOCAL_FOLDER}/${SMP2}_sv_horhap.bed \
+    --cigars \
+        /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2_QC_v2/MSA/chrX/induced_pairwise_cigars/pairwise_cigar_${SMP1}_${SMP2}.txt \
+    --output ${OUTDIR}/synteny_plots/md3k_msf0.5_${SMP1}_${SMP2}_synteny.horhap.html \
+    --show-mismatches \
+    --web
+
+# centrolign view
+python /private/groups/migalab/juklucas/centrolign/chr12_test125/synteny_plot_bokeh.py   \
+    --beds \
+        ${LOCAL_FOLDER}/${SMP1}_sv_cen.bed \
+        ${LOCAL_FOLDER}/${SMP2}_sv_cen.bed \
+    --cigars \
+        /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2_QC_v2/MSA/chrX/induced_pairwise_cigars/pairwise_cigar_${SMP1}_${SMP2}.txt \
+    --output ${OUTDIR}/synteny_plots/md3k_msf0.5_${SMP1}_${SMP2}_synteny.cen.html \
+    --show-mismatches \
+    --web
+
+rm -rf ${LOCAL_FOLDER}
+```
+
+Submitting script
+```sh
+mkdir -p /private/groups/patenlab/mira/centrolign/analysis/horhap_SV_concordance/f1_scores/chrX/sv_compare2
+cd /private/groups/patenlab/mira/centrolign/analysis/horhap_SV_concordance/f1_scores/chrX/sv_compare2
+
+mkdir md3k_msf0.5
+mkdir -p logs
+
+sbatch sv_compare.sh
+```
+
+## Trying chrX with 2x average STV size (4500)
+```sh
+#!/bin/bash
+#SBATCH --job-name=sv_compare2_chrX
+#SBATCH --partition=short
+#SBATCH --mail-user=mmastora@ucsc.edu
+#SBATCH --mail-type=END
+#SBATCH --nodes=1
+#SBATCH --mem=50gb
+#SBATCH --ntasks=1
+#SBATCH --cpus-per-task=1
+#SBATCH --time=1:00:00
+#SBATCH --output=logs/sv_compare_%x.%j.log
+#SBATCH --array=[1-6991]%100
+
+BED_CSV=/private/groups/patenlab/mira/centrolign/analysis/horhap_SV_concordance/f1_scores/chrX/matched_beds.filt.csv
+
+CENTROLIGN_BED=$(awk -F"," "NR==$SLURM_ARRAY_TASK_ID" "$BED_CSV" | cut -f1 -d",")
+HORHAP_BED=$(awk -F"," "NR==$SLURM_ARRAY_TASK_ID" "$BED_CSV" | cut -f2 -d",")
+
+SMP_PAIR=$(basename -s .bed $CENTROLIGN_BED )
+SMP1="${SMP_PAIR%%_*}"
+SMP2="${SMP_PAIR##*_}"  
+
+echo $SMP_PAIR
+echo $CENTROLIGN_BED
+echo $HORHAP_BED
+
+LOCAL_FOLDER=/data/tmp/$(whoami)/chrX_${SMP_PAIR}/
+mkdir -p ${LOCAL_FOLDER}
+
+OUTDIR=/private/groups/patenlab/mira/centrolign/analysis/horhap_SV_concordance/f1_scores/chrX/sv_compare2/md4.5k_msf0.5
+mkdir -p $OUTDIR/
+
+# select only insertions from query, deletions from ref coords
+grep "I" ${CENTROLIGN_BED} | cut -f4,5,6,8 > ${LOCAL_FOLDER}/${SMP_PAIR}.cen.bed
+
+grep "D" ${CENTROLIGN_BED} | cut -f1-3,8 >> ${LOCAL_FOLDER}/${SMP_PAIR}.cen.bed
+
+grep "I" ${HORHAP_BED} | cut -f4,5,6,8 > ${LOCAL_FOLDER}/${SMP_PAIR}.hor.bed
+
+grep "D" ${HORHAP_BED} | cut -f1-3,8 >> ${LOCAL_FOLDER}/${SMP_PAIR}.hor.bed
+
+# Run SV comparison
+python3 /private/groups/patenlab/mira/centrolign/github/centrolign_analysis/scripts/sv_comparev2.py \
+    ${LOCAL_FOLDER}/${SMP_PAIR}.cen.bed \
+    ${LOCAL_FOLDER}/${SMP_PAIR}.hor.bed \
+    --max_dist 4500 --min_size_frac 0.5 \
+    --out_prefix ${OUTDIR}/${SMP_PAIR} --bed9 --debug
+
+# Auto-generate synteny plots showing cenhap and horhap SV qualities
+# get start coord of alpha sat sequence
+SMP1_START=`grep chrX /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2_QC_v2/per_smp_asat_beds/${SMP1}_asat_arrays.bed | cut -f2`
+
+SMP2_START=`grep chrX /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2_QC_v2/per_smp_asat_beds/${SMP2}_asat_arrays.bed | cut -f2`
+
+echo $SMP1_START
+echo $SMP2_START
+
+# HORHAP
+awk -F'\t' -v OFS='\t' -v n=${SMP1_START} '{ $2 -= n; $3 -= n }1' ${OUTDIR}/${SMP_PAIR}_BED2.bed9 | grep ${SMP1} > ${LOCAL_FOLDER}/${SMP1}_sv_horhap.bed
+
+awk -F'\t' -v OFS='\t' -v n=${SMP2_START} '{ $2 -= n; $3 -= n }1' ${OUTDIR}/${SMP_PAIR}_BED2.bed9 | grep ${SMP2} > ${LOCAL_FOLDER}/${SMP2}_sv_horhap.bed
+
+# CENTROLIGN
+awk -F'\t' -v OFS='\t' -v n=${SMP1_START} '{ $2 -= n; $3 -= n }1' ${OUTDIR}/${SMP_PAIR}_BED1.bed9 | grep ${SMP1} > ${LOCAL_FOLDER}/${SMP1}_sv_cen.bed
+
+awk -F'\t' -v OFS='\t' -v n=${SMP2_START} '{ $2 -= n; $3 -= n }1' ${OUTDIR}/${SMP_PAIR}_BED1.bed9 | grep ${SMP2} > ${LOCAL_FOLDER}/${SMP2}_sv_cen.bed
+
+# Generate synteny plots
+source /private/home/mmastora/miniconda3/etc/profile.d/conda.sh
+conda activate synteny
+
+mkdir -p ${OUTDIR}/synteny_plots
+# horhap view
+python /private/groups/migalab/juklucas/centrolign/chr12_test125/synteny_plot_bokeh.py   \
+    --beds \
+        ${LOCAL_FOLDER}/${SMP1}_sv_horhap.bed \
+        ${LOCAL_FOLDER}/${SMP2}_sv_horhap.bed \
+    --cigars \
+        /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2_QC_v2/MSA/chrX/induced_pairwise_cigars/pairwise_cigar_${SMP1}_${SMP2}.txt \
+    --output ${OUTDIR}/synteny_plots/md4.5k_msf0.5_${SMP1}_${SMP2}_synteny.horhap.html \
+    --show-mismatches \
+    --web
+
+# centrolign view
+python /private/groups/migalab/juklucas/centrolign/chr12_test125/synteny_plot_bokeh.py   \
+    --beds \
+        ${LOCAL_FOLDER}/${SMP1}_sv_cen.bed \
+        ${LOCAL_FOLDER}/${SMP2}_sv_cen.bed \
+    --cigars \
+        /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2_QC_v2/MSA/chrX/induced_pairwise_cigars/pairwise_cigar_${SMP1}_${SMP2}.txt \
+    --output ${OUTDIR}/synteny_plots/md4.5k_msf0.5_${SMP1}_${SMP2}_synteny.cen.html \
+    --show-mismatches \
+    --web
+
+rm -rf ${LOCAL_FOLDER}
+```
+
+Submitting script
+```sh
+mkdir -p /private/groups/patenlab/mira/centrolign/analysis/horhap_SV_concordance/f1_scores/chrX/sv_compare2
+cd /private/groups/patenlab/mira/centrolign/analysis/horhap_SV_concordance/f1_scores/chrX/sv_compare2
+
+mkdir md4.5k_msf0.5
+mkdir -p logs
+
+sbatch sv_compare.sh
+```
