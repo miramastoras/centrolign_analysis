@@ -89,8 +89,8 @@ def main():
         # Reference rows
         ref_df = pd.DataFrame({
             "contig": ref_contig,
-            "start": df["ref_pos"] - 1 + ref_offset,
-            "end": df["ref_pos"] + ref_offset,
+            "start": df["ref_pos"] + ref_offset,
+            "end": df["ref_pos"] + ref_offset + 1 ,
             "role": "reference",
             "local_snv_rate_percentile": df["local_snv_rate_percentile"],
             "dist_to_break": df["dist_to_break"],
@@ -99,8 +99,8 @@ def main():
         # Query rows
         qry_df = pd.DataFrame({
             "contig": qry_contig,
-            "start": df["qry_pos"] - 1 + qry_offset,
-            "end": df["qry_pos"] + qry_offset,
+            "start": df["qry_pos"] + qry_offset,
+            "end": df["qry_pos"] + qry_offset +1,
             "role": "query",
             "local_snv_rate_percentile": df["local_snv_rate_percentile"],
             "dist_to_break": df["dist_to_break"],
