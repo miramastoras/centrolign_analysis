@@ -805,6 +805,8 @@ ls /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release
 done
 ```
 
+python3 /private/groups/patenlab/mira/centrolign/github/censat_paper/scripts/centrolign_result_parsing/reverse_cigar.py /private/groups/patenlab/mira/rev_cigar/
+
 ```sh
 #!/bin/bash
 #SBATCH --job-name=sv_compare
@@ -971,6 +973,12 @@ cd /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release
 
 ls | while read line ; do
     awk -F',' '$3 <= 0.4' $line > /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2_QC_v2/all_pairs/distance_matrices_lt0.4/$line
+done
+
+cd /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2_QC_v2/all_pairs/distance_matrices
+
+ls | while read line ; do
+    awk -F',' '$3 <= 0.2' $line > /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2_QC_v2/all_pairs/distance_matrices_lt0.2/$line
 done
 ```
 ### Chr X horHap SV concordance

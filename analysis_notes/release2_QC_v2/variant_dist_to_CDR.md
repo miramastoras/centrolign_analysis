@@ -352,7 +352,7 @@ Run for SNVs
 ### Run for SNVs - raw
 
 Convert Julian's SNV csv files into bed files in asm coordinates
-
+- reran this correctig my script convert_SNV_csv_to_bed.py because Julian's files weren't bed coordinates, everything was shifted by 1
 ```sh
 #!/bin/bash
 #SBATCH --job-name=convert_SNV_bed_to_asm_coords
@@ -446,6 +446,8 @@ ls *.bed | while read -r bed ; do
 
     rm -rf ${LOCAL_FOLDER}
 ```
+
+
 
 ### Run for SNVs - filtered csv files
 
@@ -547,3 +549,66 @@ ls *.bed | while read -r bed ; do
 
     rm -rf ${LOCAL_FOLDER}
 ```
+
+### Need to show SNV and short indel rate over aligned bases. For every window, per pairwise comparison, get # of aligned bases in the window
+
+Get list of sample pairs per chromosome < 0.2 distance, with their contig IDs to pass to the script
+```sh
+cd /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2_QC_v2/all_pairs/distance_matrices
+
+ls | while read line ; do
+    awk -F',' '$3 <= 0.2' $line > /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2_QC_v2/all_pairs/distance_matrices_lt0.2/$line
+done
+
+chromosomes=("chr1" "chr2" "chr3" "chr4" "chr5" "chr6" "chr7" "chr8" "chr9" "chr10" "chr11" "chr12" "chr13" "chr14" "chr15" "chr16" "chr17" "chr18" "chr19" "chr20" "chr21" "chr22" "chrX" "chrY")
+
+### need to add cigar string path location to contig maps
+
+for chr in "${chromosomes[@]}";
+    do
+      cat /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2_QC_v2/all_pairs/distance_matrices_lt0.2/${chr}_r2_QC_v2_centrolign_pairwise_distance.csv | while IFS=',' read -r smp1 smp2 dist ; do
+        smp1_contig=`grep "${chr}$" /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2_QC_v2/per_smp_asat_beds/${smp1}_asat_arrays.bed | cut -f1`
+        smp2_contig=`grep "${chr}$" /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2_QC_v2/per_smp_asat_beds/${smp2}_asat_arrays.bed | cut -f1`
+
+        echo ${smp1},${smp1_contig},${smp2},${smp2_contig} >> /private/groups/patenlab/mira/centrolign/analysis/variant_dist_CDR/aligned_bases_per_bed/dist_0.2_smp_contig_maps/${chr}.contig_maps.csv
+    done
+done
+```
+
+Run script per chromosome
+```sh
+#!/bin/bash
+#SBATCH --job-name=CDR_dist_snv_windows_raw
+#SBATCH --partition=medium
+#SBATCH --mail-user=mmastora@ucsc.edu
+#SBATCH --mail-type=END
+#SBATCH --nodes=1
+#SBATCH --mem=50gb
+#SBATCH --ntasks=1
+#SBATCH --cpus-per-task=1
+#SBATCH --output=logs/call_SVs_%x.%j.log
+#SBATCH --time=12:00:00
+#SBATCH --array=[0-23]%24
+
+# activate environment for bedtools
+source /private/home/mmastora/miniconda3/etc/profile.d/conda.sh
+conda activate base
+
+chromosomes=("chr1" "chr2" "chr3" "chr4" "chr5" "chr6" "chr7" "chr8" "chr9" "chr10" "chr11" "chr12" "chr13" "chr14" "chr15" "chr16" "chr17" "chr18" "chr19" "chr20" "chr21" "chr22" "chrX" "chrY")
+
+chr=${chromosomes[$SLURM_ARRAY_TASK_ID]}
+
+mkdir -p /private/groups/patenlab/mira/centrolign/analysis/variant_dist_CDR/aligned_bases_per_bed/SNVs_pairwise_raw_1kb/${chr}
+
+python /private/groups/patenlab/mira/centrolign/github/centrolign_analysis/scripts/get_aligned_bases_bed.py \
+    -c /private/groups/patenlab/mira/centrolign/analysis/variant_dist_CDR/aligned_bases_per_bed/dist_0.2_smp_contig_maps_cigars/${chr}.contig_maps.csv \
+    -b /private/groups/patenlab/mira/centrolign/analysis/variant_dist_CDR/SNVs_pairwise_raw/1kb/${chr}/ \
+    -s CDR_dist.1kb \
+    -o /private/groups/patenlab/mira/centrolign/analysis/variant_dist_CDR/aligned_bases_per_bed/SNVs_pairwise_raw_1kb/${chr}
+```
+
+python /private/groups/patenlab/mira/centrolign/github/centrolign_analysis/scripts/get_aligned_bases_bed.py \
+    -c /private/groups/patenlab/mira/centrolign/analysis/variant_dist_CDR/aligned_bases_per_bed/test/contig_maps.csv \
+    -b /private/groups/patenlab/mira/centrolign/analysis/variant_dist_CDR/aligned_bases_per_bed/test/ \
+    -s CDR_dist.1kb \
+    -o /private/groups/patenlab/mira/centrolign/analysis/variant_dist_CDR/aligned_bases_per_bed/test/output/
