@@ -23,7 +23,7 @@ echo $CLADE
 echo $CIGAR_PATH
 echo $SAMPLE_LIST
 
-mkdir -p ${OUTDIR}/${CHR}/short_indel_beds/${CLADE}/
+mkdir -p ${OUTDIR}/${CHR}/SNV_beds/${CLADE}/
 
 time python3 /private/groups/patenlab/mira/centrolign/github/centrolign_analysis/scripts/call_SNVs_pairwise.py \
   -c ${CIGAR_PATH}/pairwise_cigar_ \
