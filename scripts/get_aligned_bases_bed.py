@@ -83,32 +83,35 @@ def run_cigar_bed_wrapper(csv_file, bed_dir, bed_suffix, output_dir):
         for row in reader:
             # sample1, sample1_contig, sample2, sample2_contig, cigar_path
             s1, c1, s2, c2, cigar_file = row
-
+            print(f"Processing {s1} vs {s2}...")
             if not os.path.exists(cigar_file):
-                raise FileNotFoundError(cigar_file)
+                print(f"Cigar file {cigar_file} doesn't exist. Skipping sample pair {s1},{s2}")
+                continue
 
             # Infer ref/query from filename
             # pairwise_cigar_sampleA_sampleB.txt
             fname = os.path.basename(cigar_file)
             parts = fname.replace(".txt", "").split("_")
             if len(parts) != 4:
-                raise ValueError(f"Invalid cigar filename: {fname}")
+                print(f"Invalid cigar filename: {fname}")
+                continue
 
             _, _, ref_sample, query_sample = parts
 
             if frozenset((ref_sample, query_sample)) != frozenset((s1, s2)):
-                raise ValueError(
+                print(
                     f"Cigar samples {ref_sample},{query_sample} "
                     f"do not match CSV row {s1},{s2}"
                 )
-
+                continue
             # Map contigs
             ref_contig = c1 if ref_sample == s1 else c2
             query_contig = c2 if query_sample == s2 else c1
 
             key = frozenset((s1, s2))
             if key not in bed_index:
-                raise FileNotFoundError(f"No BED file for {s1}, {s2}")
+                print(f"No BED file for {s1}, {s2}. Skipping sample pair")
+                continue
 
             bed_file = bed_index[key]
 
@@ -116,7 +119,8 @@ def run_cigar_bed_wrapper(csv_file, bed_dir, bed_suffix, output_dir):
             query_windows, query_start = read_bed_subset(bed_file, query_contig)
 
             if ref_start is None or query_start is None:
-                raise ValueError("Missing BED entries for contigs")
+                print("Missing BED entries for contigs")
+                continue
 
             with open(cigar_file) as f:
                 cigar = f.readline().strip()
@@ -139,7 +143,7 @@ def run_cigar_bed_wrapper(csv_file, bed_dir, bed_suffix, output_dir):
                     start, end = int(fields[1]), int(fields[2])
                     out.write("\t".join(fields) + f"\t{count_aligned_bases(query_intervals, start, end)}\n")
 
-            print(f"Processed {s1} vs {s2}")
+            
 
 # -------------------------
 # CLI
