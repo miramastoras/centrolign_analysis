@@ -27,13 +27,13 @@ done
 
 Run SNV calling scripts
 ```sh
-mkdir -p /private/groups/patenlab/mira/centrolign/analysis/snvs_direct_pairwise
-cd /private/groups/patenlab/mira/centrolign/analysis/snvs_direct_pairwise
+mkdir -p /private/groups/patenlab/mira/centrolign/analysis/snvs_induced_pairwise
+cd /private/groups/patenlab/mira/centrolign/analysis/snvs_induced_pairwise
 
 mkdir -p logs
 
 sbatch --array=[1-43]%43 \
     /private/groups/patenlab/mira/centrolign/github/centrolign_analysis/analysis_notes/release2_QC_v2/slurm_scripts/call_snvs_pairwise.sh \
     /private/groups/patenlab/mira/centrolign/analysis/SVs_pairwise/12012025_completed_subgroups.csv \
-    /private/groups/patenlab/mira/centrolign/analysis/snvs_direct_pairwise
+    /private/groups/patenlab/mira/centrolign/analysis/snvs_induced_pairwise
 ```

@@ -1140,13 +1140,13 @@ OUTDIR=/private/groups/patenlab/mira/centrolign/analysis/horhap_SV_concordance/f
 mkdir -p $OUTDIR/
 
 # select only insertions from query, deletions from ref coords
-grep "I" ${CENTROLIGN_BED} | cut -f4,5,6,8 > ${LOCAL_FOLDER}/${SMP_PAIR}.cen.bed
+awk '$7 == "I"' ${CENTROLIGN_BED} | cut -f4,5,6,8 > ${LOCAL_FOLDER}/${SMP_PAIR}.cen.bed
 
-grep "D" ${CENTROLIGN_BED} | cut -f1-3,8 >> ${LOCAL_FOLDER}/${SMP_PAIR}.cen.bed
+awk '$7 == "D"' ${CENTROLIGN_BED} | cut -f1-3,8 >> ${LOCAL_FOLDER}/${SMP_PAIR}.cen.bed
 
-grep "I" ${HORHAP_BED} | cut -f4,5,6,8 > ${LOCAL_FOLDER}/${SMP_PAIR}.hor.bed
+awk '$7 == "I"' ${HORHAP_BED} | cut -f4,5,6,8 > ${LOCAL_FOLDER}/${SMP_PAIR}.hor.bed
 
-grep "D" ${HORHAP_BED} | cut -f1-3,8 >> ${LOCAL_FOLDER}/${SMP_PAIR}.hor.bed
+awk '$7 == "D"' ${HORHAP_BED} | cut -f1-3,8 >> ${LOCAL_FOLDER}/${SMP_PAIR}.hor.bed
 
 # Run SV comparison
 python3 /private/groups/patenlab/mira/centrolign/github/centrolign_analysis/scripts/sv_compare2.py \
@@ -1241,13 +1241,13 @@ OUTDIR=/private/groups/patenlab/mira/centrolign/analysis/horhap_SV_concordance/f
 mkdir -p $OUTDIR/
 
 # select only insertions from query, deletions from ref coords
-grep "I" ${CENTROLIGN_BED} | cut -f4,5,6,8 > ${LOCAL_FOLDER}/${SMP_PAIR}.cen.bed
+awk '$7 == "I"' ${CENTROLIGN_BED} | cut -f4,5,6,8 > ${LOCAL_FOLDER}/${SMP_PAIR}.cen.bed
 
-grep "D" ${CENTROLIGN_BED} | cut -f1-3,8 >> ${LOCAL_FOLDER}/${SMP_PAIR}.cen.bed
+awk '$7 == "D"' ${CENTROLIGN_BED} | cut -f1-3,8 >> ${LOCAL_FOLDER}/${SMP_PAIR}.cen.bed
 
-grep "I" ${HORHAP_BED} | cut -f4,5,6,8 > ${LOCAL_FOLDER}/${SMP_PAIR}.hor.bed
+awk '$7 == "I"' ${HORHAP_BED} | cut -f4,5,6,8 > ${LOCAL_FOLDER}/${SMP_PAIR}.hor.bed
 
-grep "D" ${HORHAP_BED} | cut -f1-3,8 >> ${LOCAL_FOLDER}/${SMP_PAIR}.hor.bed
+awk '$7 == "D"' ${HORHAP_BED} | cut -f1-3,8 >> ${LOCAL_FOLDER}/${SMP_PAIR}.hor.bed
 
 # Run SV comparison
 python3 /private/groups/patenlab/mira/centrolign/github/centrolign_analysis/scripts/sv_comparev2.py \
@@ -1351,13 +1351,13 @@ OUTDIR=/private/groups/patenlab/mira/centrolign/analysis/horhap_SV_concordance/f
 mkdir -p $OUTDIR/
 
 # select only insertions from query, deletions from ref coords
-grep "I" ${CENTROLIGN_BED} | cut -f4,5,6,8 > ${LOCAL_FOLDER}/${SMP_PAIR}.cen.bed
+awk '$7 == "I"' ${CENTROLIGN_BED} | cut -f4,5,6,8 > ${LOCAL_FOLDER}/${SMP_PAIR}.cen.bed
 
-grep "D" ${CENTROLIGN_BED} | cut -f1-3,8 >> ${LOCAL_FOLDER}/${SMP_PAIR}.cen.bed
+awk '$7 == "D"' ${CENTROLIGN_BED} | cut -f1-3,8 >> ${LOCAL_FOLDER}/${SMP_PAIR}.cen.bed
 
-grep "I" ${HORHAP_BED} | cut -f4,5,6,8 > ${LOCAL_FOLDER}/${SMP_PAIR}.hor.bed
+awk '$7 == "I"' ${HORHAP_BED} | cut -f4,5,6,8 > ${LOCAL_FOLDER}/${SMP_PAIR}.hor.bed
 
-grep "D" ${HORHAP_BED} | cut -f1-3,8 >> ${LOCAL_FOLDER}/${SMP_PAIR}.hor.bed
+awk '$7 == "D"' ${HORHAP_BED} | cut -f1-3,8 >> ${LOCAL_FOLDER}/${SMP_PAIR}.hor.bed
 
 # Run SV comparison
 python3 /private/groups/patenlab/mira/centrolign/github/centrolign_analysis/scripts/sv_comparev2.py \
