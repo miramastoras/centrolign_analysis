@@ -1132,3 +1132,130 @@ sbatch snvs.sh "10kb"
 sbatch snvs.sh "50kb"
 sbatch snvs.sh "100kb"
 ```
+
+
+Synteny plot for crazy sample on chr17
+```sh
+# get start coord of alpha sat sequence
+grep chr17 /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2_QC_v2/per_smp_asat_beds/HG01123.2_asat_arrays.bed
+# HG01123#2#JAGYYY020000044.1	23943596	25966173	chr17
+
+grep chr17 /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2_QC_v2/per_smp_asat_beds/HG00320.2_asat_arrays.bed
+# HG00320#2#CM089973.1	23861644	25819995	chr17
+```
+
+Run synteny plots
+```sh
+conda activate synteny
+
+python /private/groups/migalab/juklucas/centrolign/chr12_test125/synteny_plot_bokeh.py   \
+    --beds \
+        /private/groups/patenlab/mira/synteny_test/HG00320.2.bed \
+        /private/groups/patenlab/mira/synteny_test/HG01123.2.bed \
+    --cigars \
+        /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2_QC_v2/MSA/chr17/induced_pairwise_cigars/pairwise_cigar_HG00320.2_HG01123.2.txt \
+    --output /private/groups/patenlab/mira/synteny_test/HG00320.2_HG01123.2.html \
+    --show-mismatches \
+    --web
+```
+
+### SNVs filtered
+
+Convert Julian's SNV filtered csv files into bed files in asm coordinates
+
+```sh
+#!/bin/bash
+#SBATCH --job-name=convert_SNV_bed_to_asm_coords_filt
+#SBATCH --partition=medium
+#SBATCH --mail-user=mmastora@ucsc.edu
+#SBATCH --mail-type=END
+#SBATCH --nodes=1
+#SBATCH --mem=200gb
+#SBATCH --ntasks=1
+#SBATCH --cpus-per-task=1
+#SBATCH --output=logs/%x.%j.log
+#SBATCH --array=[0-23]%24
+#SBATCH --time=12:00:00
+
+source /private/home/mmastora/miniconda3/etc/profile.d/conda.sh
+conda activate ipynb
+
+chromosomes=("chr1" "chr2" "chr3" "chr4" "chr5" "chr6" "chr7" "chr8" "chr9" "chr10" "chr11" "chr12" "chr13" "chr14" "chr15" "chr16" "chr17" "chr18" "chr19" "chr20" "chr21" "chr22" "chrX" "chrY")
+
+chr=${chromosomes[$SLURM_ARRAY_TASK_ID]}
+
+mkdir -p /private/groups/patenlab/mira/centrolign/analysis/SNVs_induced_pairwise_asm_coords_10bp_95pct/${chr}/
+
+time python3 /private/groups/patenlab/mira/centrolign/github/centrolign_analysis/scripts/convert_SNV_csv_to_bed.py \
+  -i /private/groups/migalab/juklucas/centrolign/variant_calling/rates/${chr}/snv_calls/induced/filtered/ \
+  -a /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2_QC_v2/per_smp_asat_beds/ \
+  -c ${chr} \
+  -o /private/groups/patenlab/mira/centrolign/analysis/SNVs_induced_pairwise_asm_coords_10bp_95pct/${chr}/
+```
+
+Get distance to CDR for filtered SNVs
+```sh
+#!/bin/bash
+#SBATCH --job-name=CDR_dist_snv_windows_filt
+#SBATCH --partition=medium
+#SBATCH --mail-user=mmastora@ucsc.edu
+#SBATCH --mail-type=END
+#SBATCH --nodes=1
+#SBATCH --mem=50gb
+#SBATCH --ntasks=1
+#SBATCH --cpus-per-task=1
+#SBATCH --output=logs/call_SVs_%x.%j.log
+#SBATCH --time=12:00:00
+#SBATCH --array=[0-23]%24
+
+# activate environment for bedtools
+source /private/home/mmastora/miniconda3/etc/profile.d/conda.sh
+conda activate base
+
+chromosomes=("chr1" "chr2" "chr3" "chr4" "chr5" "chr6" "chr7" "chr8" "chr9" "chr10" "chr11" "chr12" "chr13" "chr14" "chr15" "chr16" "chr17" "chr18" "chr19" "chr20" "chr21" "chr22" "chrX" "chrY")
+
+chr=${chromosomes[$SLURM_ARRAY_TASK_ID]}
+
+WINDOWSIZE=$1
+
+LOCAL_FOLDER=/data/tmp/$(whoami)/${chr}_SNVs_${WINDOWSIZE}_tmps/
+mkdir -p ${LOCAL_FOLDER}
+mkdir -p /private/groups/patenlab/mira/centrolign/analysis/variant_dist_CDR/SNVs_pairwise_raw/${WINDOWSIZE}/${chr}
+
+cat /private/groups/patenlab/mira/centrolign/analysis/variant_dist_CDR/bed_lists_dist_0.2/SNVs_induced_raw/${chr}.bed_paths.txt | while read -r bed ; do
+        # for each bed get ref and query sample ID
+        REF_SMP=`echo $bed | basename $bed | cut -f1 -d"_"`
+        QUERY_SMP=`echo $bed | basename $bed | cut -f2 -d"_" | cut -f1-2 -d"."`
+
+        # convert bedPE into bed file, containing SV calls for both samples
+        cut -f1-3 $bed > ${LOCAL_FOLDER}/${REF_SMP}_${QUERY_SMP}.all_SNVs.bed
+        cut -f4-6 $bed >> ${LOCAL_FOLDER}/${REF_SMP}_${QUERY_SMP}.all_SNVs.bed
+
+        # get asm contig name
+        SMP1_contig=`head -n1 ${bed} | cut -f1`
+        SMP2_contig=`head -n1 ${bed} | cut -f4`
+
+        # concatenate window files for both samples, restricting just to contigs for this chrom
+        grep $SMP1_contig /private/groups/patenlab/mira/centrolign/analysis/variant_dist_CDR/per_smp_asat_beds_windows/${WINDOWSIZE}/${REF_SMP}_asat_arrays.bed > ${LOCAL_FOLDER}/${REF_SMP}_${QUERY_SMP}.w${WINDOWSIZE}.bed
+
+        grep $SMP2_contig /private/groups/patenlab/mira/centrolign/analysis/variant_dist_CDR/per_smp_asat_beds_windows/${WINDOWSIZE}/${QUERY_SMP}_asat_arrays.bed >> ${LOCAL_FOLDER}/${REF_SMP}_${QUERY_SMP}.w${WINDOWSIZE}.bed
+
+        # Use bedtools coverage to calculate number of SNV bases overlapping windows
+        bedtools coverage \
+          -a ${LOCAL_FOLDER}/${REF_SMP}_${QUERY_SMP}.w${WINDOWSIZE}.bed \
+          -b ${LOCAL_FOLDER}/${REF_SMP}_${QUERY_SMP}.all_SNVs.bed \
+          > ${LOCAL_FOLDER}/${REF_SMP}_${QUERY_SMP}.all_snvs.w${WINDOWSIZE}.bed
+
+        # use bedtools closest to get distance from CDR
+        bedtools sort -i ${LOCAL_FOLDER}/${REF_SMP}_${QUERY_SMP}.all_snvs.w${WINDOWSIZE}.bed > ${LOCAL_FOLDER}/${REF_SMP}_${QUERY_SMP}.all_snvs.w${WINDOWSIZE}.srt.bed
+
+        # Get distance to CDR for every SV call
+        bedtools closest \
+          -a ${LOCAL_FOLDER}/${REF_SMP}_${QUERY_SMP}.all_snvs.w${WINDOWSIZE}.srt.bed \
+          -b /private/groups/migalab/jmmenend/HPRC/cenSatProject/CDR_data/${chr}/${chr}.centrodip.bed \
+          -D a -t first \
+          > /private/groups/patenlab/mira/centrolign/analysis/variant_dist_CDR/SNVs_pairwise_raw/${WINDOWSIZE}/${chr}/${REF_SMP}_${QUERY_SMP}.CDR_dist.${WINDOWSIZE}.bed
+    done
+
+rm -rf ${LOCAL_FOLDER}
+```
