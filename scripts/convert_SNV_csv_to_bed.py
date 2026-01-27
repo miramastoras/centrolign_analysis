@@ -71,7 +71,8 @@ def main():
 
     for csv_path in csv_files:
         df = pd.read_csv(csv_path)
-
+        print(csv_path)
+        print(df.shape)
         ref_id = df["ref_id"].iloc[0]
         qry_id = df["qry_id"].iloc[0]
 
