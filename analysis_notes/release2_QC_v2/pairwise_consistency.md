@@ -452,3 +452,92 @@ time python3 /Users/miramastoras/Desktop/github_repos/centrolign_analysis/script
     /Users/miramastoras/Desktop/samples.txt \
     /Users/miramastoras/Desktop/unit_tests_
 ```
+
+### Compare direct and induced pairwise distances
+
+Calculate pairwise distances for induced cigar strings
+
+```sh
+cat /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2_QC_v2/MSA/centrolign_results.csv | grep "release 2 QC v2 " | grep -v "chr20," | cut -f1,10 -d"," | while IFS=$',' read -r subgroup cigar ; do
+    CHR=`echo "${subgroup%%_*}"`
+    mkdir -p /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2_QC_v2/MSA/induced_pairwise_distances/${CHR}/
+
+    python3 /private/groups/patenlab/mira/centrolign/github/centrolign_analysis/scripts/cigar_to_distance.py -d 1 \
+    -a ${cigar} \
+    -o /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2_QC_v2/MSA/induced_pairwise_distances/${CHR}/${subgroup}_r2_QC_v2_centrolign_induced_
+
+done
+
+for chr in "${chromosomes[@]}"
+do
+
+  done
+```
+
+### Investigate chrY
+
+Run synteny plots
+```sh
+
+cut -f1-3 /private/groups/patenlab/mira/centrolign/analysis/SVs_pairwise/chrY/SV_beds/chrY/HG01358.1_HG00621.1.bed | awk 'BEGIN{OFS="\t"} {print $1,$2,$3,".",0,".",$2,$3,"0,0,0"}'  > /private/groups/patenlab/mira/HG01358.1_HG00621.1.synteny.bed
+
+cut -f4-6 /private/groups/patenlab/mira/centrolign/analysis/SVs_pairwise/chrY/SV_beds/chrY/HG01358.1_HG00621.1.bed | awk 'BEGIN{OFS="\t"} {print $1,$2,$3,".",0,".",$2,$3,"0,0,0"}' > /private/groups/patenlab/mira/HG00621.1.synteny.bed
+
+
+conda activate synteny
+
+python /private/groups/migalab/juklucas/centrolign/chr12_test125/synteny_plot_bokeh.py   \
+    --beds \
+        /private/groups/patenlab/mira/HG01358.1_HG00621.1.synteny.bed \
+        /private/groups/patenlab/mira/HG00621.1.synteny.bed\
+    --cigars \
+        /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2_QC_v2/MSA/chrY/induced_pairwise_cigars/pairwise_cigar_HG01358.1_HG00621.1.txt \
+    --output /private/groups/patenlab/mira/HG01358.1_HG00621.1.induced.html \
+    --show-mismatches \
+    --web
+
+python3 /private/groups/patenlab/mira/centrolign/github/censat_paper/scripts/centrolign_result_parsing/reverse_cigar.py /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2_QC_v2/all_pairs/chrY/pairwise_cigar/pairwise_cigar_HG00621.1_HG01358.1.txt
+
+python /private/groups/migalab/juklucas/centrolign/chr12_test125/synteny_plot_bokeh.py   \
+    --beds \
+        /private/groups/patenlab/mira/HG01358.1_HG00621.1.synteny.bed \
+        /private/groups/patenlab/mira/HG00621.1.synteny.bed\
+    --cigars \
+        /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2_QC_v2/all_pairs/chrY/pairwise_cigar/pairwise_cigar_HG01358.1_HG00621.1.txt \
+    --output /private/groups/patenlab/mira/HG01358.1_HG00621.1.direct.html \
+    --show-mismatches \
+    --web
+```
+
+
+Run synteny plots
+```sh
+
+cut -f1-3 /private/groups/patenlab/mira/centrolign/analysis/SVs_pairwise/chrY/SV_beds/chrY/HG02391.1_NA20752.1.bed | awk 'BEGIN{OFS="\t"} {print $1,$2,$3,".",0,".",$2,$3,"0,0,0"}'  > /private/groups/patenlab/mira/HG02391.1_NA20752.1.chrY.synteny.bed
+
+cut -f4-6 /private/groups/patenlab/mira/centrolign/analysis/SVs_pairwise/chrY/SV_beds/chrY/HG02391.1_NA20752.1.bed | awk 'BEGIN{OFS="\t"} {print $1,$2,$3,".",0,".",$2,$3,"0,0,0"}'  > /private/groups/patenlab/mira/NA20752.1_HG02391.1.chrY.synteny.bed
+
+conda activate synteny
+
+python /private/groups/migalab/juklucas/centrolign/chr12_test125/synteny_plot_bokeh.py   \
+    --beds \
+        /private/groups/patenlab/mira/HG02391.1_NA20752.1.chrY.synteny.bed \
+         /private/groups/patenlab/mira/NA20752.1_HG02391.1.chrY.synteny.bed \
+    --cigars \
+        /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2_QC_v2/MSA/chrY/induced_pairwise_cigars/pairwise_cigar_HG02391.1_NA20752.1.txt \
+    --output /private/groups/patenlab/mira/HG02391.1_NA20752.1.induced.html \
+    --show-mismatches \
+    --web
+
+python3 /private/groups/patenlab/mira/centrolign/github/censat_paper/scripts/centrolign_result_parsing/reverse_cigar.py /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2_QC_v2/all_pairs/chrY/pairwise_cigar/pairwise_cigar_HG00621.1_HG01358.1.txt
+
+python /private/groups/migalab/juklucas/centrolign/chr12_test125/synteny_plot_bokeh.py   \
+    --beds \
+    /private/groups/patenlab/mira/HG02391.1_NA20752.1.chrY.synteny.bed \
+     /private/groups/patenlab/mira/NA20752.1_HG02391.1.chrY.synteny.bed \
+    --cigars \
+        /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2_QC_v2/all_pairs/chrY/pairwise_cigar/pairwise_cigar_HG02391.1_NA20752.1.txt \
+    --output /private/groups/patenlab/mira/HG02391.1_NA20752.1.direct.html \
+    --show-mismatches \
+    --web
+```

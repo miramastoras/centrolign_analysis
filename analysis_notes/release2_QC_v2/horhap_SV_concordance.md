@@ -1425,3 +1425,131 @@ mkdir -p logs
 
 sbatch sv_compare.sh
 ```
+
+#### Running SV COMPARE2 on all of CHR 12
+
+Submitting script
+```sh
+mkdir -p /private/groups/patenlab/mira/centrolign/analysis/horhap_SV_concordance/f1_scores/chr12/sv_compare2
+cd /private/groups/patenlab/mira/centrolign/analysis/horhap_SV_concordance/f1_scores/chr12/sv_compare2
+
+mkdir -p md3k_msf0.5
+mkdir -p logs
+
+sbatch sv_compare.sh
+```
+
+```sh
+#!/bin/bash
+#SBATCH --job-name=sv_compare2_chr12
+#SBATCH --partition=short
+#SBATCH --mail-user=mmastora@ucsc.edu
+#SBATCH --mail-type=END
+#SBATCH --nodes=1
+#SBATCH --mem=50gb
+#SBATCH --ntasks=1
+#SBATCH --cpus-per-task=1
+#SBATCH --time=1:00:00
+#SBATCH --output=logs/sv_compare_%x.%j.log
+#SBATCH --array=[1-1606]%100
+
+BED_CSV=/private/groups/patenlab/mira/centrolign/analysis/horhap_SV_concordance/f1_scores/chr12/matched_beds.csv
+
+CENTROLIGN_BED=$(awk -F"," "NR==$SLURM_ARRAY_TASK_ID" "$BED_CSV" | cut -f1 -d",")
+HORHAP_BED=$(awk -F"," "NR==$SLURM_ARRAY_TASK_ID" "$BED_CSV" | cut -f2 -d",")
+
+SMP_PAIR=$(basename -s .bed $CENTROLIGN_BED )
+SMP1="${SMP_PAIR%%_*}"
+SMP2="${SMP_PAIR##*_}"  
+
+echo $SMP_PAIR
+echo $CENTROLIGN_BED
+echo $HORHAP_BED
+
+LOCAL_FOLDER=/data/tmp/$(whoami)/chr12_cenhap4_${SMP_PAIR}/
+mkdir -p ${LOCAL_FOLDER}
+
+OUTDIR=/private/groups/patenlab/mira/centrolign/analysis/horhap_SV_concordance/f1_scores/chr12/sv_compare2/md3k_msf0.5
+mkdir -p $OUTDIR/
+
+# select only insertions from query, deletions from ref coords
+awk '$7 == "I"' ${CENTROLIGN_BED} | cut -f4,5,6,8 > ${LOCAL_FOLDER}/${SMP_PAIR}.cen.bed
+
+awk '$7 == "D"' ${CENTROLIGN_BED} | cut -f1-3,8 >> ${LOCAL_FOLDER}/${SMP_PAIR}.cen.bed
+
+awk '$7 == "I"' ${HORHAP_BED} | cut -f4,5,6,8 > ${LOCAL_FOLDER}/${SMP_PAIR}.hor.bed
+
+awk '$7 == "D"' ${HORHAP_BED} | cut -f1-3,8 >> ${LOCAL_FOLDER}/${SMP_PAIR}.hor.bed
+
+# Run SV comparison
+python3 /private/groups/patenlab/mira/centrolign/github/centrolign_analysis/scripts/sv_comparev2.py \
+    ${LOCAL_FOLDER}/${SMP_PAIR}.cen.bed \
+    ${LOCAL_FOLDER}/${SMP_PAIR}.hor.bed \
+    --max_dist 3000 --min_size_frac 0.5 \
+    --out_prefix ${OUTDIR}/${SMP_PAIR} --bed9 --debug
+
+rm -rf ${LOCAL_FOLDER}
+```
+
+#### Running SV COMPARE2 on all of CHR 11
+
+Submitting script
+```sh
+mkdir -p /private/groups/patenlab/mira/centrolign/analysis/horhap_SV_concordance/f1_scores/chr11/sv_compare2
+cd /private/groups/patenlab/mira/centrolign/analysis/horhap_SV_concordance/f1_scores/chr11/sv_compare2
+
+mkdir -p /private/groups/patenlab/mira/centrolign/analysis/horhap_SV_concordance/f1_scores/chr11/sv_compare2/md2.5k_msf0.5
+mkdir -p logs
+
+sbatch sv_compare.sh
+```
+
+```sh
+#!/bin/bash
+#SBATCH --job-name=sv_compare2_chr11
+#SBATCH --partition=short
+#SBATCH --mail-user=mmastora@ucsc.edu
+#SBATCH --mail-type=END
+#SBATCH --nodes=1
+#SBATCH --mem=50gb
+#SBATCH --ntasks=1
+#SBATCH --cpus-per-task=1
+#SBATCH --time=1:00:00
+#SBATCH --output=logs/sv_compare_%x.%j.log
+#SBATCH --array=[1-3981]%100
+
+BED_CSV=/private/groups/patenlab/mira/centrolign/analysis/horhap_SV_concordance/f1_scores/chr11/matched_beds.csv
+
+CENTROLIGN_BED=$(awk -F"," "NR==$SLURM_ARRAY_TASK_ID" "$BED_CSV" | cut -f1 -d",")
+HORHAP_BED=$(awk -F"," "NR==$SLURM_ARRAY_TASK_ID" "$BED_CSV" | cut -f2 -d",")
+
+SMP_PAIR=$(basename -s .bed $CENTROLIGN_BED )
+SMP1="${SMP_PAIR%%_*}"
+SMP2="${SMP_PAIR##*_}"  
+
+echo $SMP_PAIR
+echo $CENTROLIGN_BED
+echo $HORHAP_BED
+
+LOCAL_FOLDER=/data/tmp/$(whoami)/chr11_${SMP_PAIR}/
+mkdir -p ${LOCAL_FOLDER}
+
+OUTDIR=/private/groups/patenlab/mira/centrolign/analysis/horhap_SV_concordance/f1_scores/chr11/sv_compare2/md2.5k_msf0.5
+mkdir -p $OUTDIR/
+
+# select only insertions from query, deletions from ref coords
+awk '$7 == "I"' ${CENTROLIGN_BED} | cut -f4,5,6,8 > ${LOCAL_FOLDER}/${SMP_PAIR}.cen.bed
+
+awk '$7 == "D"' ${CENTROLIGN_BED} | cut -f1-3,8 >> ${LOCAL_FOLDER}/${SMP_PAIR}.cen.bed
+
+awk '$7 == "I"' ${HORHAP_BED} | cut -f4,5,6,8 > ${LOCAL_FOLDER}/${SMP_PAIR}.hor.bed
+
+awk '$7 == "D"' ${HORHAP_BED} | cut -f1-3,8 >> ${LOCAL_FOLDER}/${SMP_PAIR}.hor.bed
+
+# Run SV comparison
+python3 /private/groups/patenlab/mira/centrolign/github/centrolign_analysis/scripts/sv_comparev2.py \
+    ${LOCAL_FOLDER}/${SMP_PAIR}.cen.bed \
+    ${LOCAL_FOLDER}/${SMP_PAIR}.hor.bed \
+    --max_dist 2500 --min_size_frac 0.5 \
+    --out_prefix ${OUTDIR}/${SMP_PAIR} --bed9 --debug
+```

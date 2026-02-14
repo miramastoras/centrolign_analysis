@@ -477,12 +477,22 @@ done
 - if freq > 5%, get monomer and its length and write to TSV file
 ```
 
-### Plot the sizes of triangles versus local identity
+### Create low divergence clades for all chromosomes, for plotting mutation rates and coloring by clade relationship
 
-1. extract all chr 12 triangles
+```sh
+chromosomes=("chr1" "chr2" "chr3" "chr4" "chr5" "chr6" "chr7" "chr8" "chr9" "chr10" "chr11" "chr12" "chr13" "chr14" "chr15" "chr16" "chr17" "chr18" "chr19" "chr20" "chr21" "chr22" "chrX" "chrY")
 
-2. read in local identity bed files
+for chr in "${chromosomes[@]}"
+do
+  mkdir -p /private/groups/patenlab/mira/centrolign/analysis/low_divergence_clades/max_dist_0.8_min_pairwise_0.95/${chr}/
 
-3. if triangle overlaps two local identity bed regions, average them
-
-4. scatter plot of size vs local identity value
+  docker run -u `id -u`:`id -g` -v /private/groups:/private/groups/ \
+    miramastoras/centromere_scripts:v0.1.4 \
+    python3 /private/groups/patenlab/mira/centrolign/github/centrolign_analysis/scripts/identify_low_divergence_clades.py \
+  --newick /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2_QC_v2/all_pairs/nj_trees/${chr}_r2_QC_v2_centrolign_all_pairs_nj_tree.nwk \
+  --distance_csv /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2_QC_v2/all_pairs/distance_matrices/${chr}_r2_QC_v2_centrolign_pairwise_distance.csv \
+  --max_pairwise_dist 0.8 \
+  --min_pairwise_below_thresh 0.95 \
+  --output_prefix /private/groups/patenlab/mira/centrolign/analysis/low_divergence_clades/max_dist_0.8_min_pairwise_0.95/${chr}/
+done
+```

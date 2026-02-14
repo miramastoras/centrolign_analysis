@@ -441,3 +441,35 @@ python /private/groups/patenlab/mira/centrolign/github/centrolign_analysis/scrip
     -s all_short_indel_counts \
     -o /private/groups/patenlab/mira/centrolign/analysis/CDR_variant_regression/short_indels_triangles_aln_bases/${chr}
 ```
+
+Run script per chromosome
+```sh
+#!/bin/bash
+#SBATCH --job-name=CDR_dist_SNV_aln_bases
+#SBATCH --partition=medium
+#SBATCH --mail-user=mmastora@ucsc.edu
+#SBATCH --mail-type=END
+#SBATCH --nodes=1
+#SBATCH --mem=50gb
+#SBATCH --ntasks=1
+#SBATCH --cpus-per-task=1
+#SBATCH --output=logs/call_SVs_%x.%j.log
+#SBATCH --time=12:00:00
+#SBATCH --array=[0-23]%24
+
+# activate environment for bedtools
+source /private/home/mmastora/miniconda3/etc/profile.d/conda.sh
+conda activate base
+
+chromosomes=("chr1" "chr2" "chr3" "chr4" "chr5" "chr6" "chr7" "chr8" "chr9" "chr10" "chr11" "chr12" "chr13" "chr14" "chr15" "chr16" "chr17" "chr18" "chr19" "chr20" "chr21" "chr22" "chrX" "chrY")
+
+chr=${chromosomes[$SLURM_ARRAY_TASK_ID]}
+
+mkdir -p /private/groups/patenlab/mira/centrolign/analysis/CDR_variant_regression/SNVs_pairwise_raw_midpoint_aln_bases/${chr}
+
+python /private/groups/patenlab/mira/centrolign/github/centrolign_analysis/scripts/get_aligned_bases_bed.py \
+    -c /private/groups/patenlab/mira/centrolign/analysis/variant_dist_CDR/aligned_bases_per_bed/dist_0.2_smp_contig_maps_cigars/${chr}.contig_maps.csv \
+    -b /private/groups/patenlab/mira/centrolign/analysis/CDR_variant_regression/SNVs_pairwise_raw_midpoint/${CHR}/ \
+    -s all_snvs.local_id_CDR_dist \
+    -o /private/groups/patenlab/mira/centrolign/analysis/CDR_variant_regression/SNVs_pairwise_raw_midpoint_aln_bases/${chr}
+```

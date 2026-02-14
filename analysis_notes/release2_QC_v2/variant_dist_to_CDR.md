@@ -1159,6 +1159,34 @@ python /private/groups/migalab/juklucas/centrolign/chr12_test125/synteny_plot_bo
     --web
 ```
 
+For chr12 example
+
+Synteny plot for crazy sample on chr17
+```sh
+# get start coord of alpha sat sequence
+grep chr12 /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2_QC_v2/per_smp_asat_beds/HG01928.2_asat_arrays.bed
+# HG01928#2#CM089010.1	34729691	37139968	chr12
+
+grep chr12 /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2_QC_v2/per_smp_asat_beds/HG01943.2_asat_arrays.bed
+# HG01943#2#CM089366.1	34798095	37190711	chr12
+```
+
+Run synteny plots
+```sh
+conda activate synteny
+
+python /private/groups/migalab/juklucas/centrolign/chr12_test125/synteny_plot_bokeh.py   \
+    --beds \
+        /private/groups/patenlab/mira/synteny_test/HG01943.2.bed \
+        /private/groups/patenlab/mira/synteny_test/HG01928.2.bed \
+    --cigars \
+        /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2_QC_v2/MSA/chr12/subgroup_1/induced_pairwise_cigars/pairwise_cigar_HG01943.2_HG01928.2.txt \
+    --output /private/groups/patenlab/mira/synteny_test/HG01928.2_HG01943.2.html \
+    --show-mismatches \
+    --web
+```
+
+
 ### SNVs filtered
 
 Convert Julian's SNV filtered csv files into bed files in asm coordinates
