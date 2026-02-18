@@ -13,7 +13,7 @@
 source /private/home/mmastora/miniconda3/etc/profile.d/conda.sh
 conda activate ipynb 
 
-python /private/groups/patenlab/mira/centrolign/github/centrolign_analysis/analysis_notes/release2_QC_v2/notebooks/CDR_permutation_per_chrom_SNVs.py \
+python /private/groups/patenlab/mira/centrolign/github/centrolign_analysis/analysis_notes/release2_QC_v2/permutation_test_scripts/CDR_permutation_per_chrom_SNVs.py \
     --n-reps 10000 \
     --n-workers 24 \
     --output-dir /private/groups/patenlab/mira/centrolign/analysis/CDR_permutation/per_chrom_results_10k_reps_SNVs
