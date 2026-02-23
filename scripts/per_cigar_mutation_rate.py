@@ -126,19 +126,19 @@ def compute_mutation_counts(cigar_ops):
             if op == "I":
                 if length <= 49:
                     if passes_adj_filter(op, length, prev_op, prev_len, next_op, next_len):
-                        n_short_indels += 1
+                        n_short_indels += length
                 else:  # length > 49
                     if passes_adj_filter(op, length, prev_op, prev_len, next_op, next_len):
-                        n_svs += 1
+                        n_svs += length
             query_pos += length
 
         elif op == "D":
             if length <= 49:
                 if passes_adj_filter(op, length, prev_op, prev_len, next_op, next_len):
-                    n_short_indels += 1
+                    n_short_indels += length
             else:  # length > 49
                 if passes_adj_filter(op, length, prev_op, prev_len, next_op, next_len):
-                    n_svs += 1
+                    n_svs += length
             ref_pos += length
 
         else:
@@ -220,13 +220,13 @@ def main():
             "n_snvs_per_aligned_base_per_avg_len": (n_snvs / aligned_bases / avg_array_len
                                                     if aligned_bases > 0 and avg_array_len > 0
                                                     else 0),
-            "n_short_indels": n_short_indels,
+            "n_short_indels_bases": n_short_indels,
             "n_short_indels_per_aligned_base": (n_short_indels / aligned_bases
                                                 if aligned_bases > 0 else 0),
             "n_short_indels_per_aligned_base_per_avg_len": (n_short_indels / aligned_bases / avg_array_len
                                                             if aligned_bases > 0 and avg_array_len > 0
                                                             else 0),
-            "n_svs": n_svs,
+            "n_sv_bases": n_svs,
             "n_svs_per_avg_len": (n_svs / avg_array_len
                                   if avg_array_len > 0 else 0),
         }
