@@ -128,7 +128,7 @@ Calculate short indel triangle rate within local identity windows
 #SBATCH --cpus-per-task=1
 #SBATCH --output=logs/%x.%j.log
 #SBATCH --time=12:00:00
-#SBATCH --array=[1]%24
+#SBATCH --array=[0-23]%24
 
 # activate environment for bedtools
 source /private/home/mmastora/miniconda3/etc/profile.d/conda.sh
@@ -143,14 +143,7 @@ mkdir -p ${LOCAL_FOLDER}
 OUTDIR=/private/groups/patenlab/mira/centrolign/analysis/CDR_variant_regression/short_indels_triangles/${CHR}
 mkdir -p ${OUTDIR}
 
-grep "release 2 QC v2" /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2_QC_v2/MSA/centrolign_results.csv | grep -v "chr20," | grep -E "${CHR},|${CHR}_" | cut -f1,8,10 -d","  | head -n 1 | while IFS=',' read -r subgroup fasta cigar ; do
-
-    LOCAL_FOLDER=/data/tmp/$(whoami)/${CHR}_${subgroup}_short_indels_tmp/
-    mkdir -p ${LOCAL_FOLDER}
-    mkdir -p /private/groups/patenlab/mira/centrolign/analysis/variant_dist_CDR/short_indels_pairwise/${WINDOWSIZE}/${CHR}/
-
-    cd /private/groups/patenlab/mira/centrolign/analysis/short_indels_pairwise_asm_coords/${CHR}/short_indel_beds/${subgroup}/
-    ls *.bed | head -n 1 | while read -r bed ; do
+cat /private/groups/patenlab/mira/centrolign/analysis/variant_dist_CDR/bed_lists_dist_0.2/short_indels_induced/${chr}.bed_paths.txt | while read -r bed ; do
         # for each bed get ref and query sample ID
         REF_SMP=`echo $bed | basename $bed | cut -f1 -d"_"`
         QUERY_SMP=`echo $bed | basename $bed | cut -f2 -d"_" | cut -f1-2 -d"."`
@@ -187,16 +180,15 @@ grep "release 2 QC v2" /private/groups/patenlab/mira/centrolign/batch_submission
           > ${LOCAL_FOLDER}/${REF_SMP}_${QUERY_SMP}.local_id_CDR.tri.bed
 
         # combine into single file
-        cut -f1-6,9 ${LOCAL_FOLDER}/${REF_SMP}_${QUERY_SMP}.local_id_CDR.par.bed > ${LOCAL_FOLDER}/${REF_SMP}_${QUERY_SMP}.par_counts.bed
-        cut -f6,9 ${LOCAL_FOLDER}/${REF_SMP}_${QUERY_SMP}.local_id_CDR.trap.bed > ${LOCAL_FOLDER}/${REF_SMP}_${QUERY_SMP}.trap_counts.bed
-        cut -f6,9 ${LOCAL_FOLDER}/${REF_SMP}_${QUERY_SMP}.local_id_CDR.tri.bed > ${LOCAL_FOLDER}/${REF_SMP}_${QUERY_SMP}.tri_counts.bed
+        cut -f1-5,7,9 ${LOCAL_FOLDER}/${REF_SMP}_${QUERY_SMP}.local_id_CDR.par.bed > ${LOCAL_FOLDER}/${REF_SMP}_${QUERY_SMP}.par_counts.bed
+        cut -f7,9 ${LOCAL_FOLDER}/${REF_SMP}_${QUERY_SMP}.local_id_CDR.trap.bed > ${LOCAL_FOLDER}/${REF_SMP}_${QUERY_SMP}.trap_counts.bed
+        cut -f7,9 ${LOCAL_FOLDER}/${REF_SMP}_${QUERY_SMP}.local_id_CDR.tri.bed > ${LOCAL_FOLDER}/${REF_SMP}_${QUERY_SMP}.tri_counts.bed
 
         paste -d"\t" ${LOCAL_FOLDER}/${REF_SMP}_${QUERY_SMP}.par_counts.bed ${LOCAL_FOLDER}/${REF_SMP}_${QUERY_SMP}.trap_counts.bed ${LOCAL_FOLDER}/${REF_SMP}_${QUERY_SMP}.tri_counts.bed > ${OUTDIR}/${REF_SMP}_${QUERY_SMP}.all_short_indel_counts.bed
 
     done
 
-    rm -rf ${LOCAL_FOLDER}
-done
+rm -rf ${LOCAL_FOLDER}
 ```
 
 Calculate SV triangle rate within local identity windows
@@ -228,13 +220,7 @@ mkdir -p ${LOCAL_FOLDER}
 OUTDIR=/private/groups/patenlab/mira/centrolign/analysis/CDR_variant_regression/SVs_pairwise_all/${CHR}
 mkdir -p ${OUTDIR}
 
-grep "release 2 QC v2" /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2_QC_v2/MSA/centrolign_results.csv | grep -v "chr20," | grep -E "${CHR},|${CHR}_" | cut -f1,8,10 -d","  | head -n 1 | while IFS=',' read -r subgroup fasta cigar ; do
-
-    LOCAL_FOLDER=/data/tmp/$(whoami)/${CHR}_${subgroup}_SVs_tmp/
-    mkdir -p ${LOCAL_FOLDER}
-
-    cd /private/groups/patenlab/mira/centrolign/analysis/SVs_pairwise_asm_coords/${CHR}/SV_beds/${subgroup}/
-    ls *.bed | head -n 1 | while read -r bed ; do
+cat /private/groups/patenlab/mira/centrolign/analysis/variant_dist_CDR/bed_lists_dist_0.2/SVs_induced/${CHR}.bed_paths.txt | while read -r bed ; do
         # for each bed get ref and query sample ID
         REF_SMP=`echo $bed | basename $bed | cut -f1 -d"_"`
         QUERY_SMP=`echo $bed | basename $bed | cut -f2 -d"_" | cut -f1-2 -d"."`
@@ -271,16 +257,16 @@ grep "release 2 QC v2" /private/groups/patenlab/mira/centrolign/batch_submission
           > ${LOCAL_FOLDER}/${REF_SMP}_${QUERY_SMP}.local_id_CDR.tri.bed
 
         # combine into single file
-        cut -f1-6,9 ${LOCAL_FOLDER}/${REF_SMP}_${QUERY_SMP}.local_id_CDR.par.bed > ${LOCAL_FOLDER}/${REF_SMP}_${QUERY_SMP}.par_counts.bed
-        cut -f6,9 ${LOCAL_FOLDER}/${REF_SMP}_${QUERY_SMP}.local_id_CDR.trap.bed > ${LOCAL_FOLDER}/${REF_SMP}_${QUERY_SMP}.trap_counts.bed
-        cut -f6,9 ${LOCAL_FOLDER}/${REF_SMP}_${QUERY_SMP}.local_id_CDR.tri.bed > ${LOCAL_FOLDER}/${REF_SMP}_${QUERY_SMP}.tri_counts.bed
+        cut -f1-5,7,9 ${LOCAL_FOLDER}/${REF_SMP}_${QUERY_SMP}.local_id_CDR.par.bed > ${LOCAL_FOLDER}/${REF_SMP}_${QUERY_SMP}.par_counts.bed
+        cut -f7,9 ${LOCAL_FOLDER}/${REF_SMP}_${QUERY_SMP}.local_id_CDR.trap.bed > ${LOCAL_FOLDER}/${REF_SMP}_${QUERY_SMP}.trap_counts.bed
+        cut -f7,9 ${LOCAL_FOLDER}/${REF_SMP}_${QUERY_SMP}.local_id_CDR.tri.bed > ${LOCAL_FOLDER}/${REF_SMP}_${QUERY_SMP}.tri_counts.bed
 
         paste -d"\t" ${LOCAL_FOLDER}/${REF_SMP}_${QUERY_SMP}.par_counts.bed ${LOCAL_FOLDER}/${REF_SMP}_${QUERY_SMP}.trap_counts.bed ${LOCAL_FOLDER}/${REF_SMP}_${QUERY_SMP}.tri_counts.bed > ${OUTDIR}/${REF_SMP}_${QUERY_SMP}.all_SV_counts.bed
 
     done
 
-    rm -rf ${LOCAL_FOLDER}
-done
+rm -rf ${LOCAL_FOLDER}
+
 ```
 
 ### Use CDR midpoint
