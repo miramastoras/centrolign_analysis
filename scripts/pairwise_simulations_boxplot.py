@@ -7,7 +7,7 @@ import matplotlib.lines as mlines
 # ---- STEP 1: Read in the file ----
 # Update the file path if needed
 #file_path = '/Users/miramastoras/Desktop/github_repos/centrolign_analysis/analysis_notes/simulations/summary_tables/pair_all_chroms_sim_cases_20250421_aln_summary_tables.txt'
-file_path = '/Users/miramastoras/Desktop/github_repos/centrolign_analysis/analysis_notes/simulations/summary_tables/all_chroms_all_cases_both_aln_summary_tables.txt'
+file_path = '/private/groups/patenlab/mira/centrolign/simulations/centrolign_pairwise_vs_MSA/all_chroms_all_cases_both_aln_summary_tables.txt'
 
 # ---- STEP 1: Define column names ----
 column_names = [
@@ -127,10 +127,11 @@ for chr_ in chromosomes:
 
 # Formatting
 ax.set_xticks(x_group_positions)
-ax.set_xticklabels(chromosomes)
+ax.set_xticklabels(chromosomes, fontsize=12)
 ax.set_xlim(-1, len(chromosomes))
-ax.set_ylabel('F1 Score')
-ax.set_title('Performance of simulated pairwise alignments')
+ax.set_ylabel('F1 Score', fontsize=16)
+ax.set_title('Performance of simulated pairwise alignments', fontsize=18)
+ax.tick_params(axis='y', labelsize=14)
 
 # ---- Legend ----
 legend_handles = [
@@ -139,26 +140,26 @@ legend_handles = [
 ]
 
 # Add star symbol to legend
-star_handle = mlines.Line2D([], [], color='black', marker='*', linestyle='None', markersize=10, label='* = highest mean F1')
+star_handle = mlines.Line2D([], [], color='black', marker='*', linestyle='None', markersize=12, label='* = highest mean F1')
 
 legend_handles.append(star_handle)
 
-# Show legend at bottom
+# Show legend inside plot at bottom center
 ax.legend(
     handles=legend_handles,
     labels=aligners + ['= highest mean F1'],
     loc='lower center',
-    bbox_to_anchor=(0.5, -0.25),
     ncol=len(aligners) + 1,
-    frameon=False
+    frameon=True,
+    fontsize=13
 )
 
 plt.tight_layout()
 #plt.savefig('/Users/miramastoras/Desktop/github_repos/centrolign_analysis/analysis_notes/simulations/figures/pairwise_simulations_boxplots.png', dpi=600, bbox_inches='tight')
 #plt.savefig('/Users/miramastoras/Desktop/github_repos/centrolign_analysis/analysis_notes/simulations/figures/pairwise_simulations_boxplots.svg', dpi=600, bbox_inches='tight')
 
-plt.savefig('/Users/miramastoras/Desktop/github_repos/centrolign_analysis/analysis_notes/simulations/figures/MSA_vs_pairwise_simulations_boxplots.png', dpi=600, bbox_inches='tight')
-plt.savefig('/Users/miramastoras/Desktop/github_repos/centrolign_analysis/analysis_notes/simulations/figures/MSA_vs_pairwise_simulations_boxplots.svg', dpi=600, bbox_inches='tight')
+plt.savefig('/private/groups/patenlab/mira/centrolign/github/centrolign_analysis/analysis_notes/simulations/figures/MSA_vs_pairwise_simulations_boxplots.png', dpi=600, bbox_inches='tight')
+plt.savefig('/private/groups/patenlab/mira/centrolign/github/centrolign_analysis/analysis_notes/simulations/figures/MSA_vs_pairwise_simulations_boxplots.svg', dpi=600, bbox_inches='tight')
 
 
 # ===================== VIOLIN PLOT VERSION ==========================
@@ -221,10 +222,11 @@ for chr_ in chromosomes:
 
 # Formatting
 ax_violin.set_xticks(x_group_positions)
-ax_violin.set_xticklabels(chromosomes)
+ax_violin.set_xticklabels(chromosomes, fontsize=12)
 ax_violin.set_xlim(-1, len(chromosomes))
-ax_violin.set_ylabel('F1 Score')
-ax_violin.set_title('Performance of simulated pairwise alignments')
+ax_violin.set_ylabel('F1 Score', fontsize=16)
+ax_violin.set_title('Performance of simulated pairwise alignments', fontsize=18)
+ax_violin.tick_params(axis='y', labelsize=14)
 
 # Legend (same as before)
 legend_handles_violin = [
@@ -238,9 +240,9 @@ ax_violin.legend(
     handles=legend_handles_violin,
     labels=aligners + ['= highest mean F1'],
     loc='lower center',
-    bbox_to_anchor=(0.5, -0.25),
     ncol=len(aligners) + 1,
-    frameon=False
+    frameon=True,
+    fontsize=13
 )
 
 plt.tight_layout()
@@ -249,8 +251,8 @@ plt.tight_layout()
 # plt.savefig('/Users/miramastoras/Desktop/github_repos/centrolign_analysis/analysis_notes/simulations/figures/pairwise_simulations_violins.png', dpi=600, bbox_inches='tight')
 # plt.savefig('/Users/miramastoras/Desktop/github_repos/centrolign_analysis/analysis_notes/simulations/figures/pairwise_simulations_violins.svg', dpi=600, bbox_inches='tight')
 
-plt.savefig('/Users/miramastoras/Desktop/github_repos/centrolign_analysis/analysis_notes/simulations/figures/msa_vs_pairwise_simulations_violins.png', dpi=600, bbox_inches='tight')
-plt.savefig('/Users/miramastoras/Desktop/github_repos/centrolign_analysis/analysis_notes/simulations/figures/msa_vs_pairwise_simulations_violins.svg', dpi=600, bbox_inches='tight')
+plt.savefig('/private/groups/patenlab/mira/centrolign/github/centrolign_analysis/analysis_notes/simulations/figures/msa_vs_pairwise_simulations_violins.png', dpi=600, bbox_inches='tight')
+plt.savefig('/private/groups/patenlab/mira/centrolign/github/centrolign_analysis/analysis_notes/simulations/figures/msa_vs_pairwise_simulations_violins.svg', dpi=600, bbox_inches='tight')
 
 # Ensure precision issues don't affect equality (set an epsilon threshold)
 EPSILON = 1e-20  # very strict tolerance for float comparison
