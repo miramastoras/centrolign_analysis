@@ -1554,7 +1554,10 @@ python3 /private/groups/patenlab/mira/centrolign/github/centrolign_analysis/scri
     --out_prefix ${OUTDIR}/${SMP_PAIR} --bed9 --debug
 ```
 
-#### Chr11 alignment comparison
+## Chr11 alignment comparison figures
+
+
+### Main panel synteny plot
 
 ```sh
 conda activate synteny
@@ -1644,7 +1647,7 @@ awk 'BEGIN{OFS="\t"} {$2=($2-50951635<0?0:$2-50951635); $3=($3-50951635<0?0:$3-5
 ```
 ```sh
 
-python /private/groups/migalab/juklucas/centrolign/chr12_test125/synteny_plot_bokeh.py   \
+python /private/groups/patenlab/mira/centrolign/github/centrolign_analysis/scripts/synteny_plot_colorpop.py    \
     --beds \
         /private/groups/patenlab/mira/centrolign/analysis/horhap_SV_concordance/synteny_figure/HG01243.1_horhaps.array_coords.bed\
         /private/groups/patenlab/mira/centrolign/analysis/horhap_SV_concordance/synteny_figure/HG01884.1_horhaps.array_coords.bed \
@@ -1655,7 +1658,115 @@ python /private/groups/migalab/juklucas/centrolign/chr12_test125/synteny_plot_bo
         /private/groups/patenlab/mira/centrolign/analysis/horhap_SV_concordance/synteny_figure/HG01884.1_HG01243.1_dummy.cigar.txt \
         /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2_QC_v2/MSA/chr11/subgroup_A/induced_pairwise_cigars/pairwise_cigar_HG01243.1_HG01884.1.txt \
     --output /private/groups/patenlab/mira/centrolign/analysis/horhap_SV_concordance/synteny_figure/HG01243.1_HG01884.1.horhap.centrolign.synteny.HORHAP_colors.html \
-    --show-mismatches \
     --web
 ```
+Horhap colors, flipped orientation
+
+```sh
+python3 /private/groups/patenlab/mira/centrolign/github/censat_paper/scripts/centrolign_result_parsing/reverse_cigar.py         /private/groups/patenlab/mira/centrolign/analysis/horhap_SV_concordance/synteny_figure/HG01243.1_HG01884.1.horhap_cigar.txt
+
+
+python /private/groups/patenlab/mira/centrolign/github/centrolign_analysis/scripts/synteny_plot_colorpop.py  \
+    --beds \
+        /private/groups/patenlab/mira/centrolign/analysis/horhap_SV_concordance/synteny_figure/HG01884.1_horhaps.array_coords.bed \
+        /private/groups/patenlab/mira/centrolign/analysis/horhap_SV_concordance/synteny_figure/HG01243.1_horhaps.array_coords.bed \
+        /private/groups/patenlab/mira/centrolign/analysis/horhap_SV_concordance/synteny_figure/HG01884.1_horhaps.array_coords.bed \
+    --cigars \
+        /private/groups/patenlab/mira/centrolign/analysis/horhap_SV_concordance/synteny_figure/HG01243.1_HG01884.1.horhap_cigar_reversed.txt \
+        /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2_QC_v2/MSA/chr11/subgroup_A/induced_pairwise_cigars/pairwise_cigar_HG01243.1_HG01884.1.txt \
+    --output /private/groups/patenlab/mira/centrolign/analysis/horhap_SV_concordance/synteny_figure/HG01243.1_HG01884.1.horhap.centrolign.synteny.HORHAP_colors.flipped.html \
+    --web
+```
+
+### Supplementary figures synteny plot
+
+
+#### Worse example for chr11
+
+HG01433.2 HG01346.1
+
+Get asat start coords
+```sh
+# convert horhap sv bed to array coords
+grep chr11 /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2_QC_v2/per_smp_asat_beds/HG01433.2_asat_arrays.bed
+# HG01433#2#CM086516.1	50858424	54265807	chr11
+
+grep chr11 /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2_QC_v2/per_smp_asat_beds/HG01346.1_asat_arrays.bed
+# HG01346#1#CM086591.1	50697180	54102506	chr11
+```
+
+Convert horhap beds to array coords
+```sh
+awk 'BEGIN{OFS="\t"} {$2=($2-50858424<0?0:$2-50858424); $3=($3-50858424<0?0:$3-50858424); print}' /private/groups/migalab/fryabov/HPRC/horhaps/data/chr11/k5/HG01433#2#CM086516.1.bed > /private/groups/patenlab/mira/centrolign/analysis/horhap_SV_concordance/synteny_figure/HG01433.2_horhaps.array_coords.bed
+
+awk 'BEGIN{OFS="\t"} {$2=($2-50697180<0?0:$2-50697180); $3=($3-50697180<0?0:$3-50697180); print}' /private/groups/migalab/fryabov/HPRC/horhaps/data/chr11/k5/HG01346#1#CM086591.1.bed > /private/groups/patenlab/mira/centrolign/analysis/horhap_SV_concordance/synteny_figure/HG01346.1_horhaps.array_coords.bed
+```
+
+Get horhap cigar in right format
+```sh
+grep HG01433.2 /private/groups/migalab/fryabov/HPRC/horhap_alignments/chr11/cigar_strings.tsv | grep HG01346.1 | cut -f 2 > /private/groups/patenlab/mira/centrolign/analysis/horhap_SV_concordance/synteny_figure/HG01433.2_HG01346.1.horhap_cigar.txt
+
+python3 /private/groups/patenlab/mira/centrolign/github/censat_paper/scripts/centrolign_result_parsing/reverse_cigar.py /private/groups/patenlab/mira/centrolign/analysis/horhap_SV_concordance/synteny_figure/HG01433.2_HG01346.1.horhap_cigar.txt
+
+sed 's/M/=/g' /private/groups/patenlab/mira/centrolign/analysis/horhap_SV_concordance/synteny_figure/HG01433.2_HG01346.1.horhap_cigar_reversed.txt > /private/groups/patenlab/mira/centrolign/analysis/horhap_SV_concordance/synteny_figure/HG01433.2_HG01346.1.horhap_cigar_reversed_converted.txt
+```
+
+Synteny
+```sh
+python /private/groups/patenlab/mira/centrolign/github/centrolign_analysis/scripts/synteny_plot_colorpop.py  \
+    --beds \
+        /private/groups/patenlab/mira/centrolign/analysis/horhap_SV_concordance/synteny_figure/HG01346.1_horhaps.array_coords.bed \
+        /private/groups/patenlab/mira/centrolign/analysis/horhap_SV_concordance/synteny_figure/HG01433.2_horhaps.array_coords.bed \
+        /private/groups/patenlab/mira/centrolign/analysis/horhap_SV_concordance/synteny_figure/HG01346.1_horhaps.array_coords.bed \
+    --cigars \
+        /private/groups/patenlab/mira/centrolign/analysis/horhap_SV_concordance/synteny_figure/HG01433.2_HG01346.1.horhap_cigar_reversed_converted.txt \
+        /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2_QC_v2/MSA/chr11/subgroup_B/induced_pairwise_cigars/pairwise_cigar_HG01433.2_HG01346.1.txt \
+    --output /private/groups/patenlab/mira/centrolign/analysis/horhap_SV_concordance/synteny_figure/HG01433.2_HG01346.1.horhap.centrolign.synteny.HORHAP_colors.flipped.html \
+    --web
+```
+
+
+##### Example 2
+
+HG01975.1 HG01928.2 0.189737   0.701031 0.576037 0.632417
+
+
+Get asat start coords
+```sh
+# convert horhap sv bed to array coords
+grep chr11 /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2_QC_v2/per_smp_asat_beds/HG01975.1_asat_arrays.bed
+# HG01975#1#CM099802.1	50938159	53773835	chr11
+
+grep chr11 /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2_QC_v2/per_smp_asat_beds/HG01928.2_asat_arrays.bed
+# HG01928#2#CM089009.1	50953069	53619097	chr11
+```
+
+Convert horhap beds to array coords
+```sh
+awk 'BEGIN{OFS="\t"} {$2=($2-50938159<0?0:$2-50938159); $3=($3-50938159<0?0:$3-50938159); print}' /private/groups/migalab/fryabov/HPRC/horhaps/data/chr11/k5/HG01975#1#CM099802.1.bed > /private/groups/patenlab/mira/centrolign/analysis/horhap_SV_concordance/synteny_figure/HG01975.1_horhaps.array_coords.bed
+
+awk 'BEGIN{OFS="\t"} {$2=($2-50953069<0?0:$2-50953069); $3=($3-50953069<0?0:$3-50953069); print}' /private/groups/migalab/fryabov/HPRC/horhaps/data/chr11/k5/HG01928#2#CM089009.1.bed > /private/groups/patenlab/mira/centrolign/analysis/horhap_SV_concordance/synteny_figure/HG01928.2_horhaps.array_coords.bed
+```
+
+Get horhap cigar in right format
+```sh
+grep HG01928.2 /private/groups/migalab/fryabov/HPRC/horhap_alignments/chr11/cigar_strings.tsv | grep HG01975.1 | cut -f 2 > /private/groups/patenlab/mira/centrolign/analysis/horhap_SV_concordance/synteny_figure/HG01975.1_HG01928.2.horhap_cigar.txt
+
+python3 /private/groups/patenlab/mira/centrolign/github/censat_paper/scripts/centrolign_result_parsing/reverse_cigar.py  /private/groups/patenlab/mira/centrolign/analysis/horhap_SV_concordance/synteny_figure/HG01975.1_HG01928.2.horhap_cigar.txt
+
+sed 's/M/=/g' /private/groups/patenlab/mira/centrolign/analysis/horhap_SV_concordance/synteny_figure/HG01975.1_HG01928.2.horhap_cigar_reversed.txt > /private/groups/patenlab/mira/centrolign/analysis/horhap_SV_concordance/synteny_figure/HG01975.1_HG01928.2.horhap_cigar_reversed_converted.txt
+```
+
+Synteny
+```sh
+python /private/groups/patenlab/mira/centrolign/github/centrolign_analysis/scripts/synteny_plot_colorpop.py  \
+    --beds \
+        /private/groups/patenlab/mira/centrolign/analysis/horhap_SV_concordance/synteny_figure/HG01928.2_horhaps.array_coords.bed \
+        /private/groups/patenlab/mira/centrolign/analysis/horhap_SV_concordance/synteny_figure/HG01975.1_horhaps.array_coords.bed \
+        /private/groups/patenlab/mira/centrolign/analysis/horhap_SV_concordance/synteny_figure/HG01928.2_horhaps.array_coords.bed \
+    --cigars \
+        /private/groups/patenlab/mira/centrolign/analysis/horhap_SV_concordance/synteny_figure/HG01975.1_HG01928.2.horhap_cigar_reversed_converted.txt \
+        /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2_QC_v2/MSA/chr11/subgroup_A/induced_pairwise_cigars/pairwise_cigar_HG01975.1_HG01928.2.txt \
+    --output /private/groups/patenlab/mira/centrolign/analysis/horhap_SV_concordance/synteny_figure/HG01975.1_HG01928.2.horhap.centrolign.synteny.HORHAP_colors.flipped.html \
+    --web
 ```
