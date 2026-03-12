@@ -26,7 +26,7 @@ Data processing:
 Figures:
 - centrolign_analysis/analysis_notes/release2_QC_v2/notebooks/mutation_comparison_to_flanks.ipynb
 
-#### Global Pairwise mutation rates
+#### Global Pairwise mutation rates (per-sample pair mutation rates)
 
 Data processing:
 
