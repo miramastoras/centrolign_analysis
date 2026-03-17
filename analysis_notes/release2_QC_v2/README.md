@@ -7,6 +7,12 @@
 Data processing:
 - /private/groups/patenlab/mira/centrolign/github/centrolign_analysis/analysis_notes/simulations/chm13_simulations.md
 
+Figures:
+- /private/groups/patenlab/mira/centrolign/github/centrolign_analysis/analysis_notes/release2_QC_v2/notebooks/simulations_final_main_panel.ipynb
+
+#### SV size matches STVs:
+- /private/groups/patenlab/mira/centrolign/github/centrolign_analysis/analysis_notes/release2_QC_v2/notebooks/SV_size_dist_STVs_final.ipynb
+
 #### Comparison with HORHap SVs:
 
 Data processing:
@@ -33,3 +39,12 @@ Data processing:
 
 Figures:
 - /private/groups/patenlab/mira/centrolign/github/centrolign_analysis/analysis_notes/release2_QC_v2/notebooks/global_mutation_rates.ipynb
+
+#### Mutation rates stratified by local identity and CDR distance
+
+CDR:
+- Data processing: 
+    - /private/groups/patenlab/mira/centrolign/github/centrolign_analysis/analysis_notes/release2_QC_v2/variant_dist_to_CDR_final.md
+
+- Figures: 
+    - /private/groups/patenlab/mira/centrolign/github/centrolign_analysis/analysis_notes/release2_QC_v2/notebooks/variant_dist_CDR_centrodip02102026.ipynb

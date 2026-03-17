@@ -194,7 +194,7 @@ class AlignmentVisualizer:
 
         return merged
 
-    def plot(self, output_file, track_labels=None, alignment_labels=None):
+    def plot(self, output_file, track_labels=None, alignment_labels=None, legend_bottom=False):
         n_tracks = len(self.regions)
         track_limits = self._cigar_track_limits()
         max_length = max(track_limits)
@@ -211,8 +211,9 @@ class AlignmentVisualizer:
         handle_size = round(1.5 * scale * 10) / 10
         handle_height = round(0.8 * scale * 10) / 10  # keeps squares from overlapping rows
 
-        fig_width = min(max(total_height * 2.7, 16), 60)  # wider than tall
+        fig_width = min(max(total_height * 2.4, 16), 60)  # wider than tall
         fig, ax = plt.subplots(figsize=(fig_width, total_height))
+        plt.rcParams['font.family'] = 'Arial'
 
         # Y layout: tracks separated by gaps, bottom track at y=0
         # Each track occupies [y_center - rect_h/2, y_center + rect_h/2]
@@ -306,7 +307,7 @@ class AlignmentVisualizer:
                 f"{Path(f).stem}\n({length:,} bp)"
                 for f, length in zip(self.bed_files, self.sequence_lengths)
             ]
-        ax.set_yticklabels(labels, fontsize=fontsize, fontweight='bold')
+        ax.set_yticklabels(labels, fontsize=fontsize)
 
         # X-axis formatting
         ax.set_xlabel('Position (bp)', fontsize=fontsize, labelpad=10)
@@ -320,29 +321,16 @@ class AlignmentVisualizer:
         ax.spines['top'].set_visible(False)
         ax.spines['right'].set_visible(False)
 
-        # Annotation legend (top-right)
+        for spine in ax.spines.values():
+            spine.set_linewidth(plt.rcParams['axes.linewidth'] * 0.75)
+
+
+        # Build legend handles
         legend_entries = self._legend_entries()
         annot_handles = [
             mpatches.Patch(facecolor=rgb, edgecolor='none', label=label)
             for rgb, label in legend_entries
         ]
-        leg1 = ax.legend(
-            handles=annot_handles,
-            loc='upper left',
-            bbox_to_anchor=(1.01, 1.0),
-            fontsize=fontsize,
-            frameon=False,
-            handlelength=handle_size,
-            handleheight=handle_height,
-            borderpad=1.0,
-            labelspacing=1.0,
-            title='Annotation',
-            title_fontsize=fontsize
-        )
-        ax.add_artist(leg1)
-        leg1.get_title().set_fontweight('bold')
-
-        # Alignment legend (below annotation legend)
         match_color = (0.8, 0.8, 1.0)  # blue @ alpha=0.2 on white
         match_label = 'match' if self.show_mismatches else 'aligned'
         aln_handles = [
@@ -353,20 +341,63 @@ class AlignmentVisualizer:
             aln_handles.append(
                 mpatches.Patch(facecolor='darkred', edgecolor='darkred', linewidth=0.5, label='mismatch')
             )
-        ax.legend(
-            handles=aln_handles,
-            loc='lower left',
-            bbox_to_anchor=(1.01, 0.0),
-            fontsize=fontsize,
-            frameon=False,
-            handlelength=handle_size,
-            handleheight=round(handle_height * 0.5 * 10) / 10,
-            borderpad=1.0,
-            labelspacing=1.0,
-            title='Alignment',
-            title_fontsize=fontsize
-        )
-        ax.get_legend().get_title().set_fontweight('bold')
+
+        if legend_bottom:
+            # Single row: "Annotation: [] [] ...  Alignment: [] [] ..."
+            from matplotlib.lines import Line2D
+            spacer = Line2D([], [], color='none', label='')
+            annot_title = Line2D([], [], color='none', label='Annotation:')
+            aln_title   = Line2D([], [], color='none', label='Alignment:')
+            combined_handles = [annot_title] + annot_handles + [spacer, aln_title] + aln_handles
+            leg = ax.legend(
+                handles=combined_handles,
+                loc='upper center',
+                bbox_to_anchor=(0.5, -0.10),
+                ncol=len(combined_handles),
+                fontsize=fontsize,
+                frameon=False,
+                handlelength=handle_size,
+                handleheight=handle_height,
+                borderpad=0.5,
+                columnspacing=0.8,
+            )
+            # Bold the title-style entries
+            for text, handle in zip(leg.get_texts(), leg.legend_handles):
+                if text.get_text() in ('Annotation:', 'Alignment:'):
+                    text.set_fontweight('bold')
+        else:
+            # Annotation legend (top-right)
+            leg1 = ax.legend(
+                handles=annot_handles,
+                loc='upper left',
+                bbox_to_anchor=(1.01, 1.0),
+                fontsize=fontsize,
+                frameon=False,
+                handlelength=handle_size,
+                handleheight=handle_height,
+                borderpad=1.0,
+                labelspacing=1.0,
+                title='Annotation',
+                title_fontsize=fontsize
+            )
+            ax.add_artist(leg1)
+            leg1.get_title().set_fontweight('bold')
+
+            # Alignment legend (below annotation legend)
+            ax.legend(
+                handles=aln_handles,
+                loc='lower left',
+                bbox_to_anchor=(1.01, 0.0),
+                fontsize=fontsize,
+                frameon=False,
+                handlelength=handle_size,
+                handleheight=round(handle_height * 0.5 * 10) / 10,
+                borderpad=1.0,
+                labelspacing=1.0,
+                title='Alignment',
+                title_fontsize=fontsize
+            )
+            ax.get_legend().get_title().set_fontweight('bold')
 
 
         plt.tight_layout()
@@ -498,6 +529,8 @@ def main():
     parser.add_argument('--alignment-labels', nargs='+', default=None,
                         help='Labels for each alignment gap between tracks (top to bottom). '
                              'Must have len(beds)-1 entries.')
+    parser.add_argument('--legend-bottom', action='store_true', default=False,
+                        help='Place legends below the figure in two rows instead of to the right.')
 
     # Zoom options
     zoom_group = parser.add_argument_group('Zoom Options')
@@ -532,7 +565,8 @@ def main():
     visualizer = AlignmentVisualizer(args.beds, args.cigars, args.show_mismatches, colorpop=args.colorpop)
     visualizer.process_files()
 
-    visualizer.plot(args.output, track_labels=args.labels, alignment_labels=args.alignment_labels)
+    visualizer.plot(args.output, track_labels=args.labels, alignment_labels=args.alignment_labels,
+                    legend_bottom=args.legend_bottom)
 
     if args.zoom and args.zoom_regions:
         if len(args.zoom_regions) != len(args.beds):
