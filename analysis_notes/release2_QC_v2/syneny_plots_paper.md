@@ -119,9 +119,11 @@ python /private/groups/patenlab/mira/centrolign/github/centrolign_analysis/scrip
     --cigars \
         /private/groups/patenlab/mira/centrolign/analysis/horhap_SV_concordance/synteny_figure/HG01243.1_HG01884.1.horhap_cigar_reversed.txt \
         /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2_QC_v2/MSA/chr11/subgroup_A/induced_pairwise_cigars/pairwise_cigar_HG01243.1_HG01884.1.txt \
-    --labels "HG01884 hap1" "HG01243 hap1" "HG01884 hap1" \
-    --alignment-labels "HORHap align" "Centrolign" \
-    --output /private/groups/patenlab/mira/centrolign/analysis/horhap_SV_concordance/synteny_figure/HG01243.1_HG01884.1.final.main_panel.png
+    --labels $'HG01884\nhap1' $'HG01243\nhap1' $'HG01884\nhap1' \
+    --colorpop \
+    --legend-bottom \
+    --alignment-labels $'annot-\naligner' "Centrolign" \
+    --output /private/groups/patenlab/mira/centrolign/analysis/horhap_SV_concordance/synteny_figure/HG01243.1_HG01884.1.final.main_panel.svg
 ```
 
 ### Supplementary figures synteny plot
@@ -169,7 +171,7 @@ python /private/groups/patenlab/mira/centrolign/github/centrolign_analysis/scrip
         /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2_QC_v2/MSA/chr11/subgroup_B/induced_pairwise_cigars/pairwise_cigar_HG01433.2_HG01346.1.txt \
     --labels "HG01346 hap1" "HG01433 hap2" "HG01346 hap1" \
     --colorpop \
-    --alignment-labels "HORHap align" "Centrolign" \
+    --alignment-labels "annotaligner" "Centrolign" \
     --output /private/groups/patenlab/mira/centrolign/analysis/horhap_SV_concordance/synteny_figure/HG01433.2_HG01346.1.supp.final.svg
 ```
 
@@ -216,6 +218,6 @@ python /private/groups/patenlab/mira/centrolign/github/centrolign_analysis/scrip
         /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2_QC_v2/MSA/chr11/subgroup_A/induced_pairwise_cigars/pairwise_cigar_HG01975.1_HG01928.2.txt \
     --labels "HG01928 hap2" "HG01975 hap1" "HG01928 hap2" \
     --colorpop \
-    --alignment-labels "HORHap align" "Centrolign" \
+    --alignment-labels "annotaligner" "Centrolign" \
     --output /private/groups/patenlab/mira/centrolign/analysis/horhap_SV_concordance/synteny_figure/HG01975.1_HG01928.2.sup.final.svg
 ```

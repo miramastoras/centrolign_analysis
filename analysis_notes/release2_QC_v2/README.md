@@ -10,8 +10,13 @@ Data processing:
 Figures:
 - /private/groups/patenlab/mira/centrolign/github/centrolign_analysis/analysis_notes/release2_QC_v2/notebooks/simulations_final_main_panel.ipynb
 
+#### pairwise consistency: 
+- Data processing: /private/groups/patenlab/mira/centrolign/github/centrolign_analysis/analysis_notes/release2_QC_v2/pairwise_consistency.md
+- Figures: /private/groups/patenlab/mira/centrolign/github/centrolign_analysis/analysis_notes/release2_QC_v2/notebooks/pairwise_consistency.ipynb
+
 #### SV size matches STVs:
-- /private/groups/patenlab/mira/centrolign/github/centrolign_analysis/analysis_notes/release2_QC_v2/notebooks/SV_size_dist_STVs_final.ipynb
+- Data processing: /private/groups/patenlab/mira/centrolign/github/centrolign_analysis/analysis_notes/release2_QC_v2/derive_SVs_induced_pairwise.md 
+- Figures: /private/groups/patenlab/mira/centrolign/github/centrolign_analysis/analysis_notes/release2_QC_v2/notebooks/SV_size_dist_STVs_final.ipynb
 
 #### Comparison with HORHap SVs:
 
@@ -23,6 +28,13 @@ Figures:
 
 ### Section 4: Centrolign enables characterization of asat variation
 
+#### Ti/Tv ratio validation
+
+Data processing:
+- /private/groups/patenlab/mira/centrolign/github/centrolign_analysis/analysis_notes/release2_QC_v2/variant_matrix_nuc_diversity.md
+
+Figures:
+- /private/groups/patenlab/mira/centrolign/github/centrolign_analysis/analysis_notes/release2_QC_v2/variant_matrix_nuc_diversity.md
 
 #### Comparison of flanking mutation rates to asat mutation rates
 
@@ -36,7 +48,6 @@ Figures:
 
 Data processing:
 
-
 Figures:
 - /private/groups/patenlab/mira/centrolign/github/centrolign_analysis/analysis_notes/release2_QC_v2/notebooks/global_mutation_rates.ipynb
 
@@ -48,3 +59,11 @@ CDR:
 
 - Figures: 
     - /private/groups/patenlab/mira/centrolign/github/centrolign_analysis/analysis_notes/release2_QC_v2/notebooks/variant_dist_CDR_centrodip02102026.ipynb
+
+#### Permutation tests for mutation rates stratified by local identity and CDR distance
+
+Permutation test code:
+- /private/groups/patenlab/mira/centrolign/github/centrolign_analysis/analysis_notes/release2_QC_v2/permutation_test_scripts/
+
+Summary figure:
+- /private/groups/patenlab/mira/centrolign/github/centrolign_analysis/analysis_notes/release2_QC_v2/notebooks/permutation_test_summaries.ipynb

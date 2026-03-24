@@ -310,9 +310,9 @@ class AlignmentVisualizer:
         ax.set_yticklabels(labels, fontsize=fontsize)
 
         # X-axis formatting
-        ax.set_xlabel('Position (bp)', fontsize=fontsize, labelpad=10)
+        ax.set_xlabel('Position (Mbp)', fontsize=fontsize, labelpad=10)
         ax.xaxis.set_major_formatter(
-            ticker.FuncFormatter(lambda x, _: f'{x/1e6:.1f} Mb' if max_length > 1e6 else f'{x:,.0f}')
+            ticker.FuncFormatter(lambda x, _: f'{x/1e6:.1f}' if max_length > 1e6 else f'{x:,.0f}')
         )
         ax.tick_params(axis='x', labelsize=fontsize)
         ax.tick_params(axis='y', labelsize=fontsize, length=0)
@@ -334,7 +334,7 @@ class AlignmentVisualizer:
         match_color = (0.8, 0.8, 1.0)  # blue @ alpha=0.2 on white
         match_label = 'match' if self.show_mismatches else 'aligned'
         aln_handles = [
-            mpatches.Patch(facecolor='white', edgecolor='black', linewidth=1.5, label='gap'),
+            mpatches.Patch(facecolor='white', edgecolor='black', linewidth=0.3, label='gap'),
             mpatches.Patch(facecolor=match_color, edgecolor='none', label=match_label),
         ]
         if self.show_mismatches:
