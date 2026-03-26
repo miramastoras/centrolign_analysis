@@ -47,7 +47,7 @@ Figures:
 #### Global Pairwise mutation rates (per-sample pair mutation rates)
 
 Data processing:
-
+- /private/groups/patenlab/mira/centrolign/github/centrolign_analysis/analysis_notes/release2_QC_v2/derive_SVs_induced_pairwise.md 
 Figures:
 - /private/groups/patenlab/mira/centrolign/github/centrolign_analysis/analysis_notes/release2_QC_v2/notebooks/global_mutation_rates.ipynb
 
