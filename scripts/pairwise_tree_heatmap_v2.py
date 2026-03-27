@@ -152,7 +152,8 @@ def main():
             value = float(row[2])  # Column 3 as the value
             pairwise_vals[key] = value
 
-    highlight_groups = []  # list of (set_of_samples, assigned_color)
+    highlight_groups = []  # list of (set_of_samples, color, hatch, group_name)
+    sample_to_group_style = {}  # sample -> (color, hatch, group_name)
 
     if args.highlight_samples:
         # Load group → set(samples) from CSV
@@ -167,13 +168,17 @@ def main():
                 if group and sample:
                     group_to_samples[group].add(sample)
 
-        # Use a qualitative colormap with many distinct colors
-        color_map = get_cmap("tab10")
+        # Fixed palette: tab10 colors, cycle through hatch patterns for overflow
+        FIXED_COLORS = [plt.cm.tab10(i) for i in range(10)]
+        HATCH_PATTERNS = [None, '.', '-', '/', '\\', '+', 'x']
 
-        # Assign a color to each group and store
-        for i, (group, samples) in enumerate(group_to_samples.items()):
-            color = color_map(i % 10)
-            highlight_groups.append((samples, color))
+        for i, (group, grp_samples) in enumerate(group_to_samples.items()):
+            color = FIXED_COLORS[i % 10]
+            hatch_idx = i // 10
+            hatch = HATCH_PATTERNS[hatch_idx] if hatch_idx < len(HATCH_PATTERNS) else 'x'
+            highlight_groups.append((grp_samples, color, hatch, group))
+            for s in grp_samples:
+                sample_to_group_style[s] = (color, hatch, group)
 
     highlight_pairs = set()
 
@@ -253,17 +258,57 @@ def main():
 
     label_ends=(float(axes[0].get_ylim()[1])) / 7
 
+    def draw_clade_rect(ax, y_center, color, hatch, diag):
+        """Draw a full-width clade rectangle: solid fill + separate hatch overlay."""
+        rect_h = abs(diag)
+        rect_y = y_center - rect_h / 2
+        # Solid fill
+        ax.add_patch(patches.Rectangle((0, rect_y), 1.0, rect_h,
+                                       facecolor=color, edgecolor='none', linewidth=0,
+                                       transform=ax.transData, clip_on=True))
+        # Hatch overlay (transparent fill, black hatch lines, no border)
+        if hatch is not None:
+            ax.add_patch(patches.Rectangle((0, rect_y), 1.0, rect_h,
+                                           facecolor='none', edgecolor='black',
+                                           hatch=hatch * 3, linewidth=0,
+                                           transform=ax.transData, clip_on=True))
+
     if args.no_labels:
         print("Too many samples; skipping text labels to avoid clutter.")
         for sample in leaf_label_y_map.keys():
-            axes[1].plot([0, 1], [leaf_label_y_map[sample], leaf_label_y_map[sample]],
-                     linestyle=':', color="black", linewidth=linewidth)
+            if sample in sample_to_group_style:
+                color, hatch, _ = sample_to_group_style[sample]
+                draw_clade_rect(axes[1], leaf_label_y_map[sample], color, hatch, diagonal)
+            else:
+                axes[1].plot([0, 1], [leaf_label_y_map[sample], leaf_label_y_map[sample]],
+                         linestyle=':', color="black", linewidth=linewidth)
     else:
         for sample in leaf_label_y_map.keys():
-            axes[1].plot([0, 1], [leaf_label_y_map[sample], leaf_label_y_map[sample]],
-                     linestyle=':', color="black", linewidth=linewidth)
+            if sample in sample_to_group_style:
+                color, hatch, _ = sample_to_group_style[sample]
+                draw_clade_rect(axes[1], leaf_label_y_map[sample], color, hatch, diagonal)
+            else:
+                axes[1].plot([0, 1], [leaf_label_y_map[sample], leaf_label_y_map[sample]],
+                         linestyle=':', color="black", linewidth=linewidth)
             axes[1].text(0, leaf_label_y_map[sample], sample,
                      fontsize=sample_label_size, color='black', va='bottom')
+
+    # Add clade legend if highlight_samples was used
+    if highlight_groups:
+        from matplotlib.patches import FancyArrow
+        from matplotlib.legend_handler import HandlerPatch
+        import matplotlib.patheffects as pe
+        legend_handles = []
+        for grp_samples, color, hatch, group_name in highlight_groups:
+            # Solid color patch with hatch overlay drawn via edgecolor
+            handle = patches.Patch(facecolor=color,
+                                   edgecolor='black' if hatch is not None else 'none',
+                                   hatch=hatch * 3 if hatch is not None else None,
+                                   linewidth=0.5, label=group_name)
+            legend_handles.append(handle)
+        axes[0].legend(handles=legend_handles, loc='lower left',
+                       fontsize=max(sample_label_size, 4), frameon=True,
+                       title='Clades', title_fontsize=max(sample_label_size, 4))
     # for sample in leaf_label_y_map.keys():
     #     axes[1].plot([0,1], [leaf_label_y_map[sample],leaf_label_y_map[sample]], linestyle=':',color="black", linewidth=linewidth)
     #     axes[1].text(0, leaf_label_y_map[sample], sample, fontsize=sample_label_size, color='black',va='bottom')
@@ -329,14 +374,7 @@ def main():
             else:
                 facecolor = cmap(val)
 
-            # Override with highlight_samples color
-            if highlight_groups and val is not None:
-                for group_samples, group_color in highlight_groups:
-                    if id_map[pos1] in group_samples and id_map[pos2] in group_samples:
-                        facecolor = group_color
-                        break
-
-            # Override with highlight_pairs color (takes priority over highlight_samples)
+            # Override with highlight_pairs color
             if args.highlight_pairs and val is not None:
                 if dict_key in highlight_pairs:
                     facecolor = "red"
