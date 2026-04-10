@@ -303,25 +303,29 @@ python3 /private/groups/patenlab/mira/centrolign/github/centromere-haplotype-sam
 ### Extract Asat reads for all chromosomes
 
 ```sh
-#!/bin/bash
-#SBATCH --job-name=extract_ASAT_reads
-#SBATCH --partition=short
-#SBATCH --mail-user=mmastora@ucsc.edu
-#SBATCH --mail-type=ALL
-#SBATCH --nodes=1
-#SBATCH --mem=56gb
-#SBATCH --ntasks=1
-#SBATCH --cpus-per-task=1
-#SBATCH --array=[2-232]%50
-#SBATCH --exclude=phoenix-[09,10,22,23,24,18]
-#SBATCH --output=logs/array_job_%A_task_%a.log
-#SBATCH --time=1:00:00
+cd /private/groups/patenlab/mira/centrolign/rGFA_tests/extract_asat_reads
+mkdir -p /private/groups/patenlab/mira/centrolign/rGFA_tests/extract_asat_reads/logs/
 
+sbatch /private/groups/patenlab/mira/centrolign/github/centrolign_analysis/analysis_notes/release2_QC_v2/slurm_scripts/extract_asat_reads.sh
+```
 
-READ_LOCS=/private/groups/patenlab/fokamoto/centrolign/to_align/aws_file_locations.csv
-SAMPLE_ID=`head -n "$SLURM_ARRAY_TASK_ID" "$READ_LOCS" | tail -n 1 | cut -f1 -d ","`
+Assessing file storage reqs:
+```
+grep -v -e 'chr4$' -e 'chr6$' -e 'chr9$' -e 'chr10$' -e 'chr11$' -e 'chr12$' -e 'chr17$' \
+    /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2_QC_v2/per_smp_asat_beds/*.bed \
+    | wc -l
 
-echo "Running sample: $sample_id"
-
-BED_DIR=/private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2_QC_v2/per_smp_asat_beds
+```
+Resubmitting jobs that failed on phoenix 08
+```
+grep -l "Input/output error" /private/groups/patenlab/mira/centrolign/rGFA_tests/extract_asat_reads/logs/array_job_*.log \
+    | sed 's/.*_task_\([0-9]*\)\.log/\1/' \
+    | sort -n \
+    | awk '
+        NR==1 { start=$1; prev=$1; next }
+        $1 == prev+1 { prev=$1; next }
+        { if (start==prev) printf "%s,",start; else printf "%s-%s,",start,prev; start=$1; prev=$1 }
+        END { if (start==prev) printf "%s\n",start; else printf "%s-%s\n",start,prev }
+    '
+7-11,13-19,21-58,60-76,78-155,217-232
 ```

@@ -7,8 +7,8 @@
 #SBATCH --mem=56gb
 #SBATCH --ntasks=1
 #SBATCH --cpus-per-task=32
-#SBATCH --array=[2-232]%50
-#SBATCH --exclude=phoenix-[09,10,22,23,24,18]
+#SBATCH --array=[7,9-11,13-19,21-58,60-76,78-155,217-232]%50
+#SBATCH --exclude=phoenix-[08,09,10,22,23,24,18]
 #SBATCH --output=/private/groups/patenlab/mira/centrolign/rGFA_tests/extract_asat_reads/logs/array_job_%A_task_%a.log
 #SBATCH --time=1:00:00
 
@@ -27,6 +27,10 @@ reads=`grep "^$SAMPLE_ID," "$READ_LOCS" | cut -f3 -d ","`
 reads_index=$(grep "^$SAMPLE_ID," "$READ_LOCS" | cut -f4 -d ",")
 aws s3 --no-sign-request cp "$reads" $LOCAL_FOLDER/full.bam &> /dev/null
 aws s3 --no-sign-request cp "$reads_index" ${LOCAL_FOLDER}/full.bam.bai &> /dev/null
+if [ ! -s ${LOCAL_FOLDER}/full.bam ] || [ ! -s ${LOCAL_FOLDER}/full.bam.bai ]; then
+    echo "ERROR: Download failed for $SAMPLE_ID"
+    exit 1
+fi
 echo "Download complete"
 
 for hap_num in 1 2; do
