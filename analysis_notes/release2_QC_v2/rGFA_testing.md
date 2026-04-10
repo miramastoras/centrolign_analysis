@@ -74,7 +74,7 @@ docker run -u `id -u`:`id -g` \
 
 ![LDCs for chr12](../plots/chr12_LDCs_pairwise_tree_heatmap.png)
 
-Script to randomly shuffle 150 samples, giving equal samples for each clade, making sure to include CHM13.0, HG002.2 and HG002.1. Some samples don't have a clade, which is fine, just excluding those. 
+Script to randomly shuffle 150 samples, giving equal samples for each clade, making sure to include CHM13.0, HG002.2 and HG002.1. Some samples don't have a clade, which is fine, just excluding those.
 
 ```py
 #!/usr/bin/env python3
@@ -203,10 +203,10 @@ docker run -u `id -u`:`id -g` \
 
 ![LDCs for chr12](../plots/chr12_LDCs_subsampled_only_pairwise_tree_heatmap.png)
 
-Now, run centrolign on this subsampled set. 
+Now, run centrolign on this subsampled set.
 
 ```sh
-# Add 100kb to flanks of per sample alpha sat arrays 
+# Add 100kb to flanks of per sample alpha sat arrays
 
 Regenerate fasta files with 100kb flanks
 
@@ -216,7 +216,7 @@ cat /private/groups/patenlab/mira/centrolign/analysis/low_divergence_clades/max_
   grep chr12 /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2_QC_v2/per_smp_asat_beds/${line}_asat_arrays.bed | awk 'BEGIN{OFS="\t"} {$2=($2-100000<0)?0:$2-100000; $3=$3+100000; print}' > /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2_QC_v2/per_smp_asat_beds_100kb_flank/chr12/${line}_asat_arrays.100kb_flank.bed
 done
 
-# Prepare sample file 
+# Prepare sample file
 cat /private/groups/patenlab/mira/centrolign/analysis/low_divergence_clades/max_dist_0.8_min_pairwise_0.95/chr12/subsampled_150.txt | cut -f2 -d"," | sed 's/\./,/g' | while read line ; do grep $line /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2_QC_v2/all_samples_with_asats.txt ; done >  /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2_QC_v2/per_smp_asat_beds_100kb_flank/chr12/chr12_subsample150.samples.txt
 
 # Extract fasta files with flanks
@@ -240,7 +240,7 @@ ls | grep fasta | while read line ; do cat $line ; done > /private/groups/patenl
 # combine fastas
 cd /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2_QC_v2/extract_fastas_100kb_flank/chr12
 
-ls | while read line ; do 
+ls | while read line ; do
     cat $line
 done > /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2_QC_v2/MSA_100kb_flank/chr12_subsample150/HPRC_r2_QC_v2_chr12_subsample150.fasta
 ```
@@ -266,4 +266,62 @@ time /private/home/mmastora/progs/centrolign/build/centrolign -v 4 \
   -T /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2_QC_v2/all_pairs/nj_trees/chr12_r2_QC_v2_centrolign_all_pairs_nj_tree.nwk \
   /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2_QC_v2/MSA_100kb_flank/chr12_subsample150/HPRC_r2_QC_v2_chr12_subsample150.fasta \
   > /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2_QC_v2/MSA_100kb_flank/chr12_subsample150/chr12.subsample150.100kb_flanks.gfa
+```
+
+```
+### Run Add Dummy Caps on all centrolign graphs for Glenn
+
+```sh
+#!/bin/bash
+#SBATCH --job-name=add_dummy_caps
+#SBATCH --partition=short
+#SBATCH --mail-user=mmastora@ucsc.edu
+#SBATCH --mail-type=ALL
+#SBATCH --nodes=1
+#SBATCH --mem=56gb
+#SBATCH --ntasks=1
+#SBATCH --cpus-per-task=1
+#SBATCH --array=[1-24]%24
+#SBATCH --exclude=phoenix-[09,10,22,23,24,18]
+#SBATCH --output=logs/array_job_%A_task_%a.log
+#SBATCH --time=1:00:00
+
+CSV_FILE=/private/groups/patenlab/mira/centrolign/rGFA_tests/per_chrom_gfa.csv
+
+CHR=$(awk -F"," "NR==$SLURM_ARRAY_TASK_ID" "$CSV_FILE" | cut -f1 -d",")
+GFA_LIST=$(awk -F"," "NR==$SLURM_ARRAY_TASK_ID" "$CSV_FILE" | cut -f2- -d",")
+GFAS=`echo $GFA_LIST | tr -d '[]"' | tr ',' ' '`
+OUTPUT_FILE=/private/groups/patenlab/mira/centrolign/rGFA_tests/centrolign_gfa_HPRC_r2_QC2_add_dummy_caps/${CHR}.centrolign.HPRC_r2_QCv2.gfa
+
+echo $CHR
+echo $GFAS
+
+python3 /private/groups/patenlab/mira/centrolign/github/centromere-haplotype-sampling-pipeline/helper_scripts/add_dummy_caps.py \
+    $GFAS -o $OUTPUT_FILE
+```
+
+### Extract Asat reads for all chromosomes
+
+```sh
+#!/bin/bash
+#SBATCH --job-name=extract_ASAT_reads
+#SBATCH --partition=short
+#SBATCH --mail-user=mmastora@ucsc.edu
+#SBATCH --mail-type=ALL
+#SBATCH --nodes=1
+#SBATCH --mem=56gb
+#SBATCH --ntasks=1
+#SBATCH --cpus-per-task=1
+#SBATCH --array=[2-232]%50
+#SBATCH --exclude=phoenix-[09,10,22,23,24,18]
+#SBATCH --output=logs/array_job_%A_task_%a.log
+#SBATCH --time=1:00:00
+
+
+READ_LOCS=/private/groups/patenlab/fokamoto/centrolign/to_align/aws_file_locations.csv
+SAMPLE_ID=`head -n "$SLURM_ARRAY_TASK_ID" "$READ_LOCS" | tail -n 1 | cut -f1 -d ","`
+
+echo "Running sample: $sample_id"
+
+BED_DIR=/private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2_QC_v2/per_smp_asat_beds
 ```
