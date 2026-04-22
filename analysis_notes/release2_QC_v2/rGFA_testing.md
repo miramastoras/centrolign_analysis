@@ -329,3 +329,21 @@ grep -l "Input/output error" /private/groups/patenlab/mira/centrolign/rGFA_tests
     '
 7-11,13-19,21-58,60-76,78-155,217-232
 ```
+Symlink Faith's reads in for Glenn's pipeline
+
+```sh
+src_dir="/private/groups/patenlab/fokamoto/centrolign/to_align"
+dst_base="/private/groups/patenlab/mira/centrolign/rGFA_tests/extract_asat_reads"
+
+for src in "${src_dir}"/*.real.fastq.gz; do
+    fname=$(basename "$src")
+    chr="${fname%%.*}"                    # everything before first dot
+    rest="${fname#*.}"                    # strip chr.
+    sample="${rest%.real.fastq.gz}"       # strip .real.fastq.gz
+
+    dst_dir="${dst_base}/${chr}"
+    mkdir -p "${dst_dir}"
+    ln -s "${src}" "${dst_dir}/${sample}_${chr}_asat.fastq.gz"
+done
+
+```

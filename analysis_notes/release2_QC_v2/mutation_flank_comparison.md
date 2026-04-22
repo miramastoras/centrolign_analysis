@@ -202,3 +202,91 @@ done
 ```
 
 Remaining analysis done in notebooks/mutation_rate_comparison_to_flanks.ipynb
+
+### Comparison of balance of variants in the array to genome wide 
+
+```sh
+cd /private/groups/patenlab/mira/centrolign/analysis/balance_variants_whole_genome/
+```
+
+```sh
+#!/bin/bash
+#SBATCH --job-name=genome_wide_variants
+#SBATCH --partition=short
+#SBATCH --mail-user=mmastora@ucsc.edu
+#SBATCH --mail-type=ALL
+#SBATCH --nodes=1
+#SBATCH --mem=50gb
+#SBATCH --ntasks=1
+#SBATCH --cpus-per-task=4
+#SBATCH --output=%x.%j.log
+#SBATCH --time=1:00:00
+
+# ─── Config ───────────────────────────────────────────────────────────────────
+FILE="/private/groups/patenlab/mira/centrolign/analysis/mutation_rate_comparison_to_flanks/hprc-v2.0-mc-chm13.wave.vcf.gz"
+CONF_BED="/private/groups/patenlab/mira/data/CHM13_notinalldifficultregions.bed"
+THREADS=4
+# ──────────────────────────────────────────────────────────────────────────────
+
+mkdir -p whole_genome confident
+
+# echo "[1/5] Normalizing: splitting multiallelics..."
+# bcftools norm -m -any --threads $THREADS "$FILE" -O z -o norm.vcf.gz
+# bcftools index --threads $THREADS norm.vcf.gz
+
+# echo "[2/5] Splitting by variant type..."
+# # SNVs
+# bcftools view -i 'strlen(REF)==1 && strlen(ALT)==1' \
+#     --threads $THREADS norm.vcf.gz -O z -o whole_genome/snvs.vcf.gz
+# bcftools index whole_genome/snvs.vcf.gz
+
+# # Short indels
+# bcftools view -i '(strlen(REF)>1 || strlen(ALT)>1) && strlen(REF)<50 && strlen(ALT)<50' \
+#     --threads $THREADS norm.vcf.gz -O z -o whole_genome/short_indels.vcf.gz
+# bcftools index whole_genome/short_indels.vcf.gz
+
+# # SVs
+# bcftools view -i 'strlen(REF)>=50 || strlen(ALT)>=50' \
+#     --threads $THREADS norm.vcf.gz -O z -o whole_genome/svs.vcf.gz
+# bcftools index whole_genome/svs.vcf.gz
+
+# echo "[3/5] Subsetting to confident regions..."
+# for type in snvs short_indels svs; do
+#     bcftools view --regions-file "$CONF_BED" \
+#         --threads $THREADS whole_genome/${type}.vcf.gz \
+#         -O z -o confident/${type}.vcf.gz
+#     bcftools index confident/${type}.vcf.gz
+# done
+
+echo "[4/5] Counting variants per chromosome..."
+
+OUTPUT="counts_summary.csv"
+echo "region,variant_type,chrom,count" > $OUTPUT
+
+for region in whole_genome confident; do
+    for type in snvs short_indels svs; do
+        bcftools query -f '%CHROM\t[%GT\t]\n' ${region}/${type}.vcf.gz | \
+        awk '
+        {
+            chrom = $1
+            for (i = 2; i <= NF; i++) {
+                n = split($i, alleles, /[|\/]/)
+                for (j = 1; j <= n; j++) {
+                    if (alleles[j] != "." && alleles[j] != "0")
+                        count[chrom]++
+                }
+            }
+        }
+        END {
+            for (chrom in count)
+                print chrom "\t" count[chrom]
+        }' | \
+        sort -k1,1V | \
+        awk -v region=$region -v type=$type \
+            '{print region","type","$1","$2}' \
+        >> $OUTPUT
+    done
+done
+
+echo "Done. Counts written to $OUTPUT"
+```
