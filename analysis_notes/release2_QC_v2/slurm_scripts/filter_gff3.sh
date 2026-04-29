@@ -1,6 +1,6 @@
 #!/bin/bash
 #SBATCH --job-name=filter_gff3_censat
-#SBATCH --array=1
+#SBATCH --array=2-463%463
 #SBATCH --cpus-per-task=1
 #SBATCH --mem=56gb
 #SBATCH --time=1:00:00

@@ -42,26 +42,435 @@ sbatch \
 
 Accounting check: Make sure we aren't missing any fastas
 ```sh
-# check to make sure none of the fastas are empty
 cd /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/HPRC_marker/extract_fastas_hgsvc/
 
+# Check for empty fastas
+echo "=== Empty fastas ==="
 find . -type f -empty
+echo "(none above = good)"
 
-# check that number of fastas per chrom matches julian's original files
+# Compare unique samples in CSV vs fastas per chrom
 chromosomes=("chr1" "chr2" "chr3" "chr4" "chr5" "chr6" "chr7" "chr8" "chr9" "chr10" "chr11" "chr12" "chr13" "chr14" "chr15" "chr16" "chr17" "chr18" "chr19" "chr20" "chr21" "chr22" "chrX" "chrY")
+
+echo ""
+echo "chrom,fastas,unique_samples_in_csv,match,missing"
+
+for chr in "${chromosomes[@]}"; do
+    fasta_dir="/private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/HPRC_marker/extract_fastas_hgsvc/${chr}"
+    csv="/private/groups/hprc/qc_testing/hgsvc/censat_region_comparison/arrays_by_chromosome/${chr}/asat-hgsvc-pass.csv"
+
+    fastas=$(ls "${fasta_dir}/" 2>/dev/null | wc -l)
+
+    # Unique sample_haplotype (col 4) in CSV
+    unique_csv=$(tail -n +2 "${csv}" | cut -d',' -f4 | sort -u | wc -l)
+
+    match=$([[ "$fastas" -eq "$unique_csv" ]] && echo "TRUE" || echo "MISMATCH")
+
+    # Find which samples are missing
+    missing=$(comm -23 \
+        <(tail -n +2 "${csv}" | cut -d',' -f4 | sort -u) \
+        <(ls "${fasta_dir}/" | sed "s/_${chr}_hor_array.fasta//" | sort) \
+        | paste -sd ',' -)
+
+    echo "${chr},${fastas},${unique_csv},${match},${missing}"
+done
+
+```
+
+Get list of fasta files per chromosome
+```sh
+cd /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/HPRC_marker/extract_fastas_hgsvc/
+
+mkdir -p /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/HPRC_marker/extract_fastas_hgsvc/fasta_lists/
+
+chromosomes=("chr1" "chr2" "chr3" "chr4" "chr5" "chr6" "chr7" "chr8" "chr9" "chr10" "chr11" "chr12" "chr13" "chr14" "chr15" "chr16" "chr17" "chr18" "chr19" "chr20" "chr21" "chr22" "chrX" "chrY")
+for chr in "${chromosomes[@]}"
+do
+    ls /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/HPRC_marker/extract_fastas_hgsvc/${chr}/ | while read line ;
+      do realpath $chr/$line >> /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/HPRC_marker/extract_fastas_hgsvc/fasta_lists/hgsvc_${chr}.txt
+    done
+done
+```
+
+Generate all vs all combinations
+```sh
+chromosomes=("chr1" "chr2" "chr3" "chr4" "chr5" "chr6" "chr7" "chr8" "chr9" "chr10" "chr11" "chr12" "chr13" "chr14" "chr15" "chr16" "chr17" "chr18" "chr19" "chr20" "chr21" "chr22" "chrX" "chrY")
+
+# get all vs all pairwise combinations
+for chr in "${chromosomes[@]}"
+do
+  mkdir -p /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/HPRC_marker/hgsvc_all_pairs/${chr}
+
+  while read -r s1; do
+      while read -r s2; do
+          [[ "$s1" < "$s2" ]] && echo -e "$s1\t$s2\t$chr"
+      done < /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/HPRC_marker/extract_fastas_hgsvc/fasta_lists/hgsvc_${chr}.txt
+  done < /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/HPRC_marker/extract_fastas_hgsvc/fasta_lists/hgsvc_${chr}.txt > /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/HPRC_marker/hgsvc_all_pairs/${chr}/hgsvc_all_pairs_combinations_${chr}.txt
+done
 
 for chr in "${chromosomes[@]}"
 do
-  fastas=`ls /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/HPRC_marker/extract_fastas_hgsvc/${chr}/ | wc -l`
-  QC=`grep -v "project" /private/groups/hprc/qc_testing/hgsvc/censat_region_comparison/arrays_by_chromosome/${chr}/asat-hgsvc-pass.csv | sort | uniq | wc -l`
-
-  echo $chr,$fastas,$QC
-  if [[ "$fastas" == "$QC" ]]; then
-    echo "true"
-  fi
+  wc -l /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/HPRC_marker/hgsvc_all_pairs/${chr}/hgsvc_all_pairs_combinations_${chr}.txt
 done
+```
 
-## checks passed.
+Run centrolign all pairs 
+```sh
+CHR="chr1"
+ARRAY="[1-7875]%128"
+
+mkdir -p /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/HPRC_marker/hgsvc_all_pairs/${CHR}/logs/
+cd /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/HPRC_marker/hgsvc_all_pairs/${CHR}/
+
+sbatch \
+    --job-name=${CHR}_hgsvc_all_pairs \
+    --array=$ARRAY \
+    --export=CHR=${CHR} \
+    /private/groups/patenlab/mira/centrolign/github/centrolign_analysis/analysis_notes/release2_QC_v2/slurm_scripts/centrolign_direct_all_pairs.sh \
+    /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/HPRC_marker/hgsvc_all_pairs/${CHR}/hgsvc_all_pairs_combinations_${CHR}.txt \ # combinations file
+    /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/HPRC_marker/hgsvc_all_pairs/${CHR} # chrom dir
+```
+
+Claude generated commands:
+```sh
+CHR="chr1"
+ARRAY="1-7875%128"
+
+mkdir -p /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/HPRC_marker/hgsvc_all_pairs/${CHR}/logs/
+cd /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/HPRC_marker/hgsvc_all_pairs/${CHR}/
+
+sbatch \
+    --job-name=${CHR}_hgsvc_all_pairs \
+    --array=$ARRAY \
+    --export=CHR=${CHR} \
+    /private/groups/patenlab/mira/centrolign/github/centrolign_analysis/analysis_notes/release2_QC_v2/slurm_scripts/centrolign_direct_all_pairs.sh \
+    /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/HPRC_marker/hgsvc_all_pairs/${CHR}/hgsvc_all_pairs_combinations_${CHR}.txt \
+    /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/HPRC_marker/hgsvc_all_pairs/${CHR}
+
+CHR="chr2"
+ARRAY="1-6786%128"
+
+mkdir -p /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/HPRC_marker/hgsvc_all_pairs/${CHR}/logs/
+cd /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/HPRC_marker/hgsvc_all_pairs/${CHR}/
+
+sbatch \
+    --job-name=${CHR}_hgsvc_all_pairs \
+    --array=$ARRAY \
+    --export=CHR=${CHR} \
+    /private/groups/patenlab/mira/centrolign/github/centrolign_analysis/analysis_notes/release2_QC_v2/slurm_scripts/centrolign_direct_all_pairs.sh \
+    /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/HPRC_marker/hgsvc_all_pairs/${CHR}/hgsvc_all_pairs_combinations_${CHR}.txt \
+    /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/HPRC_marker/hgsvc_all_pairs/${CHR}
+
+CHR="chr3"
+ARRAY="1-7021%128"
+
+mkdir -p /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/HPRC_marker/hgsvc_all_pairs/${CHR}/logs/
+cd /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/HPRC_marker/hgsvc_all_pairs/${CHR}/
+
+sbatch \
+    --job-name=${CHR}_hgsvc_all_pairs \
+    --array=$ARRAY \
+    --export=CHR=${CHR} \
+    /private/groups/patenlab/mira/centrolign/github/centrolign_analysis/analysis_notes/release2_QC_v2/slurm_scripts/centrolign_direct_all_pairs.sh \
+    /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/HPRC_marker/hgsvc_all_pairs/${CHR}/hgsvc_all_pairs_combinations_${CHR}.txt \
+    /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/HPRC_marker/hgsvc_all_pairs/${CHR}
+
+CHR="chr4"
+ARRAY="1-5886%128"
+
+mkdir -p /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/HPRC_marker/hgsvc_all_pairs/${CHR}/logs/
+cd /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/HPRC_marker/hgsvc_all_pairs/${CHR}/
+
+sbatch \
+    --job-name=${CHR}_hgsvc_all_pairs \
+    --array=$ARRAY \
+    --export=CHR=${CHR} \
+    /private/groups/patenlab/mira/centrolign/github/centrolign_analysis/analysis_notes/release2_QC_v2/slurm_scripts/centrolign_direct_all_pairs.sh \
+    /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/HPRC_marker/hgsvc_all_pairs/${CHR}/hgsvc_all_pairs_combinations_${CHR}.txt \
+    /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/HPRC_marker/hgsvc_all_pairs/${CHR}
+
+CHR="chr5"
+ARRAY="1-7503%128"
+
+mkdir -p /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/HPRC_marker/hgsvc_all_pairs/${CHR}/logs/
+cd /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/HPRC_marker/hgsvc_all_pairs/${CHR}/
+
+sbatch \
+    --job-name=${CHR}_hgsvc_all_pairs \
+    --array=$ARRAY \
+    --export=CHR=${CHR} \
+    /private/groups/patenlab/mira/centrolign/github/centrolign_analysis/analysis_notes/release2_QC_v2/slurm_scripts/centrolign_direct_all_pairs.sh \
+    /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/HPRC_marker/hgsvc_all_pairs/${CHR}/hgsvc_all_pairs_combinations_${CHR}.txt \
+    /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/HPRC_marker/hgsvc_all_pairs/${CHR}
+
+CHR="chr6"
+ARRAY="1-6105%128"
+
+mkdir -p /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/HPRC_marker/hgsvc_all_pairs/${CHR}/logs/
+cd /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/HPRC_marker/hgsvc_all_pairs/${CHR}/
+
+sbatch \
+    --job-name=${CHR}_hgsvc_all_pairs \
+    --array=$ARRAY \
+    --export=CHR=${CHR} \
+    /private/groups/patenlab/mira/centrolign/github/centrolign_analysis/analysis_notes/release2_QC_v2/slurm_scripts/centrolign_direct_all_pairs.sh \
+    /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/HPRC_marker/hgsvc_all_pairs/${CHR}/hgsvc_all_pairs_combinations_${CHR}.txt \
+    /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/HPRC_marker/hgsvc_all_pairs/${CHR}
+
+CHR="chr7"
+ARRAY="1-7503%128"
+
+mkdir -p /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/HPRC_marker/hgsvc_all_pairs/${CHR}/logs/
+cd /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/HPRC_marker/hgsvc_all_pairs/${CHR}/
+
+sbatch \
+    --job-name=${CHR}_hgsvc_all_pairs \
+    --array=$ARRAY \
+    --export=CHR=${CHR} \
+    /private/groups/patenlab/mira/centrolign/github/centrolign_analysis/analysis_notes/release2_QC_v2/slurm_scripts/centrolign_direct_all_pairs.sh \
+    /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/HPRC_marker/hgsvc_all_pairs/${CHR}/hgsvc_all_pairs_combinations_${CHR}.txt \
+    /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/HPRC_marker/hgsvc_all_pairs/${CHR}
+
+#### Stopped here 
+
+CHR="chr8"
+ARRAY="1-7626%128"
+
+mkdir -p /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/HPRC_marker/hgsvc_all_pairs/${CHR}/logs/
+cd /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/HPRC_marker/hgsvc_all_pairs/${CHR}/
+
+sbatch \
+    --job-name=${CHR}_hgsvc_all_pairs \
+    --array=$ARRAY \
+    --export=CHR=${CHR} \
+    /private/groups/patenlab/mira/centrolign/github/centrolign_analysis/analysis_notes/release2_QC_v2/slurm_scripts/centrolign_direct_all_pairs.sh \
+    /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/HPRC_marker/hgsvc_all_pairs/${CHR}/hgsvc_all_pairs_combinations_${CHR}.txt \
+    /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/HPRC_marker/hgsvc_all_pairs/${CHR}
+
+CHR="chr9"
+ARRAY="1-7626%128"
+
+mkdir -p /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/HPRC_marker/hgsvc_all_pairs/${CHR}/logs/
+cd /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/HPRC_marker/hgsvc_all_pairs/${CHR}/
+
+sbatch \
+    --job-name=${CHR}_hgsvc_all_pairs \
+    --array=$ARRAY \
+    --export=CHR=${CHR} \
+    /private/groups/patenlab/mira/centrolign/github/centrolign_analysis/analysis_notes/release2_QC_v2/slurm_scripts/centrolign_direct_all_pairs.sh \
+    /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/HPRC_marker/hgsvc_all_pairs/${CHR}/hgsvc_all_pairs_combinations_${CHR}.txt \
+    /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/HPRC_marker/hgsvc_all_pairs/${CHR}
+
+CHR="chr10"
+ARRAY="1-7875%128"
+
+mkdir -p /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/HPRC_marker/hgsvc_all_pairs/${CHR}/logs/
+cd /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/HPRC_marker/hgsvc_all_pairs/${CHR}/
+
+sbatch \
+    --job-name=${CHR}_hgsvc_all_pairs \
+    --array=$ARRAY \
+    --export=CHR=${CHR} \
+    /private/groups/patenlab/mira/centrolign/github/centrolign_analysis/analysis_notes/release2_QC_v2/slurm_scripts/centrolign_direct_all_pairs.sh \
+    /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/HPRC_marker/hgsvc_all_pairs/${CHR}/hgsvc_all_pairs_combinations_${CHR}.txt \
+    /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/HPRC_marker/hgsvc_all_pairs/${CHR}
+
+CHR="chr11"
+ARRAY="1-8001%128"
+
+mkdir -p /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/HPRC_marker/hgsvc_all_pairs/${CHR}/logs/
+cd /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/HPRC_marker/hgsvc_all_pairs/${CHR}/
+
+sbatch \
+    --job-name=${CHR}_hgsvc_all_pairs \
+    --array=$ARRAY \
+    --export=CHR=${CHR} \
+    /private/groups/patenlab/mira/centrolign/github/centrolign_analysis/analysis_notes/release2_QC_v2/slurm_scripts/centrolign_direct_all_pairs.sh \
+    /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/HPRC_marker/hgsvc_all_pairs/${CHR}/hgsvc_all_pairs_combinations_${CHR}.txt \
+    /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/HPRC_marker/hgsvc_all_pairs/${CHR}
+
+CHR="chr12"
+ARRAY="1-7503%128"
+
+mkdir -p /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/HPRC_marker/hgsvc_all_pairs/${CHR}/logs/
+cd /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/HPRC_marker/hgsvc_all_pairs/${CHR}/
+
+sbatch \
+    --job-name=${CHR}_hgsvc_all_pairs \
+    --array=$ARRAY \
+    --export=CHR=${CHR} \
+    /private/groups/patenlab/mira/centrolign/github/centrolign_analysis/analysis_notes/release2_QC_v2/slurm_scripts/centrolign_direct_all_pairs.sh \
+    /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/HPRC_marker/hgsvc_all_pairs/${CHR}/hgsvc_all_pairs_combinations_${CHR}.txt \
+    /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/HPRC_marker/hgsvc_all_pairs/${CHR}
+
+CHR="chr13"
+ARRAY="1-7626%128"
+
+mkdir -p /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/HPRC_marker/hgsvc_all_pairs/${CHR}/logs/
+cd /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/HPRC_marker/hgsvc_all_pairs/${CHR}/
+
+sbatch \
+    --job-name=${CHR}_hgsvc_all_pairs \
+    --array=$ARRAY \
+    --export=CHR=${CHR} \
+    /private/groups/patenlab/mira/centrolign/github/centrolign_analysis/analysis_notes/release2_QC_v2/slurm_scripts/centrolign_direct_all_pairs.sh \
+    /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/HPRC_marker/hgsvc_all_pairs/${CHR}/hgsvc_all_pairs_combinations_${CHR}.txt \
+    /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/HPRC_marker/hgsvc_all_pairs/${CHR}
+
+CHR="chr14"
+ARRAY="1-7503%128"
+
+mkdir -p /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/HPRC_marker/hgsvc_all_pairs/${CHR}/logs/
+cd /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/HPRC_marker/hgsvc_all_pairs/${CHR}/
+
+sbatch \
+    --job-name=${CHR}_hgsvc_all_pairs \
+    --array=$ARRAY \
+    --export=CHR=${CHR} \
+    /private/groups/patenlab/mira/centrolign/github/centrolign_analysis/analysis_notes/release2_QC_v2/slurm_scripts/centrolign_direct_all_pairs.sh \
+    /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/HPRC_marker/hgsvc_all_pairs/${CHR}/hgsvc_all_pairs_combinations_${CHR}.txt \
+    /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/HPRC_marker/hgsvc_all_pairs/${CHR}
+
+CHR="chr15"
+ARRAY="1-7626%128"
+
+mkdir -p /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/HPRC_marker/hgsvc_all_pairs/${CHR}/logs/
+cd /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/HPRC_marker/hgsvc_all_pairs/${CHR}/
+
+sbatch \
+    --job-name=${CHR}_hgsvc_all_pairs \
+    --array=$ARRAY \
+    --export=CHR=${CHR} \
+    /private/groups/patenlab/mira/centrolign/github/centrolign_analysis/analysis_notes/release2_QC_v2/slurm_scripts/centrolign_direct_all_pairs.sh \
+    /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/HPRC_marker/hgsvc_all_pairs/${CHR}/hgsvc_all_pairs_combinations_${CHR}.txt \
+    /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/HPRC_marker/hgsvc_all_pairs/${CHR}
+
+CHR="chr16"
+ARRAY="1-7626%128"
+
+mkdir -p /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/HPRC_marker/hgsvc_all_pairs/${CHR}/logs/
+cd /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/HPRC_marker/hgsvc_all_pairs/${CHR}/
+
+sbatch \
+    --job-name=${CHR}_hgsvc_all_pairs \
+    --array=$ARRAY \
+    --export=CHR=${CHR} \
+    /private/groups/patenlab/mira/centrolign/github/centrolign_analysis/analysis_notes/release2_QC_v2/slurm_scripts/centrolign_direct_all_pairs.sh \
+    /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/HPRC_marker/hgsvc_all_pairs/${CHR}/hgsvc_all_pairs_combinations_${CHR}.txt \
+    /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/HPRC_marker/hgsvc_all_pairs/${CHR}
+
+CHR="chr17"
+ARRAY="1-6670%128"
+
+mkdir -p /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/HPRC_marker/hgsvc_all_pairs/${CHR}/logs/
+cd /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/HPRC_marker/hgsvc_all_pairs/${CHR}/
+
+sbatch \
+    --job-name=${CHR}_hgsvc_all_pairs \
+    --array=$ARRAY \
+    --export=CHR=${CHR} \
+    /private/groups/patenlab/mira/centrolign/github/centrolign_analysis/analysis_notes/release2_QC_v2/slurm_scripts/centrolign_direct_all_pairs.sh \
+    /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/HPRC_marker/hgsvc_all_pairs/${CHR}/hgsvc_all_pairs_combinations_${CHR}.txt \
+    /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/HPRC_marker/hgsvc_all_pairs/${CHR}
+
+CHR="chr18"
+ARRAY="1-6903%128"
+
+mkdir -p /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/HPRC_marker/hgsvc_all_pairs/${CHR}/logs/
+cd /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/HPRC_marker/hgsvc_all_pairs/${CHR}/
+
+sbatch \
+    --job-name=${CHR}_hgsvc_all_pairs \
+    --array=$ARRAY \
+    --export=CHR=${CHR} \
+    /private/groups/patenlab/mira/centrolign/github/centrolign_analysis/analysis_notes/release2_QC_v2/slurm_scripts/centrolign_direct_all_pairs.sh \
+    /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/HPRC_marker/hgsvc_all_pairs/${CHR}/hgsvc_all_pairs_combinations_${CHR}.txt \
+    /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/HPRC_marker/hgsvc_all_pairs/${CHR}
+
+CHR="chr19"
+ARRAY="1-7875%128"
+
+mkdir -p /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/HPRC_marker/hgsvc_all_pairs/${CHR}/logs/
+cd /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/HPRC_marker/hgsvc_all_pairs/${CHR}/
+
+sbatch \
+    --job-name=${CHR}_hgsvc_all_pairs \
+    --array=$ARRAY \
+    --export=CHR=${CHR} \
+    /private/groups/patenlab/mira/centrolign/github/centrolign_analysis/analysis_notes/release2_QC_v2/slurm_scripts/centrolign_direct_all_pairs.sh \
+    /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/HPRC_marker/hgsvc_all_pairs/${CHR}/hgsvc_all_pairs_combinations_${CHR}.txt \
+    /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/HPRC_marker/hgsvc_all_pairs/${CHR}
+
+CHR="chr20"
+ARRAY="1-7140%128"
+
+mkdir -p /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/HPRC_marker/hgsvc_all_pairs/${CHR}/logs/
+cd /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/HPRC_marker/hgsvc_all_pairs/${CHR}/
+
+sbatch \
+    --job-name=${CHR}_hgsvc_all_pairs \
+    --array=$ARRAY \
+    --export=CHR=${CHR} \
+    /private/groups/patenlab/mira/centrolign/github/centrolign_analysis/analysis_notes/release2_QC_v2/slurm_scripts/centrolign_direct_all_pairs.sh \
+    /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/HPRC_marker/hgsvc_all_pairs/${CHR}/hgsvc_all_pairs_combinations_${CHR}.txt \
+    /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/HPRC_marker/hgsvc_all_pairs/${CHR}
+
+CHR="chr21"
+ARRAY="1-7140%128"
+
+mkdir -p /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/HPRC_marker/hgsvc_all_pairs/${CHR}/logs/
+cd /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/HPRC_marker/hgsvc_all_pairs/${CHR}/
+
+sbatch \
+    --job-name=${CHR}_hgsvc_all_pairs \
+    --array=$ARRAY \
+    --export=CHR=${CHR} \
+    /private/groups/patenlab/mira/centrolign/github/centrolign_analysis/analysis_notes/release2_QC_v2/slurm_scripts/centrolign_direct_all_pairs.sh \
+    /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/HPRC_marker/hgsvc_all_pairs/${CHR}/hgsvc_all_pairs_combinations_${CHR}.txt \
+    /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/HPRC_marker/hgsvc_all_pairs/${CHR}
+
+CHR="chr22"
+ARRAY="1-7750%128"
+
+mkdir -p /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/HPRC_marker/hgsvc_all_pairs/${CHR}/logs/
+cd /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/HPRC_marker/hgsvc_all_pairs/${CHR}/
+
+sbatch \
+    --job-name=${CHR}_hgsvc_all_pairs \
+    --array=$ARRAY \
+    --export=CHR=${CHR} \
+    /private/groups/patenlab/mira/centrolign/github/centrolign_analysis/analysis_notes/release2_QC_v2/slurm_scripts/centrolign_direct_all_pairs.sh \
+    /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/HPRC_marker/hgsvc_all_pairs/${CHR}/hgsvc_all_pairs_combinations_${CHR}.txt \
+    /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/HPRC_marker/hgsvc_all_pairs/${CHR}
+
+CHR="chrX"
+ARRAY="1-4186%128"
+
+mkdir -p /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/HPRC_marker/hgsvc_all_pairs/${CHR}/logs/
+cd /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/HPRC_marker/hgsvc_all_pairs/${CHR}/
+
+sbatch \
+    --job-name=${CHR}_hgsvc_all_pairs \
+    --array=$ARRAY \
+    --export=CHR=${CHR} \
+    /private/groups/patenlab/mira/centrolign/github/centrolign_analysis/analysis_notes/release2_QC_v2/slurm_scripts/centrolign_direct_all_pairs.sh \
+    /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/HPRC_marker/hgsvc_all_pairs/${CHR}/hgsvc_all_pairs_combinations_${CHR}.txt \
+    /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/HPRC_marker/hgsvc_all_pairs/${CHR}
+
+CHR="chrY"
+ARRAY="1-351%128"
+
+mkdir -p /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/HPRC_marker/hgsvc_all_pairs/${CHR}/logs/
+cd /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/HPRC_marker/hgsvc_all_pairs/${CHR}/
+
+sbatch \
+    --job-name=${CHR}_hgsvc_all_pairs \
+    --array=$ARRAY \
+    --export=CHR=${CHR} \
+    /private/groups/patenlab/mira/centrolign/github/centrolign_analysis/analysis_notes/release2_QC_v2/slurm_scripts/centrolign_direct_all_pairs.sh \
+    /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/HPRC_marker/hgsvc_all_pairs/${CHR}/hgsvc_all_pairs_combinations_${CHR}.txt \
+    /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/HPRC_marker/hgsvc_all_pairs/${CHR}
+
 ```
 #### Run all pairs centrolign alignments for HPRC  
 
