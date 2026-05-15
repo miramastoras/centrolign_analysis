@@ -1,6 +1,6 @@
 #!/bin/bash
 #SBATCH --job-name=filter_gff3_censat
-#SBATCH --array=2-463%463
+#SBATCH --array=2%463
 #SBATCH --cpus-per-task=1
 #SBATCH --mem=56gb
 #SBATCH --time=1:00:00
@@ -29,14 +29,16 @@ echo "Processing ${SAMPLE_ID} hap${HAPLOTYPE}"
 
 # Subset GFF3 to gene features overlapping censat regions,
 # then drop any gene whose name starts with ENS
-bedtools intersect \
-    -a "${GFF3}" \
-    -b "${BED}" \
-    -wo \
+awk 'BEGIN{OFS="\t"} {split($1,a,"#"); $1=a[3]; print}' "${BED}" \
+    | bedtools intersect \
+        -a "${GFF3}" \
+        -b stdin \
+        -wo \
     | awk '$3 == "gene"' \
     | awk '
         {
             chrom = $13
+            overlap = $NF
             name = ""
             n = split($9, attrs, ";")
             for (i = 1; i <= n; i++) {
@@ -51,7 +53,7 @@ bedtools intersect \
                 }
             }
             if (name !~ /^ENS/)
-                print $1"\t"$2"\t"$3"\t"$4"\t"$5"\t"$6"\t"$7"\t"$8"\t"$9"\t"chrom
+                print $1"\t"$2"\t"$3"\t"$4"\t"$5"\t"$6"\t"$7"\t"$8"\t"$9"\t"chrom"\t"overlap
         }
     ' \
     > "${OUT}"
