@@ -96,13 +96,18 @@ def tree_to_linkage_matrix(biopython_tree):
         c.comment = (i, 1)
         id_map[i] = c.name
 
-    #Phylo.draw(tree)
-    # Internal nodes (ancestors) are collected with their distances from the root and sorted in descending order of distance.
-    anc_lst = []
-    for c in tree.find_clades(terminal=False):
-        d = tree.distance(c)
-        anc_lst.append((c, list(c), d))
-    anc_lst.sort(key=lambda x: x[2], reverse=True)
+    # Post-order traversal guarantees every child is processed before its parent,
+    # avoiding comment=None errors when many nodes share identical distances (e.g.
+    # zero-length branches in UPGMA trees that defeat a distance-based sort).
+    def _postorder_internals(clade):
+        result = []
+        for child in clade.clades:
+            result.extend(_postorder_internals(child))
+        if not clade.is_terminal():
+            result.append((clade, list(clade), tree.distance(clade)))
+        return result
+
+    anc_lst = _postorder_internals(tree.root)
 
     # running number of node
     nodes = len(list(tree.find_clades(terminal=True)))

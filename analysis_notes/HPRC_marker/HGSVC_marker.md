@@ -2,7 +2,7 @@
 
 #### Run all pairs centrolign alignments for HGSVC 
 
-Concatenate all of the QC csv files together. Have to run chr3 and chr4 separately because they came in later.
+Concatenate all of the QC csv files together. 
 
 ```sh
 chromosomes=("chr1" "chr2" "chr3" "chr4" "chr5" "chr6" "chr7" "chr8" "chr9" "chr10" "chr11" "chr12" "chr13" "chr14" "chr15" "chr16" "chr17" "chr18" "chr19" "chr20" "chr21" "chr22" "chrX" "chrY")
@@ -1442,3 +1442,42 @@ sbatch \
     /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/HPRC_marker/hprc_all_pairs/${CHR}
 
 ```
+
+#### Pairwise tree heatmap with CenHap tree 
+
+chr 11 
+```sh
+/private/groups/migalab/juklucas/centrolign/cenhap_assignment/cenhap_inference_out/chr1/
+
+docker run -u `id -u`:`id -g` \
+    -v /private/groups:/private/groups/ \
+    miramastoras/tree_heatmap:latest \
+    python3 /private/groups/patenlab/mira/centrolign/github/centrolign_analysis/scripts/pairwise_tree_heatmap_v2.py \
+    -t /private/groups/migalab/juklucas/centrolign/cenhap_assignment/cenhap_inference_out/chr7/chr7.mc_common_sites.upgma.nwk \
+    -s /private/groups/patenlab/mira/chr7_samples.txt \
+    -p /private/groups/patenlab/mira/chr7_dist_matrix.csv \
+    -m "Centrolign pairwise match distance" \
+    -n "chr7 CenHap tree" \
+    -d "Pairwise Match Distance" \
+    -o /private/groups/patenlab/mira/chr7_cenhap_tree_ \
+    --no_labels
+```
+
+Pairwise tree heatmap:
+
+Tree and sample lists from: /private/groups/migalab/juklucas/centrolign/triangle_heatmaps/2026_03_12_r2_triangle_heatmaps/cenhap_tree/chr11
+
+```
+chr=chr11
+python3 /Users/miramastoras/Desktop/github_repos/centrolign_analysis/scripts/pairwise_tree_heatmap_v2.py \
+    -t /Users/miramastoras/Desktop/pruned_tree.nwk \
+    -s /Users/miramastoras/Desktop/chr11_samples.txt \
+    -p /Users/miramastoras/Desktop/HPRC_release2_QCv2_all_pairs_heatmaps/${chr}_r2_QC_v2_centrolign_pairwise_distance.csv \
+    -m "Centrolign pairwise match distance" \
+    -n "" \
+    -d "CenHap Tree" \
+    -o /Users/miramastoras/Desktop/${chr}_r2_QC_v2_cenhap2 --no_labels \
+    --cenhap_labels /Users/miramastoras/Desktop/chr11.cenhap_predictions.tsv \
+    --cenhap_colors /Users/miramastoras/Desktop/cenhap_colors.tsv
+```
+

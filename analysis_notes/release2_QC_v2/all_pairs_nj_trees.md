@@ -1377,3 +1377,15 @@ python3 /Users/miramastoras/Desktop/github_repos/centrolign_analysis/scripts/pai
 ```
 /private/groups/patenlab/mira/centrolign/batch_submissions/centrolign/release2_QC_v2/MSA/chr12/subgroup_1/induced_pairwise_cigars/pairwise_cigar_HG02257.2_HG03470.1.txt
 ```
+
+
+
+chr=chr12
+python3 /Users/miramastoras/Desktop/github_repos/centrolign_analysis/scripts/pairwise_tree_heatmap_v2.py \
+    -t /Users/miramastoras/Desktop/HPRC_chr12_34544731_34593492_37202490_37285321_het60_m_hprc_dgp_rnj_upgma.nwk \
+    -s /Users/miramastoras/Desktop/chr12.samples.txt \
+    -p /Users/miramastoras/Desktop/HPRC_release2_QCv2_all_pairs_heatmaps/${chr}_r2_QC_v2_centrolign_pairwise_distance.csv \
+    -m "Centrolign all pairs distances" \
+    -n "${chr} NJ tree" \
+    -d "All pairs Distances" \
+    -o /Users/miramastoras/Desktop/${chr}_r2_QC_v2_cenhap2 --no_labels
