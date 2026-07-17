@@ -61,3 +61,19 @@ bash /private/groups/patenlab/mira/centrolign/github/centrolign_analysis/analysi
 
 sbatch /private/groups/patenlab/mira/centrolign/github/centrolign_analysis/analysis_notes/release2_QC_v2/slurm_scripts/annotate_censat_genes_intersect.sh
 ```
+
+### Now filtering to just genes in between large arrays > 100kb and excluding acrocentric short arms 
+
+
+```sh
+# Step 1: generate jobs list and note the array range printed
+mkdir -p /private/groups/patenlab/mira/centrolign/analysis/Fig1_genes/satellite_neighbors/logs
+bash annotate_satellite_neighbors.sh --make-jobs
+
+cd /private/groups/patenlab/mira/centrolign/analysis/Fig1_genes/satellite_neighbors
+
+# Step 2: submit — replace N with the number printed above
+sbatch --array=[1-4072]%128 /private/groups/patenlab/mira/centrolign/github/centrolign_analysis/analysis_notes/release2_QC_v2/slurm_scripts/annotate_satellite_neighbors.sh
+
+sbatch --array=[1]%128 /private/groups/patenlab/mira/centrolign/github/centrolign_analysis/analysis_notes/release2_QC_v2/slurm_scripts/annotate_satellite_neighbors.sh
+```
