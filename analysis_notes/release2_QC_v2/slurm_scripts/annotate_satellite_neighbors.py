@@ -136,20 +136,6 @@ def has_large_flanking_blocks(contig_blocks, gene_start, gene_end,
             break
     return left_ok, right_ok
 
-def dominant_overlap_cat(contig_blocks, gene_start, gene_end):
-    """
-    Return the block name with the most overlap with [gene_start, gene_end).
-    Returns None if the gene overlaps no blocks.
-    """
-    overlap_by_name = {}
-    for s, e, size, name in contig_blocks:
-        ov = max(0, min(e, gene_end) - max(s, gene_start))
-        if ov > 0:
-            overlap_by_name[name] = overlap_by_name.get(name, 0) + ov
-    if not overlap_by_name:
-        return None
-    return max(overlap_by_name, key=overlap_by_name.get)
-
 def main():
     # Parse args: positional <tsv> <bed> <out>, optional --regions-dir <dir>
     args = sys.argv[1:]
@@ -204,17 +190,14 @@ def main():
             gene_end   = int(cols[4])
 
             # ── between_satellites_100kb ──────────────────────────────────────
-            # Only apply the 100kb neighbor check when the gene is majority-CT.
-            # If not CT (or no overlap), keep the gene unconditionally.
+            # Apply the 100kb flanking check to all genes. Only non-CT satellite
+            # blocks count as valid neighbors (CT blocks are excluded inside
+            # has_large_flanking_blocks).
             cb = blocks.get(contig, [])
-            dom = dominant_overlap_cat(cb, gene_start, gene_end)
-            if dom is not None and is_ct(dom):
-                left_ok, right_ok = has_large_flanking_blocks(
-                    cb, gene_start, gene_end,
-                    array_start=array_start, array_end=array_end)
-                between = left_ok and right_ok
-            else:
-                between = True
+            left_ok, right_ok = has_large_flanking_blocks(
+                cb, gene_start, gene_end,
+                array_start=array_start, array_end=array_end)
+            between = left_ok and right_ok
 
             # ── on_acrocentric_short_arm ──────────────────────────────────────
             if is_acrocentric and contig in hor_starts:

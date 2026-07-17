@@ -7,7 +7,7 @@ import os, sys, tempfile, unittest
 sys.path.insert(0, os.path.dirname(__file__))
 from annotate_satellite_neighbors import (
     strip_contig, is_active_hor, is_ct, parse_bed, has_large_flanking_blocks,
-    dominant_overlap_cat, merge_nonct_blocks, ACROCENTRIC
+    merge_nonct_blocks, ACROCENTRIC
 )
 
 
@@ -147,36 +147,6 @@ class TestIsCt(unittest.TestCase):
         self.assertFalse(is_ct('active_hor'))
         self.assertFalse(is_ct('HSAT2'))
         self.assertFalse(is_ct('hor_1_1'))
-
-
-# ── dominant_overlap_cat ──────────────────────────────────────────────────────
-
-class TestDominantOverlapCat(unittest.TestCase):
-
-    def test_single_overlapping_block(self):
-        blocks = [(0, 300000, 300000, 'ct_1_1')]
-        self.assertEqual(dominant_overlap_cat(blocks, 100000, 200000), 'ct_1_1')
-
-    def test_majority_ct(self):
-        blocks = [
-            (0,      200000, 200000, 'ct_1_1'),   # 150k overlap with gene 50k-200k
-            (200000, 300000, 100000, 'HSAT2'),      # 0 overlap (touching only)
-        ]
-        self.assertEqual(dominant_overlap_cat(blocks, 50000, 200000), 'ct_1_1')
-
-    def test_majority_non_ct(self):
-        blocks = [
-            (0,      100000, 100000, 'ct_1_1'),    # 50k overlap
-            (50000,  300000, 250000, 'HSAT2'),      # 150k overlap
-        ]
-        self.assertEqual(dominant_overlap_cat(blocks, 50000, 200000), 'HSAT2')
-
-    def test_no_overlap_returns_none(self):
-        blocks = [(500000, 700000, 200000, 'HSAT2')]
-        self.assertIsNone(dominant_overlap_cat(blocks, 100000, 200000))
-
-    def test_empty_blocks_returns_none(self):
-        self.assertIsNone(dominant_overlap_cat([], 100000, 200000))
 
 
 # ── merge_nonct_blocks ────────────────────────────────────────────────────────
@@ -403,23 +373,23 @@ class TestEndToEnd(unittest.TestCase):
         rows = self._run(tsv_lines, bed_lines)
         self.assertEqual(rows[0][-2], 'FALSE')
 
-    def test_between_true_when_not_ct_regardless_of_neighbors(self):
-        # gene is majority HSAT2 → kept unconditionally (TRUE) even with no neighbors
+    def test_between_false_when_non_ct_gene_has_no_large_flanking(self):
+        # gene overlaps an HSAT2 block but has no >100kb satellite on either side
         bed_lines = [
             'CM094067.1\t200000\t400000\tHSAT2\t100\t.\t200000\t400000\t0,0,255',
         ]
         tsv_lines = [gene_row('CM094067.1', 250000, 350000)]
         rows = self._run(tsv_lines, bed_lines)
-        self.assertEqual(rows[0][-2], 'TRUE')
+        self.assertEqual(rows[0][-2], 'FALSE')
 
-    def test_between_true_when_no_overlap_at_all(self):
-        # gene has no overlapping censat block → not CT → kept
+    def test_between_false_when_no_overlap_at_all(self):
+        # gene has no overlapping censat block and no large flanking → FALSE
         bed_lines = [
             'CM094067.1\t0\t100000\tHSAT2\t100\t.\t0\t100000\t0,0,255',
         ]
         tsv_lines = [gene_row('CM094067.1', 500000, 600000)]
         rows = self._run(tsv_lines, bed_lines)
-        self.assertEqual(rows[0][-2], 'TRUE')
+        self.assertEqual(rows[0][-2], 'FALSE')
 
     def test_between_false_when_right_missing_and_majority_ct(self):
         bed_lines = [
